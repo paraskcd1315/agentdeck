@@ -8,6 +8,9 @@
         IsTabStop="False"
         UseSystemFocusVisuals="False"
         VerticalScrollBarVisibility="Auto">
-        <StackPanel x:Name="PanelHost" Spacing="{StaticResource AdSpace4}" />
+        <StackPanel
+            x:Name="PanelHost"
+            Padding="{StaticResource AdPadCompact}"
+            Spacing="{StaticResource AdSpace3}" />
     </ScrollViewer>
 </UserControl>

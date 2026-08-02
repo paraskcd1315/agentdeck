@@ -73,7 +73,9 @@ public sealed partial class TextGridView : UserControl
         var session = args.DrawingSession;
         var background = AnsiPalette.Background();
 
-        for (var row = 0; row < Model.Rows; row++)
+        var visibleRows = Math.Min(Model.Rows, metrics.RowsFor(ActualHeight));
+
+        for (var row = 0; row < visibleRows; row++)
         {
             var top = (float)Math.Round(row * metrics.CellHeight);
             var bottom = (float)Math.Round((row + 1) * metrics.CellHeight);

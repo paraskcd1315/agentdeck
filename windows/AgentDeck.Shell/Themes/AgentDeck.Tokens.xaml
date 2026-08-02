@@ -247,6 +247,8 @@
     <Thickness x:Key="AdPadCompact">12</Thickness>
     <Thickness x:Key="AdPadCanvas">16</Thickness>
     <Thickness x:Key="AdPadButton">16,8,16,8</Thickness>
+    <Thickness x:Key="AdPadTitle">12,0,0,0</Thickness>
+    <Thickness x:Key="AdPadStrip">12,0,12,0</Thickness>
     <Thickness x:Key="AdHairline">0,1,0,0</Thickness>
 
     <x:Double x:Key="AdTitleHeight">48</x:Double>

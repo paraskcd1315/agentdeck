@@ -10,6 +10,7 @@
     mc:Ignorable="d">
 
     <StackPanel
+        Padding="0,8,0,0"
         VerticalAlignment="Bottom"
         Orientation="Horizontal"
         Spacing="4">

@@ -25,9 +25,13 @@
             <Grid Grid.Row="0">
                 <TitleBar x:Name="AppTitleBar" Height="{StaticResource AdTitleHeight}">
                     <TitleBar.LeftHeader>
-                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AdSpace4}">
+                        <StackPanel
+                            Padding="{StaticResource AdPadTitle}"
+                            VerticalAlignment="Stretch"
+                            Orientation="Horizontal"
+                            Spacing="{StaticResource AdSpace4}">
                             <workspace:WorkspaceChip x:Name="Workspace" />
-                            <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Bottom" />
+                            <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Stretch" />
                         </StackPanel>
                     </TitleBar.LeftHeader>
                 </TitleBar>
