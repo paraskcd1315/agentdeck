@@ -8,4 +8,6 @@ public static class StringKeys
     public const string TerminalStatusReady = "TerminalStatusReady";
     public const string TerminalStatusHookReceived = "TerminalStatusHookReceived";
     public const string WindowTitle = "WindowTitle";
+    public const string TerminalTabNew = "TerminalTabNew";
+    public const string TerminalTabClose = "TerminalTabClose";
 }

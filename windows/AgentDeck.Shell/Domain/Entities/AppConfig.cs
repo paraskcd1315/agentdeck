@@ -9,4 +9,7 @@ public sealed class AppConfig
 
     [JsonPropertyName("shell")]
     public ShellConfig? Shell { get; init; }
+
+    [JsonPropertyName("profiles")]
+    public IReadOnlyList<ShellProfile>? Profiles { get; init; }
 }

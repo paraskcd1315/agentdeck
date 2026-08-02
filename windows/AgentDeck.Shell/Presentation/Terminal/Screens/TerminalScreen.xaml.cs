@@ -1,6 +1,8 @@
 using System.ComponentModel;
 
+using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
+using AgentDeck.Shell.Presentation.Terminal.Components;
 using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
@@ -19,17 +21,22 @@ public sealed partial class TerminalScreen : UserControl
     private const string StrokeKey = "AdStrokeBrush";
     private const string StrokeBrandKey = "AdStrokeBrandBrush";
 
-    private readonly TerminalViewModel _viewModel;
+    private readonly TerminalTabsViewModel _tabs;
+
+    private TerminalViewModel? _bound;
 
     public TerminalScreen()
     {
         InitializeComponent();
 
-        _viewModel = new TerminalViewModel(AppServices.Daemon, AppServices.Strings);
-        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        _viewModel.GridChanged += OnGridChanged;
+        _tabs = new TerminalTabsViewModel(AppServices.Daemon, AppServices.Strings);
+        _tabs.ActiveChanged += OnActiveChanged;
+        _tabs.TabsChanged += OnTabsChanged;
 
-        GridView.Model = _viewModel.Grid;
+        TabStrip.TabSelected += OnTabSelected;
+        TabStrip.TabClosed += OnTabClosed;
+        TabStrip.ProfileRequested += OnProfileRequested;
+
         GridView.GridSizeChanged += OnGridSizeChanged;
 
         CanvasBorder.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
@@ -37,7 +44,10 @@ public sealed partial class TerminalScreen : UserControl
         Loaded += OnLoaded;
     }
 
-    public Task InjectAsync(string prompt) => _viewModel.SendAsync($"{prompt}\r", CancellationToken.None);
+    private TerminalViewModel? Active => _tabs.Active?.ViewModel;
+
+    public Task InjectAsync(string prompt) =>
+        Active?.SendAsync($"{prompt}\r", CancellationToken.None) ?? Task.CompletedTask;
 
     public void TakeFocus() => TakeFocus(FocusState.Programmatic);
 
@@ -50,17 +60,65 @@ public sealed partial class TerminalScreen : UserControl
     private async void OnLoaded(object sender, RoutedEventArgs args)
     {
         TakeFocus();
-        await _viewModel.StartAsync(CancellationToken.None);
+        await _tabs.StartAsync(CancellationToken.None);
     }
+
+    private void OnTabsChanged(object? sender, EventArgs args) => RenderTabs();
+
+    private void OnActiveChanged(object? sender, EventArgs args)
+    {
+        RenderTabs();
+
+        if (_bound is { } previous)
+        {
+            previous.PropertyChanged -= OnViewModelPropertyChanged;
+            previous.GridChanged -= OnGridChanged;
+        }
+
+        _bound = _tabs.Active?.ViewModel;
+
+        if (_bound is not { } viewModel)
+        {
+            return;
+        }
+
+        viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        viewModel.GridChanged += OnGridChanged;
+
+        GridView.Model = viewModel.Grid;
+        StatusText.Text = viewModel.Status;
+        OnGridChanged(this, EventArgs.Empty);
+        TakeFocus(FocusState.Programmatic);
+    }
+
+    private void RenderTabs() => TabStrip.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
+
+    private void OnTabSelected(object? sender, TerminalTab tab) => _tabs.Activate(tab);
+
+    private async void OnTabClosed(object? sender, TerminalTab tab) =>
+        await _tabs.CloseAsync(tab, CancellationToken.None);
+
+    private async void OnProfileRequested(object? sender, ShellProfile profile) =>
+        await _tabs.OpenAsync(profile, CancellationToken.None);
 
     private void OnGridChanged(object? sender, EventArgs args)
     {
+        if (Active is not { } viewModel)
+        {
+            return;
+        }
+
         GridView.Invalidate();
-        ScrollIndicator.Update(_viewModel.History, _viewModel.DisplayOffset, _viewModel.Grid.Rows);
+        ScrollIndicator.Update(viewModel.History, viewModel.DisplayOffset, viewModel.Grid.Rows);
     }
 
-    private async void OnGridSizeChanged(object? sender, TextGridSize size) =>
-        await _viewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
+    private async void OnGridSizeChanged(object? sender, TextGridSize size)
+    {
+        foreach (var tab in _tabs.Tabs.ToList())
+        {
+            await tab.ViewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
+        }
+    }
 
     private async void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args)
     {
@@ -81,12 +139,12 @@ public sealed partial class TerminalScreen : UserControl
 
     private Task SendButtonAsync(PointerPoint point, TerminalMouseButton? button, bool pressed)
     {
-        if (button is not { } value)
+        if (button is not { } value || Active is not { } viewModel)
         {
             return Task.CompletedTask;
         }
 
-        return _viewModel.ButtonAsync(
+        return viewModel.ButtonAsync(
             value,
             pressed,
             GridView.ColumnAt(point.Position.X),
@@ -97,13 +155,13 @@ public sealed partial class TerminalScreen : UserControl
     private async void OnCanvasPointerWheelChanged(object sender, PointerRoutedEventArgs args)
     {
         var point = args.GetCurrentPoint(GridView);
-        if (point.Properties.MouseWheelDelta == 0)
+        if (point.Properties.MouseWheelDelta == 0 || Active is not { } viewModel)
         {
             return;
         }
 
         args.Handled = true;
-        await _viewModel.WheelAsync(
+        await viewModel.WheelAsync(
             Math.Sign(point.Properties.MouseWheelDelta),
             GridView.ColumnAt(point.Position.X),
             GridView.RowAt(point.Position.Y),
@@ -113,7 +171,11 @@ public sealed partial class TerminalScreen : UserControl
     private async void OnCanvasGotFocus(object sender, RoutedEventArgs args)
     {
         CanvasBorder.BorderBrush = PanelResources.Brush(StrokeBrandKey);
-        await _viewModel.RefreshAsync(CancellationToken.None);
+
+        if (Active is { } viewModel)
+        {
+            await viewModel.RefreshAsync(CancellationToken.None);
+        }
     }
 
     private void OnCanvasLostFocus(object sender, RoutedEventArgs args) =>
@@ -121,10 +183,15 @@ public sealed partial class TerminalScreen : UserControl
 
     private async void OnCanvasPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {
-        if (!_viewModel.UsesAlternateScreen && ScrollKeys.Pages(args) is { } pages)
+        if (Active is not { } viewModel)
+        {
+            return;
+        }
+
+        if (!viewModel.UsesAlternateScreen && ScrollKeys.Pages(args) is { } pages)
         {
             args.Handled = true;
-            await _viewModel.ScrollPageAsync(pages, CancellationToken.None);
+            await viewModel.ScrollPageAsync(pages, CancellationToken.None);
             return;
         }
 
@@ -134,25 +201,25 @@ public sealed partial class TerminalScreen : UserControl
         }
 
         args.Handled = true;
-        await _viewModel.SendAsync(sequence, CancellationToken.None);
+        await viewModel.SendAsync(sequence, CancellationToken.None);
     }
 
     private async void OnCharacterReceived(UIElement sender, CharacterReceivedRoutedEventArgs args)
     {
-        if (!KeyEncoder.IsPrintable(args.Character))
+        if (!KeyEncoder.IsPrintable(args.Character) || Active is not { } viewModel)
         {
             return;
         }
 
         args.Handled = true;
-        await _viewModel.SendAsync(args.Character.ToString(), CancellationToken.None);
+        await viewModel.SendAsync(args.Character.ToString(), CancellationToken.None);
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs args)
     {
-        if (args.PropertyName == nameof(TerminalViewModel.Status))
+        if (args.PropertyName == nameof(TerminalViewModel.Status) && sender is TerminalViewModel viewModel)
         {
-            StatusText.Text = _viewModel.Status;
+            StatusText.Text = viewModel.Status;
         }
     }
 }

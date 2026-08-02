@@ -79,6 +79,7 @@ public sealed class DaemonClient : IDaemonClient
     public async Task<long?> SpawnAsync(
         string program,
         IReadOnlyList<string> args,
+        string? cwd,
         IReadOnlyDictionary<string, string> env,
         int cols,
         int rows,
@@ -99,9 +100,20 @@ public sealed class DaemonClient : IDaemonClient
             ["rows"] = rows,
         };
 
+        if (!string.IsNullOrWhiteSpace(cwd))
+        {
+            parameters["cwd"] = cwd;
+        }
+
         var envelope = await CallAsync(Constants.Method.PtySpawn, parameters, cancellationToken);
         var result = envelope?.Result.Deserialize<SpawnResultDto>();
         return result?.PtyId;
+    }
+
+    public async Task KillAsync(long ptyId, CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["ptyId"] = ptyId };
+        await CallAsync(Constants.Method.PtyKill, parameters, cancellationToken);
     }
 
     public async Task WriteAsync(long ptyId, string text, CancellationToken cancellationToken)

@@ -59,4 +59,10 @@
   <data name="TerminalStatusHookReceived" xml:space="preserve">
     <value>Hook event received: {0}</value>
   </data>
+  <data name="TerminalTabNew" xml:space="preserve">
+    <value>+</value>
+  </data>
+  <data name="TerminalTabClose" xml:space="preserve">
+    <value>×</value>
+  </data>
 </root>

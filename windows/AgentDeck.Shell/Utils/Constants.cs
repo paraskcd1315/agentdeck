@@ -48,6 +48,9 @@ public static class Constants
     public static class Shell
     {
         public const string FallbackProgram = "powershell.exe";
+        public const string DefaultProfileId = "default";
+        public const string DefaultProfileName = "Shell";
+        public const string ProfileIdPrefix = "profile-";
 
         public static readonly string[] GitBashCandidates =
         [

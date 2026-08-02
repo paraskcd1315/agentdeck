@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:components="using:AgentDeck.Shell.Presentation.Terminal.Components"
     xmlns:textgrid="using:AgentDeck.Shell.Presentation.DesignSystem.TextGrid"
     CharacterReceived="OnCharacterReceived"
     GotFocus="OnCanvasGotFocus"
@@ -22,13 +23,16 @@
         Background="Transparent"
         RowSpacing="{StaticResource AdSpace3}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <components:TerminalTabStrip x:Name="TabStrip" Grid.Row="0" />
+
         <Border
             x:Name="CanvasBorder"
-            Grid.Row="0"
+            Grid.Row="1"
             BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="1"
             CornerRadius="{StaticResource AdRadiusLg}">
@@ -55,14 +59,14 @@
 
         <TextBlock
             x:Name="StatusText"
-            Grid.Row="1"
+            Grid.Row="2"
             FontFamily="{StaticResource AdFontUi}"
             FontSize="{StaticResource AdUiSize}"
             Foreground="{ThemeResource AdText2Brush}" />
 
         <Border
             x:Name="InputCatcher"
-            Grid.Row="0"
+            Grid.Row="1"
             Grid.RowSpan="2"
             Background="Transparent" />
     </Grid>

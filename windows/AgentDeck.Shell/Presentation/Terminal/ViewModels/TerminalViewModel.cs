@@ -14,6 +14,7 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
 {
     private readonly IDaemonClient _client;
     private readonly IStringProvider _strings;
+    private readonly ShellProfile _profile;
     private readonly SynchronizationContext? _uiContext;
 
     private long? _ptyId;
@@ -25,10 +26,11 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
     private int _displayOffset;
     private int _history;
 
-    public TerminalViewModel(IDaemonClient client, IStringProvider strings)
+    public TerminalViewModel(IDaemonClient client, IStringProvider strings, ShellProfile profile)
     {
         _client = client;
         _strings = strings;
+        _profile = profile;
         _uiContext = SynchronizationContext.Current;
         _client.TerminalDamaged += OnTerminalDamaged;
         _client.HookEventReceived += OnHookEventReceived;
@@ -68,11 +70,11 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
             return;
         }
 
-        var shell = AppServices.Config.Shell;
         _ptyId = await _client.SpawnAsync(
-            ShellResolver.Program(shell),
-            ShellResolver.Args(shell),
-            ShellEnvironment.Build(),
+            _profile.Program ?? Constants.Shell.FallbackProgram,
+            _profile.Args ?? [],
+            _profile.Cwd,
+            ShellProfiles.Environment(_profile),
             _columns,
             _rows,
             cancellationToken);
@@ -115,6 +117,17 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         if (await _client.ScrollAsync(ptyId, delta, cancellationToken) is { } snapshot)
         {
             ApplySnapshot(snapshot);
+        }
+    }
+
+    public async Task CloseAsync(CancellationToken cancellationToken)
+    {
+        _client.TerminalDamaged -= OnTerminalDamaged;
+        _client.HookEventReceived -= OnHookEventReceived;
+
+        if (_ptyId is { } ptyId)
+        {
+            await _client.KillAsync(ptyId, cancellationToken);
         }
     }
 

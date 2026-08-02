@@ -20,10 +20,13 @@ public interface IDaemonClient : IAsyncDisposable
     Task<long?> SpawnAsync(
         string program,
         IReadOnlyList<string> args,
+        string? cwd,
         IReadOnlyDictionary<string, string> env,
         int cols,
         int rows,
         CancellationToken cancellationToken);
+
+    Task KillAsync(long ptyId, CancellationToken cancellationToken);
 
     Task WriteAsync(long ptyId, string text, CancellationToken cancellationToken);
 
