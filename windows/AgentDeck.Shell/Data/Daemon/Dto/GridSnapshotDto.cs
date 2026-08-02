@@ -16,6 +16,12 @@ public sealed class GridSnapshotDto
     [JsonPropertyName("full")]
     public bool Full { get; init; }
 
+    [JsonPropertyName("displayOffset")]
+    public int DisplayOffset { get; init; }
+
+    [JsonPropertyName("history")]
+    public int History { get; init; }
+
     [JsonPropertyName("cursor")]
     public GridCursorDto? Cursor { get; init; }
 

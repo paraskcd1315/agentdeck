@@ -73,6 +73,6 @@ public static class KeyEncoder
         return sequence is not null;
     }
 
-    private static bool IsDown(VirtualKey key) =>
+    public static bool IsDown(VirtualKey key) =>
         InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(CoreVirtualKeyStates.Down);
 }

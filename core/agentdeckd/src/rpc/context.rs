@@ -92,6 +92,12 @@ impl ServerContext {
     }
 
     pub fn write_pty(&self, id: PtyId, bytes: &[u8]) -> Result<(), RpcError> {
+        let emulator = self.with_session(id, |session| Ok(session.emulator()))?;
+        emulator
+            .lock()
+            .map_err(|_| RpcError::internal("the emulator lock is poisoned"))?
+            .snap_to_bottom();
+
         self.with_session(id, |session| {
             session
                 .write(bytes)

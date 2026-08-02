@@ -11,6 +11,8 @@ pub struct WireSnapshot {
     pub columns: usize,
     pub rows: usize,
     pub full: bool,
+    pub display_offset: usize,
+    pub history: usize,
     pub cursor: WireCursor,
     pub mode: WireMode,
     pub lines: Vec<WireLine>,

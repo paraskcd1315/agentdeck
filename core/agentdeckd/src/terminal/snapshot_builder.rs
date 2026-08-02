@@ -65,6 +65,8 @@ fn build(
         columns,
         rows: screen_lines,
         full,
+        display_offset: grid.display_offset(),
+        history: grid.history_size(),
         cursor: cursor_of(term),
         mode: WireMode::new(*term.mode()),
         lines,

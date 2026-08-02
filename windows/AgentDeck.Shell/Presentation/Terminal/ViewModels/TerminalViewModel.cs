@@ -22,6 +22,8 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
     private string _status = string.Empty;
     private int _columns = TerminalMetrics.DefaultCols;
     private int _rows = TerminalMetrics.DefaultRows;
+    private int _displayOffset;
+    private int _history;
 
     public TerminalViewModel(IDaemonClient client, IStringProvider strings)
     {
@@ -37,6 +39,10 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
     public event EventHandler? GridChanged;
 
     public TextGridModel Grid { get; } = new();
+
+    public int DisplayOffset => _displayOffset;
+
+    public int History => _history;
 
     public string Status
     {
@@ -86,7 +92,28 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
             return;
         }
 
+        var stranded = _displayOffset > 0;
         await _client.WriteAsync(ptyId, text, cancellationToken);
+
+        if (stranded)
+        {
+            await RefreshAsync(cancellationToken);
+        }
+    }
+
+    public async Task ScrollPageAsync(int pages, CancellationToken cancellationToken)
+    {
+        if (_ptyId is not { } ptyId)
+        {
+            return;
+        }
+
+        var delta = pages * Math.Max(1, Grid.Rows - TerminalMetrics.PageOverlapLines);
+
+        if (await _client.ScrollAsync(ptyId, delta, cancellationToken) is { } snapshot)
+        {
+            ApplySnapshot(snapshot);
+        }
     }
 
     public async Task RefreshAsync(CancellationToken cancellationToken)
@@ -171,6 +198,8 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
     private void ApplySnapshot(GridSnapshotDto snapshot)
     {
         _mode = snapshot.Mode ?? _mode;
+        _displayOffset = snapshot.DisplayOffset;
+        _history = snapshot.History;
         GridSnapshotMapper.Apply(Grid, snapshot);
         GridChanged?.Invoke(this, EventArgs.Empty);
     }

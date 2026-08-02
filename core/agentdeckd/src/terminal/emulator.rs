@@ -54,6 +54,10 @@ impl Emulator {
         self.term.scroll_display(Scroll::Delta(delta));
     }
 
+    pub fn snap_to_bottom(&mut self) {
+        self.term.scroll_display(Scroll::Bottom);
+    }
+
     pub fn visible_lines(&self) -> Vec<String> {
         let grid = self.term.grid();
         let columns = grid.columns();

@@ -39,6 +39,11 @@
                     IsHitTestVisible="False"
                     IsTabStop="False" />
 
+                <textgrid:TextGridScrollBar
+                    x:Name="ScrollIndicator"
+                    Margin="{StaticResource AdPadCanvas}"
+                    HorizontalAlignment="Right" />
+
                 <Border
                     Height="1"
                     Margin="1,0,1,0"

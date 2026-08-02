@@ -53,7 +53,11 @@ public sealed partial class TerminalScreen : UserControl
         await _viewModel.StartAsync(CancellationToken.None);
     }
 
-    private void OnGridChanged(object? sender, EventArgs args) => GridView.Invalidate();
+    private void OnGridChanged(object? sender, EventArgs args)
+    {
+        GridView.Invalidate();
+        ScrollIndicator.Update(_viewModel.History, _viewModel.DisplayOffset, _viewModel.Grid.Rows);
+    }
 
     private async void OnGridSizeChanged(object? sender, TextGridSize size) =>
         await _viewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
@@ -117,6 +121,13 @@ public sealed partial class TerminalScreen : UserControl
 
     private async void OnCanvasPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {
+        if (ScrollKeys.Pages(args) is { } pages)
+        {
+            args.Handled = true;
+            await _viewModel.ScrollPageAsync(pages, CancellationToken.None);
+            return;
+        }
+
         if (KeyEncoder.Encode(args) is not { } sequence)
         {
             return;
