@@ -14,6 +14,11 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
 
         SystemBackdrop = new AdAcrylicBackdrop { Kind = DesktopAcrylicKind.Thin };
+
+        var theme = AppServices.Config.Theme;
+        AppGradient.Fill = AppBackgroundBrush.Build(theme);
+        AppGradient.Opacity = AppBackgroundBrush.Opacity(theme);
+
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 

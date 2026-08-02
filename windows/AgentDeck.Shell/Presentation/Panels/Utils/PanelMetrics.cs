@@ -12,6 +12,7 @@ public static class PanelMetrics
     public const string TextSecondary = "AdText2Brush";
     public const string BodySize = "AdBodySize";
     public const string MonoSize = "AdMonoSize";
+    public const string UiSize = "AdUiSize";
 
     public const string StateIdle = "AdStateIdleBrush";
     public const string StateWorking = "AdStateWorkingBrush";

@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Rectangle Fill="{ThemeResource AdGradientApp}" Opacity="0.55" IsHitTestVisible="False" />
+        <Rectangle x:Name="AppGradient" IsHitTestVisible="False" />
 
         <Grid>
             <Grid.RowDefinitions>

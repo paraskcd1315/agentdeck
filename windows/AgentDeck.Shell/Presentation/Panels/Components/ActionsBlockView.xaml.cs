@@ -1,6 +1,7 @@
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.Panels.Utils;
 
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -28,7 +29,9 @@ public sealed partial class ActionsBlockView : UserControl
             Content = definition.Label,
             Background = PanelResources.Brush(PanelMetrics.GradientBrand),
             Foreground = PanelResources.Brush(PanelMetrics.TextOnBrand),
-            FontFamily = PanelResources.Font(PanelMetrics.FontUi),
+            FontFamily = PanelResources.Font(PanelMetrics.FontMono),
+            FontSize = PanelResources.Size(PanelMetrics.UiSize),
+            FontWeight = FontWeights.SemiBold,
             BorderThickness = new Thickness(0),
             CornerRadius = (CornerRadius)Application.Current.Resources[PanelMetrics.RadiusSm],
             Padding = (Thickness)Application.Current.Resources[PanelMetrics.PadButton],

@@ -4,7 +4,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:foundation="using:AgentDeck.Shell.Presentation.DesignSystem.Foundation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -16,8 +15,8 @@
         </Grid.RowDefinitions>
 
         <Border
+            x:Name="CanvasBorder"
             Grid.Row="0"
-            Background="{ThemeResource AdTermCanvasBrush}"
             BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="1"
             CornerRadius="{StaticResource AdRadiusLg}">
@@ -47,16 +46,11 @@
         </Border>
 
         <Border
+            x:Name="InputBorder"
             Grid.Row="1"
             BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="1"
             CornerRadius="{StaticResource AdRadiusMd}">
-            <Border.Background>
-                <foundation:BackdropGlassBrush
-                    BlurAmount="{StaticResource AdGlassThinBlur}"
-                    Saturation="{StaticResource AdGlassThinSaturation}"
-                    TintColor="{ThemeResource AdGlassThinTint}" />
-            </Border.Background>
             <TextBox
                 x:Name="InputBox"
                 Background="Transparent"
@@ -64,7 +58,17 @@
                 FontFamily="{StaticResource AdFontMono}"
                 FontSize="{StaticResource AdMonoSize}"
                 Foreground="{ThemeResource AdTextBrush}"
-                KeyDown="OnInputKeyDown" />
+                GotFocus="OnInputGotFocus"
+                KeyDown="OnInputKeyDown"
+                LostFocus="OnInputLostFocus">
+                <TextBox.Resources>
+                    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
+                    <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
+                </TextBox.Resources>
+            </TextBox>
         </Border>
 
         <TextBlock
