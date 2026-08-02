@@ -1,6 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 
+using Windows.UI;
+
 namespace AgentDeck.Shell.Presentation.Panels.Utils;
 
 public static class PanelResources
@@ -13,6 +15,8 @@ public static class PanelResources
     public static Brush Brush(string key) => Resolve<Brush>(key);
 
     public static double Size(string key) => Resolve<double>(key);
+
+    public static Brush Tint(string key) => new SolidColorBrush(Resolve<Color>(key));
 
     private static T Resolve<T>(string key)
     {

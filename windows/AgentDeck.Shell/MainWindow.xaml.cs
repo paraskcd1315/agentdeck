@@ -1,5 +1,6 @@
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.DesignSystem.Foundation;
+using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Composition.SystemBackdrops;
@@ -25,7 +26,7 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
         Title = AppServices.Strings.Get(StringKeys.WindowTitle);
-        AppTitleBar.Title = Title;
+        Workspace.Show(ShellResolver.Cwd(AppServices.Config.Shell));
 
         Terminal.AttachTabStrip(TitleTabs);
 

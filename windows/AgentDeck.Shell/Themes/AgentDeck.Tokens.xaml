@@ -13,6 +13,9 @@
             <Color x:Key="AdGlassStrongTint">#D616181D</Color>
             <Color x:Key="AdGlassThinTint">#66252932</Color>
 
+            <SolidColorBrush x:Key="AdGlassThinBrush" Color="#252932" Opacity="0.40" />
+            <SolidColorBrush x:Key="AdGlassBrush" Color="#16181D" Opacity="0.62" />
+
             <SolidColorBrush x:Key="AdTextBrush" Color="#E6E8EE" />
             <SolidColorBrush x:Key="AdText2Brush" Color="#E6E8EE" Opacity="0.64" />
             <SolidColorBrush x:Key="AdText3Brush" Color="#E6E8EE" Opacity="0.42" />
@@ -97,6 +100,9 @@
             <Color x:Key="AdGlassTint">#9EFFFFFF</Color>
             <Color x:Key="AdGlassStrongTint">#D6FFFFFF</Color>
             <Color x:Key="AdGlassThinTint">#66FFFFFF</Color>
+
+            <SolidColorBrush x:Key="AdGlassThinBrush" Color="#FFFFFF" Opacity="0.40" />
+            <SolidColorBrush x:Key="AdGlassBrush" Color="#FFFFFF" Opacity="0.62" />
 
             <SolidColorBrush x:Key="AdTextBrush" Color="#14161A" />
             <SolidColorBrush x:Key="AdText2Brush" Color="#14161A" Opacity="0.66" />

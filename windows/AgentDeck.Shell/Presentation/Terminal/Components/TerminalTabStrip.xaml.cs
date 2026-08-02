@@ -3,18 +3,26 @@ using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Media;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
 
 public sealed partial class TerminalTabStrip : UserControl
 {
     private const string StrokeKey = "AdStrokeBrush";
-    private const string StrokeBrandKey = "AdStrokeBrandBrush";
+    private const string GlassKey = "AdGlassBrush";
     private const string TextKey = "AdTextBrush";
     private const string TextMutedKey = "AdText2Brush";
+    private const string TextFaintKey = "AdText3Brush";
+    private const string IdleDotKey = "AdStateIdleBrush";
+    private const string ActiveDotKey = "AdStateWorkingBrush";
+    private const string FontKey = "AdFontUi";
+    private const string SizeKey = "AdUiSize";
+    private const string CaptionSizeKey = "AdCaptionSize";
 
     private IReadOnlyList<ShellProfile> _profiles = [];
 
@@ -46,39 +54,67 @@ public sealed partial class TerminalTabStrip : UserControl
 
     private Button BuildTab(TerminalTab tab, bool active)
     {
-        var label = new TextBlock
-        {
-            Text = tab.Title,
-            Foreground = PanelResources.Brush(active ? TextKey : TextMutedKey),
-        };
-
-        var close = new Button
-        {
-            Content = AppServices.Strings.Get(StringKeys.TerminalTabClose),
-            Background = null,
-            BorderThickness = new Thickness(0),
-            Foreground = PanelResources.Brush(TextMutedKey),
-            AllowFocusOnInteraction = false,
-            IsTabStop = false,
-        };
-        close.Click += (_, _) => TabClosed?.Invoke(this, tab);
-
         var content = new StackPanel { Orientation = Orientation.Horizontal };
-        content.Children.Add(label);
-        content.Children.Add(close);
+        content.Children.Add(BuildDot(active));
+        content.Children.Add(BuildLabel(tab, active));
+        content.Children.Add(BuildClose(tab));
 
         var button = new Button
         {
             Content = content,
-            Background = null,
-            BorderBrush = PanelResources.Brush(active ? StrokeBrandKey : StrokeKey),
-            BorderThickness = new Thickness(1),
+            Padding = TerminalTabMetrics.TabPadding,
+            CornerRadius = TerminalTabMetrics.TabRadius,
+            Background = active ? PanelResources.Brush(GlassKey) : null,
+            BorderBrush = active ? PanelResources.Brush(StrokeKey) : null,
+            BorderThickness = active ? TerminalTabMetrics.TabBorder : new Thickness(0),
             AllowFocusOnInteraction = false,
             IsTabStop = false,
         };
-        button.Click += (_, _) => TabSelected?.Invoke(this, tab);
 
+        button.Click += (_, _) => TabSelected?.Invoke(this, tab);
         return button;
+    }
+
+    private static Border BuildDot(bool active) => new()
+    {
+        Width = TerminalTabMetrics.DotSize,
+        Height = TerminalTabMetrics.DotSize,
+        CornerRadius = new CornerRadius(TerminalTabMetrics.DotSize / 2),
+        VerticalAlignment = VerticalAlignment.Center,
+        Background = PanelResources.Brush(active ? ActiveDotKey : IdleDotKey),
+    };
+
+    private static TextBlock BuildLabel(TerminalTab tab, bool active) => new()
+    {
+        Text = tab.Title,
+        Margin = TerminalTabMetrics.ContentGap,
+        FontFamily = PanelResources.Font(FontKey),
+        FontSize = PanelResources.Size(SizeKey),
+        FontWeight = active ? FontWeights.SemiBold : FontWeights.Medium,
+        Foreground = PanelResources.Brush(active ? TextKey : TextMutedKey),
+        VerticalAlignment = VerticalAlignment.Center,
+    };
+
+    private Button BuildClose(TerminalTab tab)
+    {
+        var close = new Button
+        {
+            Content = AppServices.Strings.Get(StringKeys.TerminalTabClose),
+            Margin = TerminalTabMetrics.ClosePadding,
+            Padding = new Thickness(0),
+            Background = null,
+            BorderThickness = new Thickness(0),
+            FontFamily = PanelResources.Font(FontKey),
+            FontSize = PanelResources.Size(CaptionSizeKey),
+            FontWeight = FontWeights.SemiBold,
+            Foreground = PanelResources.Brush(TextFaintKey),
+            VerticalAlignment = VerticalAlignment.Center,
+            AllowFocusOnInteraction = false,
+            IsTabStop = false,
+        };
+
+        close.Click += (_, _) => TabClosed?.Invoke(this, tab);
+        return close;
     }
 
     private void OnAddClick(object sender, RoutedEventArgs args)

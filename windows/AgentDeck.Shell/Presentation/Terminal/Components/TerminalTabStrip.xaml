@@ -6,28 +6,34 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     IsTabStop="False"
+    VerticalContentAlignment="Bottom"
     mc:Ignorable="d">
 
     <StackPanel
+        VerticalAlignment="Bottom"
         Orientation="Horizontal"
-        Spacing="{StaticResource AdSpace2}">
+        Spacing="4">
         <StackPanel
             x:Name="TabHost"
+            VerticalAlignment="Bottom"
             Orientation="Horizontal"
-            Spacing="{StaticResource AdSpace2}" />
+            Spacing="4" />
 
         <Button
             x:Name="AddButton"
+            Width="28"
+            Height="28"
+            Margin="0,0,0,4"
             AllowFocusOnInteraction="False"
             Background="Transparent"
-            BorderBrush="{ThemeResource AdStrokeBrush}"
-            BorderThickness="1"
+            BorderThickness="0"
             Click="OnAddClick"
-            CornerRadius="{StaticResource AdRadiusMd}"
+            CornerRadius="{StaticResource AdRadiusSm}"
             FontFamily="{StaticResource AdFontUi}"
-            FontSize="{StaticResource AdUiSize}"
-            Foreground="{ThemeResource AdText2Brush}"
+            FontSize="16"
+            FontWeight="SemiBold"
+            Foreground="{ThemeResource AdText3Brush}"
             IsTabStop="False"
-            Padding="{StaticResource AdPadCompact}" />
+            Padding="0" />
     </StackPanel>
 </UserControl>

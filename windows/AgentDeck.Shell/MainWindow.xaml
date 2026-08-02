@@ -9,6 +9,7 @@
     xmlns:panels="using:AgentDeck.Shell.Presentation.Panels.Screens"
     xmlns:screens="using:AgentDeck.Shell.Presentation.Terminal.Screens"
     xmlns:terminal="using:AgentDeck.Shell.Presentation.Terminal.Components"
+    xmlns:workspace="using:AgentDeck.Shell.Presentation.Workspace.Components"
     mc:Ignorable="d">
 
     <Grid>
@@ -25,7 +26,10 @@
                     <ImageIconSource ImageSource="Assets/AppIcon.ico" />
                 </TitleBar.IconSource>
                 <TitleBar.Content>
-                    <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AdSpace4}">
+                        <workspace:WorkspaceChip x:Name="Workspace" />
+                        <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Bottom" />
+                    </StackPanel>
                 </TitleBar.Content>
             </TitleBar>
 
