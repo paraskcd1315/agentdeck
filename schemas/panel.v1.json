@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentdeck.dev/schemas/panel.v1.json",
+  "title": "AgentDeck Panel v1",
+  "type": "object",
+  "required": ["schema", "title", "blocks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "panel/v1" },
+    "title": { "type": "string", "minLength": 1 },
+    "blocks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/block" }
+    }
+  },
+  "$defs": {
+    "block": {
+      "oneOf": [
+        { "$ref": "#/$defs/markdownBlock" },
+        { "$ref": "#/$defs/keyValueBlock" },
+        { "$ref": "#/$defs/statusBlock" },
+        { "$ref": "#/$defs/actionsBlock" }
+      ]
+    },
+    "markdownBlock": {
+      "type": "object",
+      "required": ["type", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "markdown" },
+        "text": { "type": "string" }
+      }
+    },
+    "keyValueBlock": {
+      "type": "object",
+      "required": ["type", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "keyvalue" },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["key", "value"],
+            "additionalProperties": false,
+            "properties": {
+              "key": { "type": "string" },
+              "value": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "statusBlock": {
+      "type": "object",
+      "required": ["type", "state", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "status" },
+        "state": { "enum": ["idle", "working", "waiting", "failed"] },
+        "text": { "type": "string" }
+      }
+    },
+    "actionsBlock": {
+      "type": "object",
+      "required": ["type", "buttons"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "actions" },
+        "buttons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "prompt"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "prompt": { "type": "string" },
+              "target": { "enum": ["live", "new"], "default": "live" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

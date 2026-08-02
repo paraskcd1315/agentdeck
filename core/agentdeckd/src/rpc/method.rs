@@ -1,5 +1,6 @@
 use crate::constants::{
-    METHOD_HOOK_EVENT, METHOD_PTY_KILL, METHOD_PTY_RESIZE, METHOD_PTY_SPAWN, METHOD_PTY_WRITE,
+    METHOD_HOOK_EVENT, METHOD_PANEL_LIST, METHOD_PANEL_READ, METHOD_PTY_KILL, METHOD_PTY_RESIZE,
+    METHOD_PTY_SPAWN, METHOD_PTY_WRITE, METHOD_WORKSPACE_OPEN,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9,6 +10,9 @@ pub enum Method {
     PtyResize,
     PtyKill,
     HookEvent,
+    PanelList,
+    PanelRead,
+    WorkspaceOpen,
     Unknown,
 }
 
@@ -20,6 +24,9 @@ impl Method {
             METHOD_PTY_RESIZE => Self::PtyResize,
             METHOD_PTY_KILL => Self::PtyKill,
             METHOD_HOOK_EVENT => Self::HookEvent,
+            METHOD_PANEL_LIST => Self::PanelList,
+            METHOD_PANEL_READ => Self::PanelRead,
+            METHOD_WORKSPACE_OPEN => Self::WorkspaceOpen,
             _ => Self::Unknown,
         }
     }

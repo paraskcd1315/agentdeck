@@ -5,6 +5,7 @@ use base64::engine::general_purpose::STANDARD as BASE64;
 use serde_json::json;
 use tokio::sync::broadcast;
 
+use crate::config::paths::StateDirs;
 use crate::constants::{BROADCAST_CAPACITY, NOTIFY_PTY_DATA, NOTIFY_PTY_EXIT};
 use crate::pty::command::PtyCommand;
 use crate::pty::registry::SessionRegistry;
@@ -19,15 +20,21 @@ use super::notification::Notification;
 pub struct ServerContext {
     registry: Arc<Mutex<SessionRegistry>>,
     notifications: broadcast::Sender<Notification>,
+    dirs: StateDirs,
 }
 
 impl ServerContext {
-    pub fn new() -> Self {
+    pub fn new(dirs: StateDirs) -> Self {
         let (notifications, _) = broadcast::channel(BROADCAST_CAPACITY);
         Self {
             registry: Arc::new(Mutex::new(SessionRegistry::default())),
             notifications,
+            dirs,
         }
+    }
+
+    pub fn dirs(&self) -> &StateDirs {
+        &self.dirs
     }
 
     pub fn subscribe(&self) -> broadcast::Receiver<Notification> {
@@ -111,8 +118,3 @@ impl ServerContext {
     }
 }
 
-impl Default for ServerContext {
-    fn default() -> Self {
-        Self::new()
-    }
-}
