@@ -19,19 +19,25 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TitleBar x:Name="AppTitleBar">
-                <TitleBar.IconSource>
-                    <ImageIconSource ImageSource="Assets/AppIcon.ico" />
-                </TitleBar.IconSource>
-                <TitleBar.Content>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AdSpace4}">
-                        <workspace:WorkspaceChip x:Name="Workspace" />
-                        <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Bottom" />
-                    </StackPanel>
-                </TitleBar.Content>
-            </TitleBar>
+            <Grid Grid.Row="0">
+                <TitleBar x:Name="AppTitleBar" Height="{StaticResource AdTitleHeight}">
+                    <TitleBar.LeftHeader>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AdSpace4}">
+                            <workspace:WorkspaceChip x:Name="Workspace" />
+                            <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Bottom" />
+                        </StackPanel>
+                    </TitleBar.LeftHeader>
+                </TitleBar>
+
+                <Border
+                    Height="1"
+                    VerticalAlignment="Bottom"
+                    Background="{ThemeResource AdStrokeBrush}"
+                    IsHitTestVisible="False" />
+            </Grid>
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -43,17 +49,28 @@
 
                 <Border
                     Grid.Column="1"
-                    Width="1"
-                    Margin="0,20,0,20"
-                    HorizontalAlignment="Left"
-                    Background="{ThemeResource AdStrokeBrush}"
-                    IsHitTestVisible="False" />
-
-                <panels:PanelsPane
-                    x:Name="Panels"
-                    Grid.Column="1"
-                    Margin="20,20,20,20" />
+                    Background="{ThemeResource AdGlassBrush}"
+                    BorderBrush="{ThemeResource AdStrokeBrush}"
+                    BorderThickness="1,0,0,0">
+                    <panels:PanelsPane x:Name="Panels" />
+                </Border>
             </Grid>
+
+            <Border
+                Grid.Row="2"
+                Height="{StaticResource AdStatusHeight}"
+                Padding="{StaticResource AdPadCanvas}"
+                Background="{ThemeResource AdGlassBrush}"
+                BorderBrush="{ThemeResource AdStrokeBrush}"
+                BorderThickness="0,1,0,0">
+                <TextBlock
+                    x:Name="StatusBar"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource AdFontMono}"
+                    FontSize="{StaticResource AdCaptionSize}"
+                    Foreground="{ThemeResource AdText3Brush}"
+                    TextTrimming="CharacterEllipsis" />
+            </Border>
         </Grid>
     </Grid>
 </Window>

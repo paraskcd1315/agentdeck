@@ -18,8 +18,8 @@ namespace AgentDeck.Shell.Presentation.Terminal.Screens;
 
 public sealed partial class TerminalScreen : UserControl
 {
-    private const string StrokeKey = "AdStrokeBrush";
-    private const string StrokeBrandKey = "AdStrokeBrandBrush";
+    private const double FocusedOpacity = 1;
+    private const double UnfocusedOpacity = 0.55;
 
     private readonly TerminalTabsViewModel _tabs;
 
@@ -36,7 +36,7 @@ public sealed partial class TerminalScreen : UserControl
 
         GridView.GridSizeChanged += OnGridSizeChanged;
 
-        CanvasBorder.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
+        CanvasHost.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
 
         Loaded += OnLoaded;
     }
@@ -93,6 +93,7 @@ public sealed partial class TerminalScreen : UserControl
 
         GridView.Model = viewModel.Grid;
         StatusText.Text = viewModel.Status;
+        RenderStrip();
         OnGridChanged(this, EventArgs.Empty);
         TakeFocus(FocusState.Programmatic);
     }
@@ -124,6 +125,19 @@ public sealed partial class TerminalScreen : UserControl
         {
             await tab.ViewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
         }
+
+        RenderStrip();
+    }
+
+    private void RenderStrip()
+    {
+        if (_tabs.Active is not { } tab)
+        {
+            return;
+        }
+
+        SessionText.Text = TerminalChrome.Session(tab);
+        StripMeta.Text = TerminalChrome.Dimensions(tab.ViewModel);
     }
 
     private async void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args)
@@ -176,7 +190,7 @@ public sealed partial class TerminalScreen : UserControl
 
     private async void OnCanvasGotFocus(object sender, RoutedEventArgs args)
     {
-        CanvasBorder.BorderBrush = PanelResources.Brush(StrokeBrandKey);
+        SessionChip.Opacity = FocusedOpacity;
 
         if (Active is { } viewModel)
         {
@@ -185,7 +199,7 @@ public sealed partial class TerminalScreen : UserControl
     }
 
     private void OnCanvasLostFocus(object sender, RoutedEventArgs args) =>
-        CanvasBorder.BorderBrush = PanelResources.Brush(StrokeKey);
+        SessionChip.Opacity = UnfocusedOpacity;
 
     private async void OnCanvasPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {

@@ -44,6 +44,12 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
 
     public bool UsesAlternateScreen => _mode?.AltScreen == true;
 
+    public long? PtyId => _ptyId;
+
+    public int Columns => _columns;
+
+    public int Rows => _rows;
+
     public int DisplayOffset => _displayOffset;
 
     public int History => _history;

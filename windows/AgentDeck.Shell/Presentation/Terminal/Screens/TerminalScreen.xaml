@@ -5,7 +5,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:components="using:AgentDeck.Shell.Presentation.Terminal.Components"
     xmlns:textgrid="using:AgentDeck.Shell.Presentation.DesignSystem.TextGrid"
     CharacterReceived="OnCharacterReceived"
     GotFocus="OnCanvasGotFocus"
@@ -18,53 +17,75 @@
     UseSystemFocusVisuals="False"
     mc:Ignorable="d">
 
-    <Grid
-        Padding="{StaticResource AdPadPanel}"
-        Background="Transparent"
-        RowSpacing="{StaticResource AdSpace3}">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border
-            x:Name="CanvasBorder"
             Grid.Row="0"
+            Height="{StaticResource AdTermStripHeight}"
+            Padding="{StaticResource AdPadCompact}"
+            Background="{ThemeResource AdGlassBrush}"
             BorderBrush="{ThemeResource AdStrokeBrush}"
-            BorderThickness="1"
-            CornerRadius="{StaticResource AdRadiusLg}">
+            BorderThickness="0,0,0,1">
             <Grid>
-                <textgrid:TextGridView
-                    x:Name="GridView"
-                    Margin="{StaticResource AdPadCanvas}"
-                    IsHitTestVisible="False"
-                    IsTabStop="False" />
-
-                <textgrid:TextGridScrollBar
-                    x:Name="ScrollIndicator"
-                    Margin="{StaticResource AdPadCanvas}"
-                    HorizontalAlignment="Right" />
-
                 <Border
-                    Height="1"
-                    Margin="1,0,1,0"
-                    VerticalAlignment="Top"
-                    Background="{ThemeResource AdSpecularBrush}"
-                    IsHitTestVisible="False" />
+                    x:Name="SessionChip"
+                    Padding="12,4,12,4"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Background="{StaticResource AdGradientSelect}"
+                    CornerRadius="{StaticResource AdRadiusSm}">
+                    <TextBlock
+                        x:Name="SessionText"
+                        FontFamily="{StaticResource AdFontUi}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource AdTextBrush}" />
+                </Border>
+
+                <TextBlock
+                    x:Name="StripMeta"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource AdFontMono}"
+                    FontSize="{StaticResource AdCaptionSize}"
+                    Foreground="{ThemeResource AdText3Brush}" />
             </Grid>
         </Border>
 
-        <TextBlock
-            x:Name="StatusText"
-            Grid.Row="1"
-            FontFamily="{StaticResource AdFontUi}"
-            FontSize="{StaticResource AdUiSize}"
-            Foreground="{ThemeResource AdText2Brush}" />
+        <Grid x:Name="CanvasHost" Grid.Row="1">
+            <textgrid:TextGridView
+                x:Name="GridView"
+                Margin="{StaticResource AdPadCanvas}"
+                IsHitTestVisible="False"
+                IsTabStop="False" />
+
+            <textgrid:TextGridScrollBar
+                x:Name="ScrollIndicator"
+                Margin="{StaticResource AdPadCanvas}"
+                HorizontalAlignment="Right" />
+
+            <Border x:Name="InputCatcher" Background="Transparent" />
+        </Grid>
 
         <Border
-            x:Name="InputCatcher"
-            Grid.Row="0"
-            Grid.RowSpan="2"
-            Background="Transparent" />
+            Grid.Row="2"
+            Height="{StaticResource AdTermFootHeight}"
+            Padding="{StaticResource AdPadCompact}"
+            Background="{ThemeResource AdGlassBrush}"
+            BorderBrush="{ThemeResource AdStrokeBrush}"
+            BorderThickness="0,1,0,0">
+            <TextBlock
+                x:Name="StatusText"
+                VerticalAlignment="Center"
+                FontFamily="{StaticResource AdFontMono}"
+                FontSize="{StaticResource AdCaptionSize}"
+                Foreground="{ThemeResource AdText3Brush}"
+                TextTrimming="CharacterEllipsis" />
+        </Border>
     </Grid>
 </UserControl>
