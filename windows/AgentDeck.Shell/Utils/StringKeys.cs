@@ -10,4 +10,5 @@ public static class StringKeys
     public const string WindowTitle = "WindowTitle";
     public const string TerminalTabNew = "TerminalTabNew";
     public const string TerminalTabClose = "TerminalTabClose";
+    public const string TerminalSplit = "TerminalSplit";
 }

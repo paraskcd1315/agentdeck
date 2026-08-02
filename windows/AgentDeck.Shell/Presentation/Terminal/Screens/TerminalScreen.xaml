@@ -5,7 +5,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:textgrid="using:AgentDeck.Shell.Presentation.DesignSystem.TextGrid"
     CharacterReceived="OnCharacterReceived"
     GotFocus="OnCanvasGotFocus"
     IsTabStop="True"
@@ -47,26 +46,35 @@
                         Foreground="{ThemeResource AdTextBrush}" />
                 </Border>
 
-                <TextBlock
-                    x:Name="StripMeta"
+                <StackPanel
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    FontFamily="{StaticResource AdFontMono}"
-                    FontSize="{StaticResource AdCaptionSize}"
-                    Foreground="{ThemeResource AdText3Brush}" />
+                    Orientation="Horizontal"
+                    Spacing="{StaticResource AdSpace4}">
+                    <Button
+                        x:Name="SplitButton"
+                        AllowFocusOnInteraction="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnSplitClick"
+                        CornerRadius="{StaticResource AdRadiusSm}"
+                        FontFamily="{StaticResource AdFontUi}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}"
+                        IsTabStop="False"
+                        Padding="{StaticResource AdPadStrip}" />
+
+                    <TextBlock
+                        x:Name="StripMeta"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource AdFontMono}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}" />
+                </StackPanel>
             </Grid>
         </Border>
 
-        <Grid x:Name="CanvasHost" Grid.Row="1">
-            <textgrid:TextGridView
-                x:Name="GridView"
-                IsHitTestVisible="False"
-                IsTabStop="False" />
-
-            <textgrid:TextGridScrollBar x:Name="ScrollIndicator" HorizontalAlignment="Right" />
-
-            <Border x:Name="InputCatcher" Background="Transparent" />
-        </Grid>
+        <Grid x:Name="CanvasHost" Grid.Row="1" />
 
         <Border
             Grid.Row="2"

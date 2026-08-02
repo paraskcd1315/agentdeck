@@ -12,6 +12,9 @@ public static class TerminalChrome
     public static string Session(TerminalTab tab) =>
         $"{tab.Title}{SessionSeparator}{PtyLabel}{tab.ViewModel.PtyId?.ToString() ?? PendingPty}";
 
+    public static string Split(string label, int panes) =>
+        panes > 1 ? $"{label} {panes}" : label;
+
     public static string Dimensions(TerminalViewModel viewModel) =>
         $"{viewModel.Columns}{DimensionSeparator}{viewModel.Rows}";
 }

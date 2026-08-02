@@ -65,4 +65,7 @@
   <data name="TerminalTabClose" xml:space="preserve">
     <value>×</value>
   </data>
+  <data name="TerminalSplit" xml:space="preserve">
+    <value>split</value>
+  </data>
 </root>

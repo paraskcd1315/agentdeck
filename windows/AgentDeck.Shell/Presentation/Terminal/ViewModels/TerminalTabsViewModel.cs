@@ -25,6 +25,8 @@ public sealed class TerminalTabsViewModel
 
     public event EventHandler? TabsChanged;
 
+    public event EventHandler? PanesChanged;
+
     public ObservableCollection<TerminalTab> Tabs { get; } = [];
 
     public IReadOnlyList<ShellProfile> Profiles { get; }
@@ -69,6 +71,34 @@ public sealed class TerminalTabsViewModel
         return tab;
     }
 
+    public async Task<TerminalPane?> SplitAsync(CancellationToken cancellationToken)
+    {
+        if (_active is not { } tab)
+        {
+            return null;
+        }
+
+        var viewModel = new TerminalViewModel(_client, _strings, tab.Profile);
+        var pane = tab.Add(viewModel);
+
+        PanesChanged?.Invoke(this, EventArgs.Empty);
+        await viewModel.StartAsync(cancellationToken);
+
+        return pane;
+    }
+
+    public async Task ClosePaneAsync(TerminalPane pane, CancellationToken cancellationToken)
+    {
+        if (_active is not { } tab || tab.Panes.Count == 1)
+        {
+            return;
+        }
+
+        tab.Remove(pane);
+        PanesChanged?.Invoke(this, EventArgs.Empty);
+        await pane.ViewModel.CloseAsync(cancellationToken);
+    }
+
     public async Task CloseAsync(TerminalTab tab, CancellationToken cancellationToken)
     {
         var index = Tabs.IndexOf(tab);
@@ -85,7 +115,10 @@ public sealed class TerminalTabsViewModel
             Active = Tabs.Count == 0 ? null : Tabs[Math.Min(index, Tabs.Count - 1)];
         }
 
-        await tab.ViewModel.CloseAsync(cancellationToken);
+        foreach (var pane in tab.Panes)
+        {
+            await pane.ViewModel.CloseAsync(cancellationToken);
+        }
     }
 
     public void Activate(TerminalTab tab)

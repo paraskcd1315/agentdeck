@@ -20,6 +20,7 @@ public sealed partial class TerminalScreen : UserControl
 {
     private const double FocusedOpacity = 1;
     private const double UnfocusedOpacity = 0.55;
+    private const string StrokeKey = "AdStrokeBrush";
 
     private readonly TerminalTabsViewModel _tabs;
 
@@ -33,15 +34,15 @@ public sealed partial class TerminalScreen : UserControl
         _tabs = new TerminalTabsViewModel(AppServices.Daemon, AppServices.Strings);
         _tabs.ActiveChanged += OnActiveChanged;
         _tabs.TabsChanged += OnTabsChanged;
+        _tabs.PanesChanged += OnPanesChanged;
 
-        GridView.GridSizeChanged += OnGridSizeChanged;
-
+        SplitButton.Content = AppServices.Strings.Get(StringKeys.TerminalSplit);
         CanvasHost.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
 
         Loaded += OnLoaded;
     }
 
-    private TerminalViewModel? Active => _tabs.Active?.ViewModel;
+    private TerminalViewModel? Active => _tabs.Active?.Active.ViewModel;
 
     public void AttachTabStrip(TerminalTabStrip strip)
     {
@@ -78,10 +79,9 @@ public sealed partial class TerminalScreen : UserControl
         if (_bound is { } previous)
         {
             previous.PropertyChanged -= OnViewModelPropertyChanged;
-            previous.GridChanged -= OnGridChanged;
         }
 
-        _bound = _tabs.Active?.ViewModel;
+        _bound = Active;
 
         if (_bound is not { } viewModel)
         {
@@ -89,13 +89,62 @@ public sealed partial class TerminalScreen : UserControl
         }
 
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        viewModel.GridChanged += OnGridChanged;
 
-        GridView.Model = viewModel.Grid;
         StatusText.Text = viewModel.Status;
+        RenderPanes();
         RenderStrip();
-        OnGridChanged(this, EventArgs.Empty);
         TakeFocus(FocusState.Programmatic);
+    }
+
+    private void OnPanesChanged(object? sender, EventArgs args)
+    {
+        RenderPanes();
+        RenderStrip();
+    }
+
+    private void RenderPanes()
+    {
+        CanvasHost.Children.Clear();
+        CanvasHost.ColumnDefinitions.Clear();
+
+        if (_tabs.Active is not { } tab)
+        {
+            return;
+        }
+
+        for (var index = 0; index < tab.Panes.Count; index++)
+        {
+            CanvasHost.ColumnDefinitions.Add(new ColumnDefinition());
+            CanvasHost.Children.Add(BuildPaneView(tab.Panes[index], index));
+
+            if (index > 0)
+            {
+                CanvasHost.Children.Add(BuildPaneDivider(index));
+            }
+        }
+    }
+
+    private TerminalPaneView BuildPaneView(TerminalPane pane, int column)
+    {
+        var view = new TerminalPaneView();
+        view.Bind(pane);
+        view.GridSizeChanged += OnGridSizeChanged;
+        Grid.SetColumn(view, column);
+        return view;
+    }
+
+    private static Border BuildPaneDivider(int column)
+    {
+        var divider = new Border
+        {
+            Width = 1,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Background = PanelResources.Brush(StrokeKey),
+            IsHitTestVisible = false,
+        };
+
+        Grid.SetColumn(divider, column);
+        return divider;
     }
 
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
@@ -108,25 +157,21 @@ public sealed partial class TerminalScreen : UserControl
     private async void OnProfileRequested(object? sender, ShellProfile profile) =>
         await _tabs.OpenAsync(profile, CancellationToken.None);
 
-    private void OnGridChanged(object? sender, EventArgs args)
+    private async void OnGridSizeChanged(object? sender, TextGridSize size)
     {
-        if (Active is not { } viewModel)
+        if (sender is not TerminalPaneView { Pane: { } pane })
         {
             return;
         }
 
-        GridView.Invalidate();
-        ScrollIndicator.Update(viewModel.History, viewModel.DisplayOffset, viewModel.Grid.Rows);
+        await pane.ViewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
+        RenderStrip();
     }
 
-    private async void OnGridSizeChanged(object? sender, TextGridSize size)
+    private async void OnSplitClick(object sender, RoutedEventArgs args)
     {
-        foreach (var tab in _tabs.Tabs.ToList())
-        {
-            await tab.ViewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
-        }
-
-        RenderStrip();
+        await _tabs.SplitAsync(CancellationToken.None);
+        TakeFocus(FocusState.Programmatic);
     }
 
     private void RenderStrip()
@@ -138,6 +183,29 @@ public sealed partial class TerminalScreen : UserControl
 
         SessionText.Text = TerminalChrome.Session(tab);
         StripMeta.Text = TerminalChrome.Dimensions(tab.ViewModel);
+        SplitButton.Content = TerminalChrome.Split(
+            AppServices.Strings.Get(StringKeys.TerminalSplit),
+            tab.Panes.Count);
+    }
+
+    private TerminalPaneView? PaneAt(PointerRoutedEventArgs args)
+    {
+        foreach (var child in CanvasHost.Children)
+        {
+            if (child is not TerminalPaneView view)
+            {
+                continue;
+            }
+
+            var local = args.GetCurrentPoint(view).Position;
+
+            if (local.X >= 0 && local.Y >= 0 && local.X < view.ActualWidth && local.Y < view.ActualHeight)
+            {
+                return view;
+            }
+        }
+
+        return null;
     }
 
     private async void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args)
@@ -145,21 +213,41 @@ public sealed partial class TerminalScreen : UserControl
         args.Handled = true;
         TakeFocus(FocusState.Pointer);
 
-        var point = args.GetCurrentPoint(GridView);
-        await SendButtonAsync(point, PointerButtons.Pressed(point.Properties), true);
+        if (PaneAt(args) is not { Pane: { } pane } view)
+        {
+            return;
+        }
+
+        if (_tabs.Active is { } tab && !ReferenceEquals(tab.Active, pane))
+        {
+            tab.Active = pane;
+            RenderStrip();
+        }
+
+        var point = args.GetCurrentPoint(view);
+        await SendButtonAsync(view, point, PointerButtons.Pressed(point.Properties), true);
     }
 
     private async void OnCanvasPointerReleased(object sender, PointerRoutedEventArgs args)
     {
         args.Handled = true;
 
-        var point = args.GetCurrentPoint(GridView);
-        await SendButtonAsync(point, PointerButtons.Released(point.Properties.PointerUpdateKind), false);
+        if (PaneAt(args) is not { } view)
+        {
+            return;
+        }
+
+        var point = args.GetCurrentPoint(view);
+        await SendButtonAsync(view, point, PointerButtons.Released(point.Properties.PointerUpdateKind), false);
     }
 
-    private Task SendButtonAsync(PointerPoint point, TerminalMouseButton? button, bool pressed)
+    private Task SendButtonAsync(
+        TerminalPaneView view,
+        PointerPoint point,
+        TerminalMouseButton? button,
+        bool pressed)
     {
-        if (button is not { } value || Active is not { } viewModel)
+        if (button is not { } value || view.Pane?.ViewModel is not { } viewModel)
         {
             return Task.CompletedTask;
         }
@@ -167,24 +255,29 @@ public sealed partial class TerminalScreen : UserControl
         return viewModel.ButtonAsync(
             value,
             pressed,
-            GridView.ColumnAt(point.Position.X),
-            GridView.RowAt(point.Position.Y),
+            view.ColumnAt(point.Position.X),
+            view.RowAt(point.Position.Y),
             CancellationToken.None);
     }
 
     private async void OnCanvasPointerWheelChanged(object sender, PointerRoutedEventArgs args)
     {
-        var point = args.GetCurrentPoint(GridView);
-        if (point.Properties.MouseWheelDelta == 0 || Active is not { } viewModel)
+        if (PaneAt(args) is not { Pane: { } pane } view)
+        {
+            return;
+        }
+
+        var point = args.GetCurrentPoint(view);
+        if (point.Properties.MouseWheelDelta == 0)
         {
             return;
         }
 
         args.Handled = true;
-        await viewModel.WheelAsync(
+        await pane.ViewModel.WheelAsync(
             Math.Sign(point.Properties.MouseWheelDelta),
-            GridView.ColumnAt(point.Position.X),
-            GridView.RowAt(point.Position.Y),
+            view.ColumnAt(point.Position.X),
+            view.RowAt(point.Position.Y),
             CancellationToken.None);
     }
 
