@@ -11,5 +11,6 @@ mod command_line;
 mod environment;
 mod pipe;
 mod pump;
+mod session_scoped;
 mod spawn;
 mod wide;

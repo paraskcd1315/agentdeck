@@ -82,15 +82,9 @@ fn attach_and_create(
     startup.StartupInfo.hStdError = INVALID_HANDLE_VALUE;
     startup.lpAttributeList = attribute_list;
 
-    let mut environment = build_block(&command.env);
-    let environment_pointer = environment
-        .as_mut()
-        .map_or(std::ptr::null(), |block| block.as_ptr() as *const c_void);
-    let creation_flags = if environment.is_some() {
-        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT
-    } else {
-        EXTENDED_STARTUPINFO_PRESENT
-    };
+    let environment = build_block(&command.env);
+    let environment_pointer = environment.as_ptr() as *const c_void;
+    let creation_flags = EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT;
 
     let mut command_line = to_wide_null_str(&command.command_line());
     let working_directory = command.cwd.as_ref().map(|path| to_wide_null(path.as_os_str()));
@@ -107,11 +101,7 @@ fn attach_and_create(
             None,
             false,
             creation_flags,
-            if environment_pointer.is_null() {
-                None
-            } else {
-                Some(environment_pointer)
-            },
+            Some(environment_pointer),
             working_directory,
             &startup.StartupInfo,
             &mut information,

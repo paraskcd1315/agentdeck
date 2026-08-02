@@ -10,6 +10,18 @@ pub const PROCESS_LIVENESS_POLL_MILLIS: u32 = 0;
 pub const PSEUDOCONSOLE_ATTRIBUTE_COUNT: u32 = 1;
 pub const TERMINAL_SCROLLBACK_LINES: usize = 10_000;
 
+pub const SESSION_SCOPED_ENV_PREFIXES: [&str; 1] = ["CLAUDE_CODE_"];
+pub const SESSION_SCOPED_ENV_NAMES: [&str; 8] = [
+    "CLAUDECODE",
+    "COLORTERM",
+    "FORCE_COLOR",
+    "NO_COLOR",
+    "TERM",
+    "TERM_PROGRAM",
+    "TERM_PROGRAM_VERSION",
+    "TERM_SESSION_ID",
+];
+
 pub const PIPE_NAME: &str = r"\\.\pipe\agentdeck";
 pub const JSONRPC_VERSION: &str = "2.0";
 pub const BROADCAST_CAPACITY: usize = 1024;

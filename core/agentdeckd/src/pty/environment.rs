@@ -1,12 +1,11 @@
 use std::collections::BTreeMap;
 
-pub(crate) fn build_block(overrides: &BTreeMap<String, String>) -> Option<Vec<u16>> {
-    if overrides.is_empty() {
-        return None;
-    }
+use super::session_scoped::is_session_scoped;
 
+pub(crate) fn build_block(overrides: &BTreeMap<String, String>) -> Vec<u16> {
     let mut merged: BTreeMap<String, String> = std::env::vars()
         .map(|(key, value)| (key.to_uppercase(), value))
+        .filter(|(key, _)| !is_session_scoped(key))
         .collect();
 
     for (key, value) in overrides {
@@ -20,5 +19,5 @@ pub(crate) fn build_block(overrides: &BTreeMap<String, String>) -> Option<Vec<u1
     }
 
     block.push(0);
-    Some(block)
+    block
 }
