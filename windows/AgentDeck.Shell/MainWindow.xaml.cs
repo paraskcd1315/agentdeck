@@ -21,7 +21,9 @@ public sealed partial class MainWindow : Window
         AppGradient.Opacity = AppBackgroundBrush.Opacity(theme);
 
         ExtendsContentIntoTitleBar = true;
-        SetTitleBar(AppTitleBar);
+        SetTitleBar(DragRegion);
+        AppTitleBar.Loaded += (_, _) => SizeCaptionSpace();
+        AppWindow.Changed += (_, _) => SizeCaptionSpace();
 
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
@@ -32,6 +34,16 @@ public sealed partial class MainWindow : Window
 
         Panels.ButtonInvoked += OnPanelButtonInvoked;
         Activated += OnActivated;
+    }
+
+    private void SizeCaptionSpace()
+    {
+        if (Content?.XamlRoot is not { RasterizationScale: > 0 } root)
+        {
+            return;
+        }
+
+        CaptionSpace.Width = AppWindow.TitleBar.RightInset / root.RasterizationScale;
     }
 
     private void OnActivated(object sender, WindowActivatedEventArgs args)

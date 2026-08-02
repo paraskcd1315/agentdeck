@@ -15,6 +15,8 @@
 
             <SolidColorBrush x:Key="AdGlassThinBrush" Color="#252932" Opacity="0.40" />
             <SolidColorBrush x:Key="AdGlassBrush" Color="#16181D" Opacity="0.62" />
+            <SolidColorBrush x:Key="AdHoverBrush" Color="#FFFFFF" Opacity="0.06" />
+            <SolidColorBrush x:Key="AdPressedBrush" Color="#FFFFFF" Opacity="0.10" />
 
             <SolidColorBrush x:Key="AdTextBrush" Color="#E6E8EE" />
             <SolidColorBrush x:Key="AdText2Brush" Color="#E6E8EE" Opacity="0.64" />
@@ -103,6 +105,8 @@
 
             <SolidColorBrush x:Key="AdGlassThinBrush" Color="#FFFFFF" Opacity="0.40" />
             <SolidColorBrush x:Key="AdGlassBrush" Color="#FFFFFF" Opacity="0.62" />
+            <SolidColorBrush x:Key="AdHoverBrush" Color="#14161A" Opacity="0.06" />
+            <SolidColorBrush x:Key="AdPressedBrush" Color="#14161A" Opacity="0.10" />
 
             <SolidColorBrush x:Key="AdTextBrush" Color="#14161A" />
             <SolidColorBrush x:Key="AdText2Brush" Color="#14161A" Opacity="0.66" />
@@ -248,6 +252,7 @@
     <Thickness x:Key="AdPadCanvas">16</Thickness>
     <Thickness x:Key="AdPadButton">16,8,16,8</Thickness>
     <Thickness x:Key="AdPadTitle">12,0,0,0</Thickness>
+    <Thickness x:Key="AdPadTabs">16,0,0,0</Thickness>
     <Thickness x:Key="AdPadStrip">12,0,12,0</Thickness>
     <Thickness x:Key="AdHairline">0,1,0,0</Thickness>
 

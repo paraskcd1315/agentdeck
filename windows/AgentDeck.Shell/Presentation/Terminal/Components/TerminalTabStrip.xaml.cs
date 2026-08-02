@@ -7,6 +7,7 @@ using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
@@ -15,6 +16,7 @@ public sealed partial class TerminalTabStrip : UserControl
 {
     private const string StrokeKey = "AdStrokeBrush";
     private const string GlassKey = "AdGlassBrush";
+    private const string HoverKey = "AdHoverBrush";
     private const string TextKey = "AdTextBrush";
     private const string TextMutedKey = "AdText2Brush";
     private const string TextFaintKey = "AdText3Brush";
@@ -52,27 +54,34 @@ public sealed partial class TerminalTabStrip : UserControl
         }
     }
 
-    private Button BuildTab(TerminalTab tab, bool active)
+    private Border BuildTab(TerminalTab tab, bool active)
     {
         var content = new StackPanel { Orientation = Orientation.Horizontal };
         content.Children.Add(BuildDot(active));
         content.Children.Add(BuildLabel(tab, active));
         content.Children.Add(BuildClose(tab));
 
-        var button = new Button
+        var resting = active ? PanelResources.Brush(GlassKey) : Transparent();
+
+        var surface = new Border
         {
-            Content = content,
+            Child = content,
             Padding = TerminalTabMetrics.TabPadding,
             CornerRadius = TerminalTabMetrics.TabRadius,
-            Background = active ? PanelResources.Brush(GlassKey) : null,
+            Background = resting,
             BorderBrush = active ? PanelResources.Brush(StrokeKey) : null,
             BorderThickness = active ? TerminalTabMetrics.TabBorder : new Thickness(0),
-            AllowFocusOnInteraction = false,
-            IsTabStop = false,
         };
 
-        button.Click += (_, _) => TabSelected?.Invoke(this, tab);
-        return button;
+        surface.PointerEntered += (_, _) => surface.Background = PanelResources.Brush(HoverKey);
+        surface.PointerExited += (_, _) => surface.Background = resting;
+        surface.PointerPressed += (_, args) =>
+        {
+            args.Handled = true;
+            TabSelected?.Invoke(this, tab);
+        };
+
+        return surface;
     }
 
     private static Border BuildDot(bool active) => new()
@@ -88,6 +97,9 @@ public sealed partial class TerminalTabStrip : UserControl
     {
         Text = tab.Title,
         Margin = TerminalTabMetrics.ContentGap,
+        MaxWidth = TerminalTabMetrics.MaxLabelWidth,
+        TextTrimming = TextTrimming.CharacterEllipsis,
+        TextWrapping = TextWrapping.NoWrap,
         FontFamily = PanelResources.Font(FontKey),
         FontSize = PanelResources.Size(SizeKey),
         FontWeight = active ? FontWeights.SemiBold : FontWeights.Medium,
@@ -95,27 +107,49 @@ public sealed partial class TerminalTabStrip : UserControl
         VerticalAlignment = VerticalAlignment.Center,
     };
 
-    private Button BuildClose(TerminalTab tab)
+    private Border BuildClose(TerminalTab tab)
     {
-        var close = new Button
+        var glyph = new TextBlock
         {
-            Content = AppServices.Strings.Get(StringKeys.TerminalTabClose),
-            Margin = TerminalTabMetrics.ClosePadding,
-            Padding = new Thickness(0),
-            Background = null,
-            BorderThickness = new Thickness(0),
+            Text = AppServices.Strings.Get(StringKeys.TerminalTabClose),
             FontFamily = PanelResources.Font(FontKey),
             FontSize = PanelResources.Size(CaptionSizeKey),
             FontWeight = FontWeights.SemiBold,
             Foreground = PanelResources.Brush(TextFaintKey),
-            VerticalAlignment = VerticalAlignment.Center,
-            AllowFocusOnInteraction = false,
-            IsTabStop = false,
         };
 
-        close.Click += (_, _) => TabClosed?.Invoke(this, tab);
+        var close = new Border
+        {
+            Child = glyph,
+            Margin = TerminalTabMetrics.ClosePadding,
+            Padding = TerminalTabMetrics.ClosePad,
+            CornerRadius = TerminalTabMetrics.CloseRadius,
+            Background = Transparent(),
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+
+        close.PointerEntered += (_, _) =>
+        {
+            close.Background = PanelResources.Brush(HoverKey);
+            glyph.Foreground = PanelResources.Brush(TextKey);
+        };
+
+        close.PointerExited += (_, _) =>
+        {
+            close.Background = Transparent();
+            glyph.Foreground = PanelResources.Brush(TextFaintKey);
+        };
+
+        close.PointerPressed += (_, args) =>
+        {
+            args.Handled = true;
+            TabClosed?.Invoke(this, tab);
+        };
+
         return close;
     }
+
+    private static SolidColorBrush Transparent() => new(Microsoft.UI.Colors.Transparent);
 
     private void OnAddClick(object sender, RoutedEventArgs args)
     {

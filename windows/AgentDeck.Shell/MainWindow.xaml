@@ -22,21 +22,39 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
-                <TitleBar x:Name="AppTitleBar" Height="{StaticResource AdTitleHeight}">
-                    <TitleBar.LeftHeader>
-                        <StackPanel
-                            Padding="{StaticResource AdPadTitle}"
-                            VerticalAlignment="Stretch"
-                            Orientation="Horizontal"
-                            Spacing="{StaticResource AdSpace4}">
-                            <workspace:WorkspaceChip x:Name="Workspace" />
-                            <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Stretch" />
-                        </StackPanel>
-                    </TitleBar.LeftHeader>
-                </TitleBar>
+            <Grid
+                x:Name="AppTitleBar"
+                Grid.Row="0"
+                Height="{StaticResource AdTitleHeight}"
+                Padding="{StaticResource AdPadTitle}"
+                Background="{ThemeResource AdGlassBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <workspace:WorkspaceChip
+                    x:Name="Workspace"
+                    Grid.Column="0"
+                    VerticalAlignment="Center" />
 
                 <Border
+                    x:Name="DragRegion"
+                    Grid.Column="1"
+                    Background="Transparent" />
+
+                <terminal:TerminalTabStrip
+                    x:Name="TitleTabs"
+                    Grid.Column="1"
+                    Margin="{StaticResource AdPadTabs}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch" />
+
+                <Border x:Name="CaptionSpace" Grid.Column="2" />
+
+                <Border
+                    Grid.ColumnSpan="3"
                     Height="1"
                     VerticalAlignment="Bottom"
                     Background="{ThemeResource AdStrokeBrush}"

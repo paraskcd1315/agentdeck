@@ -6,25 +6,35 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     IsTabStop="False"
-    VerticalContentAlignment="Bottom"
     mc:Ignorable="d">
 
-    <StackPanel
-        Padding="0,8,0,0"
-        VerticalAlignment="Bottom"
-        Orientation="Horizontal"
-        Spacing="4">
-        <StackPanel
-            x:Name="TabHost"
+    <Grid Padding="0,8,0,0" VerticalAlignment="Bottom">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <ScrollViewer
+            Grid.Column="0"
+            HorizontalScrollBarVisibility="Hidden"
+            HorizontalScrollMode="Enabled"
+            IsTabStop="False"
             VerticalAlignment="Bottom"
-            Orientation="Horizontal"
-            Spacing="4" />
+            VerticalScrollBarVisibility="Disabled"
+            VerticalScrollMode="Disabled">
+            <StackPanel
+                x:Name="TabHost"
+                VerticalAlignment="Bottom"
+                Orientation="Horizontal"
+                Spacing="4" />
+        </ScrollViewer>
 
         <Button
             x:Name="AddButton"
+            Grid.Column="1"
             Width="28"
             Height="28"
-            Margin="0,0,0,4"
+            Margin="4,0,0,4"
             AllowFocusOnInteraction="False"
             Background="Transparent"
             BorderThickness="0"
@@ -36,5 +46,5 @@
             Foreground="{ThemeResource AdText3Brush}"
             IsTabStop="False"
             Padding="0" />
-    </StackPanel>
+    </Grid>
 </UserControl>

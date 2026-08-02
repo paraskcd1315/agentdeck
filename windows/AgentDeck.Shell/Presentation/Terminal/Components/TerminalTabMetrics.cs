@@ -19,4 +19,8 @@ public static class TerminalTabMetrics
     public static readonly Thickness TabBorder = new(1, 1, 1, 0);
     public static readonly Thickness ContentGap = new(8, 0, 0, 0);
     public static readonly Thickness ClosePadding = new(4, 0, 0, 0);
+    public static readonly Thickness ClosePad = new(3);
+    public static readonly CornerRadius CloseRadius = new(4);
+
+    public const double MaxLabelWidth = 140;
 }
