@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AgentDeck.Shell (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "AgentDeck.Shell (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
