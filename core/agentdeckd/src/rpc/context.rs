@@ -8,10 +8,10 @@ use tokio::sync::broadcast;
 use crate::config::paths::StateDirs;
 use crate::constants::{BROADCAST_CAPACITY, NOTIFY_PTY_DATA, NOTIFY_PTY_EXIT};
 use crate::pty::command::PtyCommand;
-use crate::pty::registry::SessionRegistry;
-use crate::pty::session::PtySession;
 use crate::pty::session_id::PtyId;
 use crate::pty::size::PtySize;
+use crate::terminal::registry::SessionRegistry;
+use crate::terminal::session::TerminalSession;
 
 use super::error::RpcError;
 use super::notification::Notification;
@@ -46,9 +46,10 @@ impl ServerContext {
     }
 
     pub fn spawn_pty(&self, command: &PtyCommand, size: PtySize) -> Result<PtyId, RpcError> {
-        let (session, mut output) =
-            PtySession::spawn(command, size).map_err(|error| RpcError::internal(error.to_string()))?;
+        let (session, mut output, _events) = TerminalSession::spawn(command, size)
+            .map_err(|error| RpcError::internal(error.to_string()))?;
         let id = session.id();
+        let emulator = session.emulator();
 
         self.registry
             .lock()
@@ -58,6 +59,10 @@ impl ServerContext {
         let context = self.clone();
         tokio::spawn(async move {
             while let Some(chunk) = output.recv().await {
+                if let Ok(mut emulator) = emulator.lock() {
+                    emulator.advance(&chunk);
+                }
+
                 context.notify(Notification::new(
                     NOTIFY_PTY_DATA,
                     json!({ "ptyId": id.value(), "dataB64": BASE64.encode(&chunk) }),
@@ -97,6 +102,14 @@ impl ServerContext {
         })
     }
 
+    pub fn visible_lines(&self, id: PtyId) -> Result<Vec<String>, RpcError> {
+        let emulator = self.with_session(id, |session| Ok(session.emulator()))?;
+        let emulator = emulator
+            .lock()
+            .map_err(|_| RpcError::internal("the emulator lock is poisoned"))?;
+        Ok(emulator.visible_lines())
+    }
+
     fn exit_code(&self, id: PtyId) -> Option<u32> {
         let registry = self.registry.lock().ok()?;
         registry.get(id)?.exit_code().ok().flatten()
@@ -105,7 +118,7 @@ impl ServerContext {
     fn with_session<T>(
         &self,
         id: PtyId,
-        action: impl FnOnce(&PtySession) -> Result<T, RpcError>,
+        action: impl FnOnce(&TerminalSession) -> Result<T, RpcError>,
     ) -> Result<T, RpcError> {
         let registry = self
             .registry

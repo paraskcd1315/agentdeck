@@ -16,9 +16,9 @@ use super::context::ServerContext;
 use super::error::RpcError;
 use super::method::Method;
 use super::notification::Notification;
-use super::params::kill::KillParams;
 use super::params::panel_list::PanelListParams;
 use super::params::panel_read::PanelReadParams;
+use super::params::pty_target::PtyTargetParams;
 use super::params::resize::ResizeParams;
 use super::params::spawn::SpawnParams;
 use super::params::workspace_open::WorkspaceOpenParams;
@@ -38,6 +38,7 @@ pub fn dispatch(method: Method, params: Value, context: &ServerContext) -> Resul
         Method::PanelList => panel_list(parse(params)?, context),
         Method::PanelRead => panel_read(parse(params)?, context),
         Method::WorkspaceOpen => workspace_open(parse(params)?, context),
+        Method::TerminalText => terminal_text(parse(params)?, context),
         Method::Unknown => Err(RpcError::method_not_found("")),
     }
 }
@@ -113,9 +114,14 @@ fn resize(params: ResizeParams, context: &ServerContext) -> Result<Value, RpcErr
     Ok(json!({}))
 }
 
-fn kill(params: KillParams, context: &ServerContext) -> Result<Value, RpcError> {
+fn kill(params: PtyTargetParams, context: &ServerContext) -> Result<Value, RpcError> {
     context.kill_pty(PtyId::from_value(params.pty_id))?;
     Ok(json!({}))
+}
+
+fn terminal_text(params: PtyTargetParams, context: &ServerContext) -> Result<Value, RpcError> {
+    let lines = context.visible_lines(PtyId::from_value(params.pty_id))?;
+    Ok(json!({ "lines": lines }))
 }
 
 fn hook_event(params: Value, context: &ServerContext) -> Result<Value, RpcError> {

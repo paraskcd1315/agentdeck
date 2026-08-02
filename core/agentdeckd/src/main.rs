@@ -3,6 +3,7 @@ mod constants;
 mod panel;
 mod pty;
 mod rpc;
+mod terminal;
 
 use std::path::PathBuf;
 

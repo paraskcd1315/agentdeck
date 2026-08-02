@@ -1,6 +1,6 @@
-pub mod kill;
 pub mod panel_list;
 pub mod panel_read;
+pub mod pty_target;
 pub mod resize;
 pub mod spawn;
 pub mod workspace_open;

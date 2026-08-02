@@ -8,6 +8,7 @@ pub const PTY_SMOKE_DRAIN_MILLIS: u64 = 4000;
 pub const PTY_SMOKE_POLL_MILLIS: u64 = 100;
 pub const PROCESS_LIVENESS_POLL_MILLIS: u32 = 0;
 pub const PSEUDOCONSOLE_ATTRIBUTE_COUNT: u32 = 1;
+pub const TERMINAL_SCROLLBACK_LINES: usize = 10_000;
 
 pub const PIPE_NAME: &str = r"\\.\pipe\agentdeck";
 pub const JSONRPC_VERSION: &str = "2.0";
@@ -21,6 +22,7 @@ pub const METHOD_HOOK_EVENT: &str = "hook.event";
 pub const METHOD_PANEL_LIST: &str = "panel.list";
 pub const METHOD_PANEL_READ: &str = "panel.read";
 pub const METHOD_WORKSPACE_OPEN: &str = "workspace.open";
+pub const METHOD_TERMINAL_TEXT: &str = "terminal.text";
 
 pub const STATE_DIRECTORY: &str = ".agentdeck";
 pub const WORKSPACES_DIRECTORY: &str = "workspaces";

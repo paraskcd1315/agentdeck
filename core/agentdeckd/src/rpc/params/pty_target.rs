@@ -2,6 +2,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct KillParams {
+pub struct PtyTargetParams {
     pub pty_id: u64,
 }
