@@ -7,7 +7,8 @@
     <TextBlock
         x:Name="BodyText"
         FontFamily="{StaticResource AdFontUi}"
-        FontSize="{StaticResource AdFontSizeBody}"
-        Foreground="{ThemeResource AdTextPrimaryBrush}"
+        FontSize="{StaticResource AdBodySize}"
+        Foreground="{ThemeResource AdTextBrush}"
+        LineHeight="{StaticResource AdBodyLine}"
         TextWrapping="Wrap" />
 </UserControl>

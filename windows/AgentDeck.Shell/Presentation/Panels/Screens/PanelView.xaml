@@ -2,24 +2,40 @@
 <UserControl
     x:Class="AgentDeck.Shell.Presentation.Panels.Screens.PanelView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:foundation="using:AgentDeck.Shell.Presentation.DesignSystem.Foundation">
 
     <Border
-        Background="{ThemeResource AdGlassBrush}"
-        BorderBrush="{ThemeResource AdBorderBrush}"
+        BorderBrush="{ThemeResource AdStrokeBrush}"
         BorderThickness="1"
-        CornerRadius="{StaticResource AdRadiusLg}"
-        Padding="{StaticResource AdPadCanvas}">
-        <StackPanel Spacing="{StaticResource AdSpace3}">
-            <TextBlock
-                x:Name="TitleText"
-                FontFamily="{StaticResource AdFontUi}"
-                FontSize="{StaticResource AdFontSizeBody}"
-                FontWeight="SemiBold"
-                Foreground="{ThemeResource AdTextPrimaryBrush}"
-                TextWrapping="Wrap" />
-            <Rectangle Height="1" Fill="{ThemeResource AdBorderBrush}" />
-            <StackPanel x:Name="BlockHost" Spacing="{StaticResource AdSpace3}" />
-        </StackPanel>
+        CornerRadius="{StaticResource AdRadiusLg}">
+        <Border.Background>
+            <foundation:BackdropGlassBrush
+                BlurAmount="{StaticResource AdGlassBlur}"
+                Saturation="{StaticResource AdGlassSaturation}"
+                TintColor="{ThemeResource AdGlassTint}" />
+        </Border.Background>
+
+        <Grid>
+            <StackPanel Padding="{StaticResource AdPadCanvas}" Spacing="{StaticResource AdSpace3}">
+                <TextBlock
+                    x:Name="TitleText"
+                    FontFamily="{StaticResource AdFontUi}"
+                    FontSize="{StaticResource AdH2Size}"
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource AdTextBrush}"
+                    LineHeight="{StaticResource AdH2Line}"
+                    TextWrapping="Wrap" />
+                <Rectangle Height="1" Fill="{ThemeResource AdGradientRule}" />
+                <StackPanel x:Name="BlockHost" Spacing="{StaticResource AdSpace3}" />
+            </StackPanel>
+
+            <Border
+                Height="1"
+                Margin="1,0,1,0"
+                VerticalAlignment="Top"
+                Background="{ThemeResource AdSpecularBrush}"
+                IsHitTestVisible="False" />
+        </Grid>
     </Border>
 </UserControl>

@@ -1,6 +1,8 @@
 using AgentDeck.Shell.Domain.Entities;
+using AgentDeck.Shell.Presentation.DesignSystem.Foundation;
 using AgentDeck.Shell.Utils;
 
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 
 namespace AgentDeck.Shell;
@@ -11,6 +13,7 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
 
+        SystemBackdrop = new AdAcrylicBackdrop { Kind = DesktopAcrylicKind.Thin };
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 

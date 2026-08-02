@@ -29,6 +29,7 @@ public sealed partial class KeyValueBlockView : UserControl
             Text = row.Key,
             TextWrapping = TextWrapping.Wrap,
             FontFamily = PanelResources.Font(PanelMetrics.FontUi),
+            FontSize = PanelResources.Size(PanelMetrics.BodySize),
             Foreground = PanelResources.Brush(PanelMetrics.TextSecondary),
         };
 
@@ -37,6 +38,7 @@ public sealed partial class KeyValueBlockView : UserControl
             Text = row.Value,
             TextWrapping = TextWrapping.Wrap,
             FontFamily = PanelResources.Font(PanelMetrics.FontMono),
+            FontSize = PanelResources.Size(PanelMetrics.MonoSize),
             Foreground = PanelResources.Brush(PanelMetrics.TextPrimary),
         };
 

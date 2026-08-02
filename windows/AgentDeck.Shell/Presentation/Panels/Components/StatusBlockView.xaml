@@ -14,8 +14,9 @@
             x:Name="StateText"
             VerticalAlignment="Center"
             FontFamily="{StaticResource AdFontUi}"
-            FontSize="{StaticResource AdFontSizeBody}"
-            Foreground="{ThemeResource AdTextPrimaryBrush}"
+            FontSize="{StaticResource AdBodySize}"
+            Foreground="{ThemeResource AdTextBrush}"
+            LineHeight="{StaticResource AdBodyLine}"
             TextWrapping="Wrap" />
     </StackPanel>
 </UserControl>

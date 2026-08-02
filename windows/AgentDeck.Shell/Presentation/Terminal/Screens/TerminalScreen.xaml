@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:foundation="using:AgentDeck.Shell.Presentation.DesignSystem.Foundation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -16,38 +17,61 @@
 
         <Border
             Grid.Row="0"
-            Background="{ThemeResource AdTerminalCanvasBrush}"
-            BorderBrush="{ThemeResource AdBorderBrush}"
+            Background="{ThemeResource AdTermCanvasBrush}"
+            BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="1"
             CornerRadius="{StaticResource AdRadiusLg}">
-            <ScrollViewer
-                x:Name="OutputScroller"
-                Padding="{StaticResource AdPadCanvas}"
-                VerticalScrollBarVisibility="Auto"
-                VerticalScrollMode="Auto">
-                <TextBlock
-                    x:Name="OutputText"
-                    FontFamily="{StaticResource AdFontMono}"
-                    FontSize="{StaticResource AdFontSizeMonoTerm}"
-                    Foreground="{ThemeResource AdTerminalForegroundBrush}"
-                    IsTextSelectionEnabled="True"
-                    LineHeight="{StaticResource AdLineHeightMonoTerm}"
-                    TextWrapping="Wrap" />
-            </ScrollViewer>
+            <Grid>
+                <ScrollViewer
+                    x:Name="OutputScroller"
+                    Padding="{StaticResource AdPadCanvas}"
+                    VerticalScrollBarVisibility="Auto"
+                    VerticalScrollMode="Auto">
+                    <TextBlock
+                        x:Name="OutputText"
+                        FontFamily="{StaticResource AdFontMono}"
+                        FontSize="{StaticResource AdMonoSize}"
+                        Foreground="{ThemeResource AdTermForegroundBrush}"
+                        IsTextSelectionEnabled="True"
+                        LineHeight="{StaticResource AdMonoLine}"
+                        TextWrapping="Wrap" />
+                </ScrollViewer>
+
+                <Border
+                    Height="1"
+                    Margin="1,0,1,0"
+                    VerticalAlignment="Top"
+                    Background="{ThemeResource AdSpecularBrush}"
+                    IsHitTestVisible="False" />
+            </Grid>
         </Border>
 
-        <TextBox
-            x:Name="InputBox"
+        <Border
             Grid.Row="1"
-            FontFamily="{StaticResource AdFontMono}"
-            FontSize="{StaticResource AdFontSizeMonoTerm}"
-            KeyDown="OnInputKeyDown" />
+            BorderBrush="{ThemeResource AdStrokeBrush}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource AdRadiusMd}">
+            <Border.Background>
+                <foundation:BackdropGlassBrush
+                    BlurAmount="{StaticResource AdGlassThinBlur}"
+                    Saturation="{StaticResource AdGlassThinSaturation}"
+                    TintColor="{ThemeResource AdGlassThinTint}" />
+            </Border.Background>
+            <TextBox
+                x:Name="InputBox"
+                Background="Transparent"
+                BorderThickness="0"
+                FontFamily="{StaticResource AdFontMono}"
+                FontSize="{StaticResource AdMonoSize}"
+                Foreground="{ThemeResource AdTextBrush}"
+                KeyDown="OnInputKeyDown" />
+        </Border>
 
         <TextBlock
             x:Name="StatusText"
             Grid.Row="2"
             FontFamily="{StaticResource AdFontUi}"
-            FontSize="{StaticResource AdFontSizeUi}"
-            Foreground="{ThemeResource AdTextSecondaryBrush}" />
+            FontSize="{StaticResource AdUiSize}"
+            Foreground="{ThemeResource AdText2Brush}" />
     </Grid>
 </UserControl>
