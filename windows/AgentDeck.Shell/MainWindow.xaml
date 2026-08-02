@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:panels="using:AgentDeck.Shell.Presentation.Panels.Screens"
     xmlns:screens="using:AgentDeck.Shell.Presentation.Terminal.Screens"
+    xmlns:terminal="using:AgentDeck.Shell.Presentation.Terminal.Components"
     mc:Ignorable="d">
 
     <Grid>
@@ -23,6 +24,9 @@
                 <TitleBar.IconSource>
                     <ImageIconSource ImageSource="Assets/AppIcon.ico" />
                 </TitleBar.IconSource>
+                <TitleBar.Content>
+                    <terminal:TerminalTabStrip x:Name="TitleTabs" VerticalAlignment="Center" />
+                </TitleBar.Content>
             </TitleBar>
 
             <Grid Grid.Row="1">
@@ -33,10 +37,18 @@
 
                 <screens:TerminalScreen x:Name="Terminal" Grid.Column="0" />
 
+                <Border
+                    Grid.Column="1"
+                    Width="1"
+                    Margin="0,20,0,20"
+                    HorizontalAlignment="Left"
+                    Background="{ThemeResource AdStrokeBrush}"
+                    IsHitTestVisible="False" />
+
                 <panels:PanelsPane
                     x:Name="Panels"
                     Grid.Column="1"
-                    Margin="0,20,20,20" />
+                    Margin="20,20,20,20" />
             </Grid>
         </Grid>
     </Grid>

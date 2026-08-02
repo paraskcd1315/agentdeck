@@ -27,6 +27,8 @@ public sealed partial class MainWindow : Window
         Title = AppServices.Strings.Get(StringKeys.WindowTitle);
         AppTitleBar.Title = Title;
 
+        Terminal.AttachTabStrip(TitleTabs);
+
         Panels.ButtonInvoked += OnPanelButtonInvoked;
         Activated += OnActivated;
     }

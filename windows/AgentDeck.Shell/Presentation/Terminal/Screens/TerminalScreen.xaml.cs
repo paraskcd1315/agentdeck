@@ -24,6 +24,7 @@ public sealed partial class TerminalScreen : UserControl
     private readonly TerminalTabsViewModel _tabs;
 
     private TerminalViewModel? _bound;
+    private TerminalTabStrip? _strip;
 
     public TerminalScreen()
     {
@@ -33,10 +34,6 @@ public sealed partial class TerminalScreen : UserControl
         _tabs.ActiveChanged += OnActiveChanged;
         _tabs.TabsChanged += OnTabsChanged;
 
-        TabStrip.TabSelected += OnTabSelected;
-        TabStrip.TabClosed += OnTabClosed;
-        TabStrip.ProfileRequested += OnProfileRequested;
-
         GridView.GridSizeChanged += OnGridSizeChanged;
 
         CanvasBorder.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
@@ -45,6 +42,15 @@ public sealed partial class TerminalScreen : UserControl
     }
 
     private TerminalViewModel? Active => _tabs.Active?.ViewModel;
+
+    public void AttachTabStrip(TerminalTabStrip strip)
+    {
+        _strip = strip;
+        strip.TabSelected += OnTabSelected;
+        strip.TabClosed += OnTabClosed;
+        strip.ProfileRequested += OnProfileRequested;
+        RenderTabs();
+    }
 
     public Task InjectAsync(string prompt) =>
         Active?.SendAsync($"{prompt}\r", CancellationToken.None) ?? Task.CompletedTask;
@@ -91,7 +97,7 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private void RenderTabs() => TabStrip.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
+    private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
 
     private void OnTabSelected(object? sender, TerminalTab tab) => _tabs.Activate(tab);
 
