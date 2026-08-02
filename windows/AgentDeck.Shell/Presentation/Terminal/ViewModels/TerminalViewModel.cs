@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
+using AgentDeck.Shell.Data.Daemon.Dto;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Domain.Interfaces;
 using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
@@ -16,6 +17,7 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
     private readonly SynchronizationContext? _uiContext;
 
     private long? _ptyId;
+    private GridModeDto? _mode;
     private bool _started;
     private string _status = string.Empty;
     private int _columns = TerminalMetrics.DefaultCols;
@@ -87,13 +89,20 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         await _client.WriteAsync(ptyId, text, cancellationToken);
     }
 
-    public async Task ScrollAsync(int delta, CancellationToken cancellationToken)
+    public async Task WheelAsync(int notches, int columnIndex, int rowIndex, CancellationToken cancellationToken)
     {
         if (_ptyId is not { } ptyId)
         {
             return;
         }
 
+        if (MouseEncoder.Wheel(_mode, notches, columnIndex, rowIndex) is { } sequence)
+        {
+            await _client.WriteAsync(ptyId, sequence, cancellationToken);
+            return;
+        }
+
+        var delta = notches * TerminalMetrics.WheelScrollLines;
         if (await _client.ScrollAsync(ptyId, delta, cancellationToken) is { } snapshot)
         {
             ApplySnapshot(snapshot);
@@ -126,8 +135,9 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         Post(() => ApplySnapshot(args.Snapshot));
     }
 
-    private void ApplySnapshot(Data.Daemon.Dto.GridSnapshotDto snapshot)
+    private void ApplySnapshot(GridSnapshotDto snapshot)
     {
+        _mode = snapshot.Mode ?? _mode;
         GridSnapshotMapper.Apply(Grid, snapshot);
         GridChanged?.Invoke(this, EventArgs.Empty);
     }

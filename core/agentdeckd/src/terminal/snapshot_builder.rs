@@ -12,6 +12,7 @@ use super::event_proxy::EventProxy;
 use super::wire::color::WireColor;
 use super::wire::cursor::WireCursor;
 use super::wire::line::WireLine;
+use super::wire::mode::WireMode;
 use super::wire::snapshot::WireSnapshot;
 use super::wire::span::WireSpan;
 use super::wire::style::WireStyle;
@@ -65,6 +66,7 @@ fn build(
         rows: screen_lines,
         full,
         cursor: cursor_of(term),
+        mode: WireMode::new(*term.mode()),
         lines,
     }
 }

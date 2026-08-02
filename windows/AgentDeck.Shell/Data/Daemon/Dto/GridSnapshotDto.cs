@@ -19,6 +19,9 @@ public sealed class GridSnapshotDto
     [JsonPropertyName("cursor")]
     public GridCursorDto? Cursor { get; init; }
 
+    [JsonPropertyName("mode")]
+    public GridModeDto? Mode { get; init; }
+
     [JsonPropertyName("lines")]
     public IReadOnlyList<GridLineDto> Lines { get; init; } = Array.Empty<GridLineDto>();
 }

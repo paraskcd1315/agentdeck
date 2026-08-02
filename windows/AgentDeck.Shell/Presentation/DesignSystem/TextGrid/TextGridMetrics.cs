@@ -39,4 +39,8 @@ public sealed class TextGridMetrics
     public int ColumnsFor(double width) => Math.Max(1, (int)(width / CellWidth));
 
     public int RowsFor(double height) => Math.Max(1, (int)(height / CellHeight));
+
+    public int ColumnAt(double x) => Math.Max(0, (int)(x / CellWidth));
+
+    public int RowAt(double y) => Math.Max(0, (int)(y / CellHeight));
 }

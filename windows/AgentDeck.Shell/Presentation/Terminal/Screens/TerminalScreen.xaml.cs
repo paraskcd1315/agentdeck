@@ -65,15 +65,18 @@ public sealed partial class TerminalScreen : UserControl
 
     private async void OnCanvasPointerWheelChanged(object sender, PointerRoutedEventArgs args)
     {
-        var wheel = args.GetCurrentPoint(this).Properties.MouseWheelDelta;
-        if (wheel == 0)
+        var point = args.GetCurrentPoint(GridView);
+        if (point.Properties.MouseWheelDelta == 0)
         {
             return;
         }
 
         args.Handled = true;
-        var lines = Math.Sign(wheel) * TerminalMetrics.WheelScrollLines;
-        await _viewModel.ScrollAsync(lines, CancellationToken.None);
+        await _viewModel.WheelAsync(
+            Math.Sign(point.Properties.MouseWheelDelta),
+            GridView.ColumnAt(point.Position.X),
+            GridView.RowAt(point.Position.Y),
+            CancellationToken.None);
     }
 
     private void OnCanvasGotFocus(object sender, RoutedEventArgs args) =>

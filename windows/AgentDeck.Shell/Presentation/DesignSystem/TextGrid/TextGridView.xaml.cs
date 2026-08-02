@@ -33,6 +33,10 @@ public sealed partial class TextGridView : UserControl
 
     public void Invalidate() => Surface.Invalidate();
 
+    public int ColumnAt(double x) => _metrics?.ColumnAt(x) ?? 0;
+
+    public int RowAt(double y) => _metrics?.RowAt(y) ?? 0;
+
     private void OnCreateResources(CanvasControl sender, CanvasCreateResourcesEventArgs args)
     {
         var family = TextGridFonts.Resolve(AppServices.Config.Theme?.Terminal?.Font);
