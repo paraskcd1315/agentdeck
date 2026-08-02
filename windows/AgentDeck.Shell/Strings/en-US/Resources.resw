@@ -59,7 +59,4 @@
   <data name="TerminalStatusHookReceived" xml:space="preserve">
     <value>Hook event received: {0}</value>
   </data>
-  <data name="TerminalInputPlaceholder" xml:space="preserve">
-    <value>Type a command and press Enter</value>
-  </data>
 </root>

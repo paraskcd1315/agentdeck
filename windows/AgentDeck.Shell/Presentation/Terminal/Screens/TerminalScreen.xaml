@@ -11,7 +11,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border
@@ -19,7 +18,14 @@
             Grid.Row="0"
             BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="1"
-            CornerRadius="{StaticResource AdRadiusLg}">
+            CharacterReceived="OnCharacterReceived"
+            CornerRadius="{StaticResource AdRadiusLg}"
+            GotFocus="OnCanvasGotFocus"
+            IsTabStop="True"
+            LostFocus="OnCanvasLostFocus"
+            PointerPressed="OnCanvasPointerPressed"
+            PreviewKeyDown="OnCanvasPreviewKeyDown"
+            UseSystemFocusVisuals="False">
             <Grid>
                 <ScrollViewer
                     x:Name="OutputScroller"
@@ -45,35 +51,9 @@
             </Grid>
         </Border>
 
-        <Border
-            x:Name="InputBorder"
-            Grid.Row="1"
-            BorderBrush="{ThemeResource AdStrokeBrush}"
-            BorderThickness="1"
-            CornerRadius="{StaticResource AdRadiusMd}">
-            <TextBox
-                x:Name="InputBox"
-                Background="Transparent"
-                BorderThickness="0"
-                FontFamily="{StaticResource AdFontMono}"
-                FontSize="{StaticResource AdMonoSize}"
-                Foreground="{ThemeResource AdTextBrush}"
-                GotFocus="OnInputGotFocus"
-                KeyDown="OnInputKeyDown"
-                LostFocus="OnInputLostFocus">
-                <TextBox.Resources>
-                    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
-                    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
-                    <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
-                    <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
-                    <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
-                </TextBox.Resources>
-            </TextBox>
-        </Border>
-
         <TextBlock
             x:Name="StatusText"
-            Grid.Row="2"
+            Grid.Row="1"
             FontFamily="{StaticResource AdFontUi}"
             FontSize="{StaticResource AdUiSize}"
             Foreground="{ThemeResource AdText2Brush}" />
