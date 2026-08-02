@@ -32,6 +32,7 @@ public sealed partial class TerminalTabStrip : UserControl
     {
         InitializeComponent();
         AddButton.Content = AppServices.Strings.Get(StringKeys.TerminalTabNew);
+        SizeChanged += (_, _) => ShowOverflowEdge();
     }
 
     public event EventHandler<TerminalTab>? TabSelected;
@@ -52,6 +53,25 @@ public sealed partial class TerminalTabStrip : UserControl
         {
             TabHost.Children.Add(BuildTab(tab, ReferenceEquals(tab, active)));
         }
+
+        DispatcherQueue.TryEnqueue(ShowOverflowEdge);
+    }
+
+    private void ShowOverflowEdge() =>
+        OverflowEdge.Visibility = TabScroller.ScrollableWidth > 0
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+    private void OnStripWheel(object sender, PointerRoutedEventArgs args)
+    {
+        var delta = args.GetCurrentPoint(TabScroller).Properties.MouseWheelDelta;
+        if (delta == 0)
+        {
+            return;
+        }
+
+        args.Handled = true;
+        TabScroller.ChangeView(TabScroller.HorizontalOffset - delta, null, null, true);
     }
 
     private Border BuildTab(TerminalTab tab, bool active)

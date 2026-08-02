@@ -1,3 +1,5 @@
+using System.Numerics;
+
 using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Utils;
 
@@ -75,6 +77,8 @@ public sealed partial class TextGridView : UserControl
 
         var visibleRows = Math.Min(Model.Rows, metrics.RowsFor(ActualHeight));
 
+        session.Transform = Matrix3x2.CreateTranslation(CentringOffset(metrics), 0);
+
         for (var row = 0; row < visibleRows; row++)
         {
             var top = (float)Math.Round(row * metrics.CellHeight);
@@ -113,6 +117,13 @@ public sealed partial class TextGridView : UserControl
         }
 
         DrawCursor(session, metrics);
+        session.Transform = Matrix3x2.Identity;
+    }
+
+    private float CentringOffset(TextGridMetrics metrics)
+    {
+        var used = metrics.ColumnsFor(ActualWidth) * metrics.CellWidth;
+        return (float)Math.Floor(Math.Max(0, ActualWidth - used) / 2);
     }
 
     private static void DrawSegment(

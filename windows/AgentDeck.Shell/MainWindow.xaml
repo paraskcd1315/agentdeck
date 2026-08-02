@@ -26,7 +26,6 @@
                 x:Name="AppTitleBar"
                 Grid.Row="0"
                 Height="{StaticResource AdTitleHeight}"
-                Padding="{StaticResource AdPadTitle}"
                 Background="{ThemeResource AdGlassBrush}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -37,6 +36,7 @@
                 <workspace:WorkspaceChip
                     x:Name="Workspace"
                     Grid.Column="0"
+                    Margin="{StaticResource AdPadTitle}"
                     VerticalAlignment="Center" />
 
                 <Border

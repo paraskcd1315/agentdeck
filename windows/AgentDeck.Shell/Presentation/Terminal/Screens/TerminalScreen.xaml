@@ -64,10 +64,7 @@
                 IsHitTestVisible="False"
                 IsTabStop="False" />
 
-            <textgrid:TextGridScrollBar
-                x:Name="ScrollIndicator"
-                Margin="{StaticResource AdPadCanvas}"
-                HorizontalAlignment="Right" />
+            <textgrid:TextGridScrollBar x:Name="ScrollIndicator" HorizontalAlignment="Right" />
 
             <Border x:Name="InputCatcher" Background="Transparent" />
         </Grid>

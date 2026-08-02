@@ -15,10 +15,12 @@
         </Grid.ColumnDefinitions>
 
         <ScrollViewer
+            x:Name="TabScroller"
             Grid.Column="0"
             HorizontalScrollBarVisibility="Hidden"
             HorizontalScrollMode="Enabled"
             IsTabStop="False"
+            PointerWheelChanged="OnStripWheel"
             VerticalAlignment="Bottom"
             VerticalScrollBarVisibility="Disabled"
             VerticalScrollMode="Disabled">
@@ -28,6 +30,15 @@
                 Orientation="Horizontal"
                 Spacing="4" />
         </ScrollViewer>
+
+        <Border
+            x:Name="OverflowEdge"
+            Grid.Column="0"
+            Width="1"
+            HorizontalAlignment="Right"
+            Background="{ThemeResource AdStrokeBrush}"
+            IsHitTestVisible="False"
+            Visibility="Collapsed" />
 
         <Button
             x:Name="AddButton"
