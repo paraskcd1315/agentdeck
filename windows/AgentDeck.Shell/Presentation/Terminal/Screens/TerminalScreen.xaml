@@ -60,7 +60,6 @@
         <Grid x:Name="CanvasHost" Grid.Row="1">
             <textgrid:TextGridView
                 x:Name="GridView"
-                Margin="{StaticResource AdPadCanvas}"
                 IsHitTestVisible="False"
                 IsTabStop="False" />
 
