@@ -9,6 +9,7 @@ public static class MouseEncoder
     private const int WheelDownButton = 65;
     private const int CoordinateOffset = 32;
     private const int MaxLegacyCoordinate = 223;
+    private const int LegacyReleaseButton = 3;
 
     public static string? Wheel(GridModeDto? mode, int notches, int columnIndex, int rowIndex)
     {
@@ -33,6 +34,31 @@ public static class MouseEncoder
         var report = mode.SgrMouse ? Sgr(button, column, row) : Legacy(button, column, row);
 
         return Repeat(report, repeats);
+    }
+
+    public static string? Button(
+        GridModeDto? mode,
+        TerminalMouseButton button,
+        bool pressed,
+        int columnIndex,
+        int rowIndex)
+    {
+        if (mode is not { MouseReport: true })
+        {
+            return null;
+        }
+
+        var column = columnIndex + 1;
+        var row = rowIndex + 1;
+
+        if (mode.SgrMouse)
+        {
+            var final = pressed ? 'M' : 'm';
+            return $"{Escape}[<{(int)button};{column};{row}{final}";
+        }
+
+        var code = pressed ? (int)button : LegacyReleaseButton;
+        return Legacy(code, column, row);
     }
 
     private static string Arrow(bool applicationCursor, bool up)

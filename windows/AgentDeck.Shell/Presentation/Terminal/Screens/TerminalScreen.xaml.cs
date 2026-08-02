@@ -7,6 +7,7 @@ using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -57,10 +58,36 @@ public sealed partial class TerminalScreen : UserControl
     private async void OnGridSizeChanged(object? sender, TextGridSize size) =>
         await _viewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
 
-    private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args)
+    private async void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args)
     {
         args.Handled = true;
         TakeFocus(FocusState.Pointer);
+
+        var point = args.GetCurrentPoint(GridView);
+        await SendButtonAsync(point, PointerButtons.Pressed(point.Properties), true);
+    }
+
+    private async void OnCanvasPointerReleased(object sender, PointerRoutedEventArgs args)
+    {
+        args.Handled = true;
+
+        var point = args.GetCurrentPoint(GridView);
+        await SendButtonAsync(point, PointerButtons.Released(point.Properties.PointerUpdateKind), false);
+    }
+
+    private Task SendButtonAsync(PointerPoint point, TerminalMouseButton? button, bool pressed)
+    {
+        if (button is not { } value)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _viewModel.ButtonAsync(
+            value,
+            pressed,
+            GridView.ColumnAt(point.Position.X),
+            GridView.RowAt(point.Position.Y),
+            CancellationToken.None);
     }
 
     private async void OnCanvasPointerWheelChanged(object sender, PointerRoutedEventArgs args)

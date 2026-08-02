@@ -103,9 +103,28 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         }
 
         var delta = notches * TerminalMetrics.WheelScrollLines;
+
         if (await _client.ScrollAsync(ptyId, delta, cancellationToken) is { } snapshot)
         {
             ApplySnapshot(snapshot);
+        }
+    }
+
+    public async Task ButtonAsync(
+        TerminalMouseButton button,
+        bool pressed,
+        int columnIndex,
+        int rowIndex,
+        CancellationToken cancellationToken)
+    {
+        if (_ptyId is not { } ptyId)
+        {
+            return;
+        }
+
+        if (MouseEncoder.Button(_mode, button, pressed, columnIndex, rowIndex) is { } sequence)
+        {
+            await _client.WriteAsync(ptyId, sequence, cancellationToken);
         }
     }
 
