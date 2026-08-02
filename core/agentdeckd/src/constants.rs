@@ -23,6 +23,7 @@ pub const METHOD_PANEL_LIST: &str = "panel.list";
 pub const METHOD_PANEL_READ: &str = "panel.read";
 pub const METHOD_WORKSPACE_OPEN: &str = "workspace.open";
 pub const METHOD_TERMINAL_TEXT: &str = "terminal.text";
+pub const METHOD_TERMINAL_SNAPSHOT: &str = "terminal.snapshot";
 
 pub const STATE_DIRECTORY: &str = ".agentdeck";
 pub const WORKSPACES_DIRECTORY: &str = "workspaces";
@@ -35,6 +36,7 @@ pub const NOTIFY_PTY_DATA: &str = "pty.data";
 pub const NOTIFY_PTY_EXIT: &str = "pty.exit";
 pub const NOTIFY_HOOK_EVENT: &str = "hook.event";
 pub const NOTIFY_PANEL_CHANGED: &str = "panel.changed";
+pub const NOTIFY_TERMINAL_DAMAGE: &str = "terminal.damage";
 
 pub const ERROR_PARSE: i32 = -32700;
 pub const ERROR_INVALID_REQUEST: i32 = -32600;

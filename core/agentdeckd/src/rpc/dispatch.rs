@@ -39,6 +39,7 @@ pub fn dispatch(method: Method, params: Value, context: &ServerContext) -> Resul
         Method::PanelRead => panel_read(parse(params)?, context),
         Method::WorkspaceOpen => workspace_open(parse(params)?, context),
         Method::TerminalText => terminal_text(parse(params)?, context),
+        Method::TerminalSnapshot => terminal_snapshot(parse(params)?, context),
         Method::Unknown => Err(RpcError::method_not_found("")),
     }
 }
@@ -122,6 +123,11 @@ fn kill(params: PtyTargetParams, context: &ServerContext) -> Result<Value, RpcEr
 fn terminal_text(params: PtyTargetParams, context: &ServerContext) -> Result<Value, RpcError> {
     let lines = context.visible_lines(PtyId::from_value(params.pty_id))?;
     Ok(json!({ "lines": lines }))
+}
+
+fn terminal_snapshot(params: PtyTargetParams, context: &ServerContext) -> Result<Value, RpcError> {
+    let snapshot = context.snapshot(PtyId::from_value(params.pty_id))?;
+    serde_json::to_value(snapshot).map_err(|error| RpcError::internal(error.to_string()))
 }
 
 fn hook_event(params: Value, context: &ServerContext) -> Result<Value, RpcError> {

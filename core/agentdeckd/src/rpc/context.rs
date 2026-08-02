@@ -6,12 +6,15 @@ use serde_json::json;
 use tokio::sync::broadcast;
 
 use crate::config::paths::StateDirs;
-use crate::constants::{BROADCAST_CAPACITY, NOTIFY_PTY_DATA, NOTIFY_PTY_EXIT};
+use crate::constants::{
+    BROADCAST_CAPACITY, NOTIFY_PTY_DATA, NOTIFY_PTY_EXIT, NOTIFY_TERMINAL_DAMAGE,
+};
 use crate::pty::command::PtyCommand;
 use crate::pty::session_id::PtyId;
 use crate::pty::size::PtySize;
 use crate::terminal::registry::SessionRegistry;
 use crate::terminal::session::TerminalSession;
+use crate::terminal::wire::snapshot::WireSnapshot;
 
 use super::error::RpcError;
 use super::notification::Notification;
@@ -59,8 +62,18 @@ impl ServerContext {
         let context = self.clone();
         tokio::spawn(async move {
             while let Some(chunk) = output.recv().await {
-                if let Ok(mut emulator) = emulator.lock() {
-                    emulator.advance(&chunk);
+                let damage = match emulator.lock() {
+                    Ok(mut emulator) => {
+                        emulator.advance(&chunk);
+                        emulator.damage(id)
+                    }
+                    Err(_) => None,
+                };
+
+                if let Some(snapshot) = damage
+                    && let Ok(params) = serde_json::to_value(snapshot)
+                {
+                    context.notify(Notification::new(NOTIFY_TERMINAL_DAMAGE, params));
                 }
 
                 context.notify(Notification::new(
@@ -100,6 +113,14 @@ impl ServerContext {
                 .kill()
                 .map_err(|error| RpcError::internal(error.to_string()))
         })
+    }
+
+    pub fn snapshot(&self, id: PtyId) -> Result<WireSnapshot, RpcError> {
+        let emulator = self.with_session(id, |session| Ok(session.emulator()))?;
+        let emulator = emulator
+            .lock()
+            .map_err(|_| RpcError::internal("the emulator lock is poisoned"))?;
+        Ok(emulator.snapshot(id))
     }
 
     pub fn visible_lines(&self, id: PtyId) -> Result<Vec<String>, RpcError> {

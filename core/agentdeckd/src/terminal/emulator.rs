@@ -4,10 +4,13 @@ use alacritty_terminal::term::Config;
 use alacritty_terminal::vte::ansi::Processor;
 
 use crate::constants::TERMINAL_SCROLLBACK_LINES;
+use crate::pty::session_id::PtyId;
 use crate::pty::size::PtySize;
 
 use super::dimensions::TerminalDimensions;
 use super::event_proxy::EventProxy;
+use super::snapshot_builder;
+use super::wire::snapshot::WireSnapshot;
 
 pub struct Emulator {
     term: Term<EventProxy>,
@@ -37,6 +40,14 @@ impl Emulator {
 
     pub fn term(&self) -> &Term<EventProxy> {
         &self.term
+    }
+
+    pub fn snapshot(&self, id: PtyId) -> WireSnapshot {
+        snapshot_builder::full(id, &self.term)
+    }
+
+    pub fn damage(&mut self, id: PtyId) -> Option<WireSnapshot> {
+        snapshot_builder::damaged(id, &mut self.term)
     }
 
     pub fn visible_lines(&self) -> Vec<String> {
