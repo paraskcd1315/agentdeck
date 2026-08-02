@@ -48,12 +48,14 @@ fn build(
     let columns = grid.columns();
     let screen_lines = grid.screen_lines();
 
+    let offset = grid.display_offset() as i32;
+
     let lines = rows
         .into_iter()
         .filter(|row| *row < screen_lines)
         .map(|row| WireLine {
             line: row,
-            spans: spans_for(term, row, columns),
+            spans: spans_for(term, row as i32 - offset, columns),
         })
         .collect();
 
@@ -67,12 +69,17 @@ fn build(
     }
 }
 
-fn spans_for(term: &Term<EventProxy>, row: usize, columns: usize) -> Vec<WireSpan> {
+fn spans_for(term: &Term<EventProxy>, row: i32, columns: usize) -> Vec<WireSpan> {
     let grid = term.grid();
+
+    if row < grid.topmost_line().0 || row > grid.bottommost_line().0 {
+        return Vec::new();
+    }
+
     let mut spans: Vec<WireSpan> = Vec::new();
 
     for column in 0..columns {
-        let cell = &grid[Line(row as i32)][Column(column)];
+        let cell = &grid[Line(row)][Column(column)];
 
         if cell.flags.contains(Flags::WIDE_CHAR_SPACER) {
             continue;
@@ -98,12 +105,15 @@ fn spans_for(term: &Term<EventProxy>, row: usize, columns: usize) -> Vec<WireSpa
 }
 
 fn cursor_of(term: &Term<EventProxy>) -> WireCursor {
-    let Point { line, column } = term.grid().cursor.point;
+    let grid = term.grid();
+    let Point { line, column } = grid.cursor.point;
+    let offset = grid.display_offset() as i32;
+    let row = line.0 + offset;
 
     WireCursor {
-        line: line.0.max(0) as usize,
+        line: row.max(0) as usize,
         column: column.0,
-        visible: true,
+        visible: row >= 0 && (row as usize) < grid.screen_lines(),
         shape: CURSOR_SHAPE_BLOCK.to_string(),
     }
 }

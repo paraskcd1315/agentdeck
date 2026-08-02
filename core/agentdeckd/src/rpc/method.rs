@@ -1,7 +1,7 @@
 use crate::constants::{
     METHOD_HOOK_EVENT, METHOD_PANEL_LIST, METHOD_PANEL_READ, METHOD_PTY_KILL, METHOD_PTY_RESIZE,
-    METHOD_PTY_SPAWN, METHOD_PTY_WRITE, METHOD_TERMINAL_SNAPSHOT, METHOD_TERMINAL_TEXT,
-    METHOD_WORKSPACE_OPEN,
+    METHOD_PTY_SPAWN, METHOD_PTY_WRITE, METHOD_TERMINAL_SCROLL, METHOD_TERMINAL_SNAPSHOT,
+    METHOD_TERMINAL_TEXT, METHOD_WORKSPACE_OPEN,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -16,6 +16,7 @@ pub enum Method {
     WorkspaceOpen,
     TerminalText,
     TerminalSnapshot,
+    TerminalScroll,
     Unknown,
 }
 
@@ -32,6 +33,7 @@ impl Method {
             METHOD_WORKSPACE_OPEN => Self::WorkspaceOpen,
             METHOD_TERMINAL_TEXT => Self::TerminalText,
             METHOD_TERMINAL_SNAPSHOT => Self::TerminalSnapshot,
+            METHOD_TERMINAL_SCROLL => Self::TerminalScroll,
             _ => Self::Unknown,
         }
     }

@@ -1,5 +1,5 @@
 use alacritty_terminal::Term;
-use alacritty_terminal::grid::Dimensions;
+use alacritty_terminal::grid::{Dimensions, Scroll};
 use alacritty_terminal::term::Config;
 use alacritty_terminal::vte::ansi::Processor;
 
@@ -48,6 +48,10 @@ impl Emulator {
 
     pub fn damage(&mut self, id: PtyId) -> Option<WireSnapshot> {
         snapshot_builder::damaged(id, &mut self.term)
+    }
+
+    pub fn scroll(&mut self, delta: i32) {
+        self.term.scroll_display(Scroll::Delta(delta));
     }
 
     pub fn visible_lines(&self) -> Vec<String> {

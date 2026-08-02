@@ -24,6 +24,7 @@ pub const METHOD_PANEL_READ: &str = "panel.read";
 pub const METHOD_WORKSPACE_OPEN: &str = "workspace.open";
 pub const METHOD_TERMINAL_TEXT: &str = "terminal.text";
 pub const METHOD_TERMINAL_SNAPSHOT: &str = "terminal.snapshot";
+pub const METHOD_TERMINAL_SCROLL: &str = "terminal.scroll";
 
 pub const STATE_DIRECTORY: &str = ".agentdeck";
 pub const STATE_DIR_ENV: &str = "AGENTDECK_STATE_DIR";

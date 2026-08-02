@@ -161,6 +161,13 @@ public sealed class DaemonClient : IDaemonClient
         return envelope?.Result.Deserialize<GridSnapshotDto>();
     }
 
+    public async Task<GridSnapshotDto?> ScrollAsync(long ptyId, int delta, CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["ptyId"] = ptyId, ["delta"] = delta };
+        var envelope = await CallAsync(Constants.Method.TerminalScroll, parameters, cancellationToken);
+        return envelope?.Result.Deserialize<GridSnapshotDto>();
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _shutdown.CancelAsync();

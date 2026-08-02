@@ -8,6 +8,7 @@ using Microsoft.Graphics.Canvas.UI.Xaml;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
+using Windows.Foundation;
 using Windows.UI;
 
 namespace AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
@@ -52,11 +53,18 @@ public sealed partial class TextGridView : UserControl
             WordWrapping = CanvasWordWrapping.NoWrap,
         };
 
-        _metrics = TextGridMetrics.Measure(sender, _format, PanelResources.Size(MonoLineKey));
+        _metrics = TextGridMetrics.Measure(sender, _format);
+        ApplyLineSpacing(_format, _metrics);
+        ApplyLineSpacing(_boldFormat, _metrics);
         ReportGridSize();
     }
 
-    private const string MonoLineKey = "AdMonoLine";
+    private static void ApplyLineSpacing(CanvasTextFormat format, TextGridMetrics metrics)
+    {
+        format.LineSpacingMode = CanvasLineSpacingMode.Uniform;
+        format.LineSpacing = (float)metrics.CellHeight;
+        format.LineSpacingBaseline = (float)metrics.Baseline;
+    }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs args) => ReportGridSize();
 
@@ -87,6 +95,13 @@ public sealed partial class TextGridView : UserControl
             var top = (float)Math.Round(row * metrics.CellHeight);
             var bottom = (float)Math.Round((row + 1) * metrics.CellHeight);
             var height = bottom - top;
+
+            if (Model.Lines[row].Runs.Count == 0)
+            {
+                continue;
+            }
+
+            using var rowClip = session.CreateLayer(1f, new Rect(0, top, ActualWidth, height));
 
             foreach (var run in Model.Lines[row].Runs)
             {

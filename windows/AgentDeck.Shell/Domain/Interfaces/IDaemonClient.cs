@@ -36,4 +36,6 @@ public interface IDaemonClient : IAsyncDisposable
     Task<PanelDefinition?> ReadPanelAsync(string workspaceId, string id, CancellationToken cancellationToken);
 
     Task<GridSnapshotDto?> SnapshotAsync(long ptyId, CancellationToken cancellationToken);
+
+    Task<GridSnapshotDto?> ScrollAsync(long ptyId, int delta, CancellationToken cancellationToken);
 }

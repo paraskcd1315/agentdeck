@@ -33,6 +33,7 @@ public static class Constants
         public const string PanelRead = "panel.read";
         public const string WorkspaceOpen = "workspace.open";
         public const string TerminalSnapshot = "terminal.snapshot";
+        public const string TerminalScroll = "terminal.scroll";
     }
 
     public static class Notification

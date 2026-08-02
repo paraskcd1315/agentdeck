@@ -30,6 +30,14 @@ public sealed class TextGridModel
         _rows = replacement;
     }
 
+    public void Clear()
+    {
+        foreach (var row in _rows)
+        {
+            row.Runs = Array.Empty<TextGridRun>();
+        }
+    }
+
     public void SetRow(int index, IReadOnlyList<TextGridRun> runs)
     {
         if (index < 0 || index >= _rows.Length)

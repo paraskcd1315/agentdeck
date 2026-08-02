@@ -6,6 +6,7 @@ namespace AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
 public sealed class TextGridMetrics
 {
     private const string ReferenceGlyph = "M";
+    private const double FallbackWidthRatio = 0.6;
 
     private TextGridMetrics(double cellWidth, double cellHeight, double baseline)
     {
@@ -20,15 +21,19 @@ public sealed class TextGridMetrics
 
     public double Baseline { get; }
 
-    public static TextGridMetrics Measure(
-        ICanvasResourceCreator device,
-        CanvasTextFormat format,
-        double lineHeight)
+    public static TextGridMetrics Measure(ICanvasResourceCreator device, CanvasTextFormat format)
     {
         using var layout = new CanvasTextLayout(device, ReferenceGlyph, format, 0f, 0f);
-        var width = layout.LayoutBounds.Width > 0 ? layout.LayoutBounds.Width : format.FontSize * 0.6;
-        var baseline = layout.LineMetrics.Length > 0 ? layout.LineMetrics[0].Baseline : format.FontSize;
-        return new TextGridMetrics(width, lineHeight, baseline);
+
+        var width = layout.LayoutBounds.Width > 0
+            ? layout.LayoutBounds.Width
+            : format.FontSize * FallbackWidthRatio;
+
+        var metrics = layout.LineMetrics.Length > 0 ? layout.LineMetrics[0] : default;
+        var height = metrics.Height > 0 ? metrics.Height : format.FontSize * 1.5;
+        var baseline = metrics.Baseline > 0 ? metrics.Baseline : format.FontSize;
+
+        return new TextGridMetrics(width, Math.Ceiling(height), baseline);
     }
 
     public int ColumnsFor(double width) => Math.Max(1, (int)(width / CellWidth));

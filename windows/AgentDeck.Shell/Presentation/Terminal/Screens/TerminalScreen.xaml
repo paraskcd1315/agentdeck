@@ -11,6 +11,7 @@
     IsTabStop="True"
     LostFocus="OnCanvasLostFocus"
     PointerPressed="OnCanvasPointerPressed"
+    PointerWheelChanged="OnCanvasPointerWheelChanged"
     PreviewKeyDown="OnCanvasPreviewKeyDown"
     UseSystemFocusVisuals="False"
     mc:Ignorable="d">

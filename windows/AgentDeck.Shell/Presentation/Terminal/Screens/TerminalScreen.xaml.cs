@@ -63,6 +63,19 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Pointer);
     }
 
+    private async void OnCanvasPointerWheelChanged(object sender, PointerRoutedEventArgs args)
+    {
+        var wheel = args.GetCurrentPoint(this).Properties.MouseWheelDelta;
+        if (wheel == 0)
+        {
+            return;
+        }
+
+        args.Handled = true;
+        var lines = Math.Sign(wheel) * TerminalMetrics.WheelScrollLines;
+        await _viewModel.ScrollAsync(lines, CancellationToken.None);
+    }
+
     private void OnCanvasGotFocus(object sender, RoutedEventArgs args) =>
         CanvasBorder.BorderBrush = PanelResources.Brush(StrokeBrandKey);
 

@@ -20,6 +20,7 @@ use super::params::panel_list::PanelListParams;
 use super::params::panel_read::PanelReadParams;
 use super::params::pty_target::PtyTargetParams;
 use super::params::resize::ResizeParams;
+use super::params::scroll::ScrollParams;
 use super::params::spawn::SpawnParams;
 use super::params::workspace_open::WorkspaceOpenParams;
 use super::params::write::WriteParams;
@@ -40,6 +41,7 @@ pub fn dispatch(method: Method, params: Value, context: &ServerContext) -> Resul
         Method::WorkspaceOpen => workspace_open(parse(params)?, context),
         Method::TerminalText => terminal_text(parse(params)?, context),
         Method::TerminalSnapshot => terminal_snapshot(parse(params)?, context),
+        Method::TerminalScroll => terminal_scroll(parse(params)?, context),
         Method::Unknown => Err(RpcError::method_not_found("")),
     }
 }
@@ -136,6 +138,11 @@ fn terminal_text(params: PtyTargetParams, context: &ServerContext) -> Result<Val
 
 fn terminal_snapshot(params: PtyTargetParams, context: &ServerContext) -> Result<Value, RpcError> {
     let snapshot = context.snapshot(PtyId::from_value(params.pty_id))?;
+    serde_json::to_value(snapshot).map_err(|error| RpcError::internal(error.to_string()))
+}
+
+fn terminal_scroll(params: ScrollParams, context: &ServerContext) -> Result<Value, RpcError> {
+    let snapshot = context.scroll(PtyId::from_value(params.pty_id), params.delta)?;
     serde_json::to_value(snapshot).map_err(|error| RpcError::internal(error.to_string()))
 }
 

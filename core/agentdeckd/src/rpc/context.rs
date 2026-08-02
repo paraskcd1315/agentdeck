@@ -123,6 +123,16 @@ impl ServerContext {
         Ok(emulator.snapshot(id))
     }
 
+    pub fn scroll(&self, id: PtyId, delta: i32) -> Result<WireSnapshot, RpcError> {
+        let emulator = self.with_session(id, |session| Ok(session.emulator()))?;
+        let mut emulator = emulator
+            .lock()
+            .map_err(|_| RpcError::internal("the emulator lock is poisoned"))?;
+
+        emulator.scroll(delta);
+        Ok(emulator.snapshot(id))
+    }
+
     pub fn visible_lines(&self, id: PtyId) -> Result<Vec<String>, RpcError> {
         let emulator = self.with_session(id, |session| Ok(session.emulator()))?;
         let emulator = emulator

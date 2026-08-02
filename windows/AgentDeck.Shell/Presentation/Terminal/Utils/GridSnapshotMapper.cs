@@ -18,6 +18,11 @@ public static class GridSnapshotMapper
     {
         model.Resize(snapshot.Columns, snapshot.Rows);
 
+        if (snapshot.Full)
+        {
+            model.Clear();
+        }
+
         foreach (var line in snapshot.Lines)
         {
             model.SetRow(line.Line, MapRuns(line.Spans));

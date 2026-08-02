@@ -87,6 +87,19 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         await _client.WriteAsync(ptyId, text, cancellationToken);
     }
 
+    public async Task ScrollAsync(int delta, CancellationToken cancellationToken)
+    {
+        if (_ptyId is not { } ptyId)
+        {
+            return;
+        }
+
+        if (await _client.ScrollAsync(ptyId, delta, cancellationToken) is { } snapshot)
+        {
+            ApplySnapshot(snapshot);
+        }
+    }
+
     public async Task ResizeAsync(int columns, int rows, CancellationToken cancellationToken)
     {
         if (columns == _columns && rows == _rows)
