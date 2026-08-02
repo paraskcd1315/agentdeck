@@ -1,0 +1,10 @@
+pub const DEFAULT_SHELL: &str = "powershell.exe";
+pub const ARGUMENT_SEPARATOR: &str = "--";
+pub const DEFAULT_PTY_COLS: u16 = 120;
+pub const DEFAULT_PTY_ROWS: u16 = 30;
+pub const PTY_READ_BUFFER_BYTES: usize = 16 * 1024;
+pub const PTY_SMOKE_SETTLE_MILLIS: u64 = 800;
+pub const PTY_SMOKE_DRAIN_MILLIS: u64 = 4000;
+pub const PTY_SMOKE_POLL_MILLIS: u64 = 100;
+pub const PROCESS_LIVENESS_POLL_MILLIS: u32 = 0;
+pub const PSEUDOCONSOLE_ATTRIBUTE_COUNT: u32 = 1;
