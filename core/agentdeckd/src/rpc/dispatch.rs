@@ -6,7 +6,7 @@ use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
 use crate::config::workspace_id;
-use crate::constants::NOTIFY_HOOK_EVENT;
+use crate::constants::{NOTIFY_HOOK_EVENT, STATE_DIR_ENV};
 use crate::panel::service as panel_service;
 use crate::pty::command::PtyCommand;
 use crate::pty::session_id::PtyId;
@@ -83,7 +83,16 @@ fn parse<T: DeserializeOwned>(params: Value) -> Result<T, RpcError> {
 }
 
 fn spawn(params: SpawnParams, context: &ServerContext) -> Result<Value, RpcError> {
-    let mut command = PtyCommand::new(params.program).with_args(params.args);
+    let mut env = params.env;
+    env.insert(
+        STATE_DIR_ENV.to_string(),
+        context.dirs().root().display().to_string(),
+    );
+
+    let mut command = PtyCommand::new(params.program)
+        .with_args(params.args)
+        .with_env(env);
+
     if let Some(cwd) = params.cwd {
         command = command.with_cwd(cwd);
     }

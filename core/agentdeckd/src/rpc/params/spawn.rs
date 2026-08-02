@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -7,6 +9,8 @@ pub struct SpawnParams {
     pub args: Vec<String>,
     #[serde(default)]
     pub cwd: Option<String>,
+    #[serde(default)]
+    pub env: BTreeMap<String, String>,
     #[serde(default)]
     pub cols: Option<u16>,
     #[serde(default)]

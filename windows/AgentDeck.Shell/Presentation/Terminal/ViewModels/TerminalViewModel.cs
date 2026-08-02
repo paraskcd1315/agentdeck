@@ -62,6 +62,7 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         _ptyId = await _client.SpawnAsync(
             ShellResolver.Program(shell),
             ShellResolver.Args(shell),
+            ShellEnvironment.Build(),
             _columns,
             _rows,
             cancellationToken);

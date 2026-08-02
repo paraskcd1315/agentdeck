@@ -6,6 +6,7 @@ using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -37,9 +38,17 @@ public sealed partial class TerminalScreen : UserControl
 
     public Task InjectAsync(string prompt) => _viewModel.SendAsync($"{prompt}\r", CancellationToken.None);
 
+    public void TakeFocus() => TakeFocus(FocusState.Programmatic);
+
+    private void TakeFocus(FocusState state)
+    {
+        Focus(state);
+        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => Focus(state));
+    }
+
     private async void OnLoaded(object sender, RoutedEventArgs args)
     {
-        CanvasBorder.Focus(FocusState.Programmatic);
+        TakeFocus();
         await _viewModel.StartAsync(CancellationToken.None);
     }
 
@@ -48,8 +57,11 @@ public sealed partial class TerminalScreen : UserControl
     private async void OnGridSizeChanged(object? sender, TextGridSize size) =>
         await _viewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
 
-    private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args) =>
-        CanvasBorder.Focus(FocusState.Pointer);
+    private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args)
+    {
+        args.Handled = true;
+        TakeFocus(FocusState.Pointer);
+    }
 
     private void OnCanvasGotFocus(object sender, RoutedEventArgs args) =>
         CanvasBorder.BorderBrush = PanelResources.Brush(StrokeBrandKey);

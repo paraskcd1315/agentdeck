@@ -3,9 +3,10 @@ use std::ffi::c_void;
 use windows::Win32::Foundation::INVALID_HANDLE_VALUE;
 use windows::Win32::System::Console::HPCON;
 use windows::Win32::System::Threading::{
-    CreateProcessW, DeleteProcThreadAttributeList, EXTENDED_STARTUPINFO_PRESENT,
-    InitializeProcThreadAttributeList, LPPROC_THREAD_ATTRIBUTE_LIST, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
-    PROCESS_INFORMATION, STARTF_USESTDHANDLES, STARTUPINFOEXW, UpdateProcThreadAttribute,
+    CREATE_UNICODE_ENVIRONMENT, CreateProcessW, DeleteProcThreadAttributeList,
+    EXTENDED_STARTUPINFO_PRESENT, InitializeProcThreadAttributeList, LPPROC_THREAD_ATTRIBUTE_LIST,
+    PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, PROCESS_INFORMATION, STARTF_USESTDHANDLES, STARTUPINFOEXW,
+    UpdateProcThreadAttribute,
 };
 use windows::core::{PCWSTR, PWSTR};
 
@@ -14,6 +15,7 @@ use crate::constants::PSEUDOCONSOLE_ATTRIBUTE_COUNT;
 use super::child::Child;
 use super::command::PtyCommand;
 use super::conpty::ConPty;
+use super::environment::build_block;
 use super::error::PtyError;
 use super::handle::PtyHandle;
 use super::wide::{to_wide_null, to_wide_null_str};
@@ -80,6 +82,16 @@ fn attach_and_create(
     startup.StartupInfo.hStdError = INVALID_HANDLE_VALUE;
     startup.lpAttributeList = attribute_list;
 
+    let mut environment = build_block(&command.env);
+    let environment_pointer = environment
+        .as_mut()
+        .map_or(std::ptr::null(), |block| block.as_ptr() as *const c_void);
+    let creation_flags = if environment.is_some() {
+        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT
+    } else {
+        EXTENDED_STARTUPINFO_PRESENT
+    };
+
     let mut command_line = to_wide_null_str(&command.command_line());
     let working_directory = command.cwd.as_ref().map(|path| to_wide_null(path.as_os_str()));
     let working_directory = working_directory
@@ -94,8 +106,12 @@ fn attach_and_create(
             None,
             None,
             false,
-            EXTENDED_STARTUPINFO_PRESENT,
-            None,
+            creation_flags,
+            if environment_pointer.is_null() {
+                None
+            } else {
+                Some(environment_pointer)
+            },
             working_directory,
             &startup.StartupInfo,
             &mut information,

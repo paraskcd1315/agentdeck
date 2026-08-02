@@ -17,6 +17,10 @@ impl StateDirs {
         })
     }
 
+    pub fn root(&self) -> &Path {
+        &self.root
+    }
+
     pub fn workspaces(&self) -> PathBuf {
         self.root.join(WORKSPACES_DIRECTORY)
     }

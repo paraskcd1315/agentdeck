@@ -79,14 +79,22 @@ public sealed class DaemonClient : IDaemonClient
     public async Task<long?> SpawnAsync(
         string program,
         IReadOnlyList<string> args,
+        IReadOnlyDictionary<string, string> env,
         int cols,
         int rows,
         CancellationToken cancellationToken)
     {
+        var environment = new JsonObject();
+        foreach (var entry in env)
+        {
+            environment[entry.Key] = entry.Value;
+        }
+
         var parameters = new JsonObject
         {
             ["program"] = program,
             ["args"] = new JsonArray(args.Select(value => JsonValue.Create(value)).ToArray<JsonNode?>()),
+            ["env"] = environment,
             ["cols"] = cols,
             ["rows"] = rows,
         };

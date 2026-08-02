@@ -8,6 +8,7 @@ pub mod session_id;
 pub mod size;
 
 mod command_line;
+mod environment;
 mod pipe;
 mod pump;
 mod spawn;

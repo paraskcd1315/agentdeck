@@ -6,9 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:textgrid="using:AgentDeck.Shell.Presentation.DesignSystem.TextGrid"
+    CharacterReceived="OnCharacterReceived"
+    GotFocus="OnCanvasGotFocus"
+    IsTabStop="True"
+    LostFocus="OnCanvasLostFocus"
+    PointerPressed="OnCanvasPointerPressed"
+    PreviewKeyDown="OnCanvasPreviewKeyDown"
+    UseSystemFocusVisuals="False"
     mc:Ignorable="d">
 
-    <Grid Padding="{StaticResource AdPadPanel}" RowSpacing="{StaticResource AdSpace3}">
+    <Grid
+        Padding="{StaticResource AdPadPanel}"
+        Background="Transparent"
+        RowSpacing="{StaticResource AdSpace3}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -19,16 +29,13 @@
             Grid.Row="0"
             BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="1"
-            CharacterReceived="OnCharacterReceived"
-            CornerRadius="{StaticResource AdRadiusLg}"
-            GotFocus="OnCanvasGotFocus"
-            IsTabStop="True"
-            LostFocus="OnCanvasLostFocus"
-            PointerPressed="OnCanvasPointerPressed"
-            PreviewKeyDown="OnCanvasPreviewKeyDown"
-            UseSystemFocusVisuals="False">
+            CornerRadius="{StaticResource AdRadiusLg}">
             <Grid>
-                <textgrid:TextGridView x:Name="GridView" Margin="{StaticResource AdPadCanvas}" />
+                <textgrid:TextGridView
+                    x:Name="GridView"
+                    Margin="{StaticResource AdPadCanvas}"
+                    IsHitTestVisible="False"
+                    IsTabStop="False" />
 
                 <Border
                     Height="1"
@@ -45,5 +52,11 @@
             FontFamily="{StaticResource AdFontUi}"
             FontSize="{StaticResource AdUiSize}"
             Foreground="{ThemeResource AdText2Brush}" />
+
+        <Border
+            x:Name="InputCatcher"
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Background="Transparent" />
     </Grid>
 </UserControl>

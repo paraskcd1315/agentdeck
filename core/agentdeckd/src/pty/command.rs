@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use super::command_line::build_command_line;
@@ -7,6 +8,7 @@ pub struct PtyCommand {
     pub program: String,
     pub args: Vec<String>,
     pub cwd: Option<PathBuf>,
+    pub env: BTreeMap<String, String>,
 }
 
 impl PtyCommand {
@@ -15,7 +17,21 @@ impl PtyCommand {
             program: program.into(),
             args: Vec::new(),
             cwd: None,
+            env: BTreeMap::new(),
         }
+    }
+
+    pub fn with_env<I, K, V>(mut self, env: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        self.env = env
+            .into_iter()
+            .map(|(key, value)| (key.into(), value.into()))
+            .collect();
+        self
     }
 
     pub fn with_args<I, S>(mut self, args: I) -> Self

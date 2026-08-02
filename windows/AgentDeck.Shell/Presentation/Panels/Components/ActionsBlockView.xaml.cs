@@ -33,6 +33,8 @@ public sealed partial class ActionsBlockView : UserControl
             FontSize = PanelResources.Size(PanelMetrics.UiSize),
             FontWeight = FontWeights.SemiBold,
             BorderThickness = new Thickness(0),
+            AllowFocusOnInteraction = false,
+            IsTabStop = false,
             CornerRadius = (CornerRadius)Application.Current.Resources[PanelMetrics.RadiusSm],
             Padding = (Thickness)Application.Current.Resources[PanelMetrics.PadButton],
         };

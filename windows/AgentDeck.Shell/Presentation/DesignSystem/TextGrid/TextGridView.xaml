@@ -9,5 +9,7 @@
         x:Name="Surface"
         ClearColor="Transparent"
         CreateResources="OnCreateResources"
-        Draw="OnDraw" />
+        Draw="OnDraw"
+        IsHitTestVisible="False"
+        IsTabStop="False" />
 </UserControl>

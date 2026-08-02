@@ -26,6 +26,7 @@ pub const METHOD_TERMINAL_TEXT: &str = "terminal.text";
 pub const METHOD_TERMINAL_SNAPSHOT: &str = "terminal.snapshot";
 
 pub const STATE_DIRECTORY: &str = ".agentdeck";
+pub const STATE_DIR_ENV: &str = "AGENTDECK_STATE_DIR";
 pub const WORKSPACES_DIRECTORY: &str = "workspaces";
 pub const PANELS_DIRECTORY: &str = "panels";
 pub const PANEL_FILE_EXTENSION: &str = "json";

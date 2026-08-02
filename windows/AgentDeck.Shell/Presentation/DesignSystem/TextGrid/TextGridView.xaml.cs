@@ -84,16 +84,19 @@ public sealed partial class TextGridView : UserControl
 
         for (var row = 0; row < Model.Rows; row++)
         {
-            var top = (float)(row * metrics.CellHeight);
+            var top = (float)Math.Round(row * metrics.CellHeight);
+            var bottom = (float)Math.Round((row + 1) * metrics.CellHeight);
+            var height = bottom - top;
 
             foreach (var run in Model.Lines[row].Runs)
             {
-                var left = (float)(run.Column * metrics.CellWidth);
-                var width = (float)(run.Text.Length * metrics.CellWidth);
+                var left = (float)Math.Round(run.Column * metrics.CellWidth);
+                var right = (float)Math.Round((run.Column + run.Text.Length) * metrics.CellWidth);
+                var width = right - left;
 
                 if (!ColorsEqual(run.Style.Background, background))
                 {
-                    session.FillRectangle(left, top, width, (float)metrics.CellHeight, run.Style.Background);
+                    session.FillRectangle(left, top, width, height, run.Style.Background);
                 }
 
                 session.DrawText(
@@ -105,8 +108,8 @@ public sealed partial class TextGridView : UserControl
 
                 if (run.Style.Underline)
                 {
-                    var baseline = top + (float)metrics.CellHeight - 1f;
-                    session.DrawLine(left, baseline, left + width, baseline, run.Style.Foreground);
+                    var baseline = bottom - 1f;
+                    session.DrawLine(left, baseline, right, baseline, run.Style.Foreground);
                 }
             }
         }
@@ -121,12 +124,15 @@ public sealed partial class TextGridView : UserControl
             return;
         }
 
-        var left = (float)(Model.Cursor.Column * metrics.CellWidth);
-        var top = (float)(Model.Cursor.Line * metrics.CellHeight);
+        var left = (float)Math.Round(Model.Cursor.Column * metrics.CellWidth);
+        var right = (float)Math.Round((Model.Cursor.Column + 1) * metrics.CellWidth);
+        var top = (float)Math.Round(Model.Cursor.Line * metrics.CellHeight);
+        var bottom = (float)Math.Round((Model.Cursor.Line + 1) * metrics.CellHeight);
+
         var cursor = AnsiPalette.Foreground();
         cursor.A = (byte)(byte.MaxValue * CursorOpacity);
 
-        session.FillRectangle(left, top, (float)metrics.CellWidth, (float)metrics.CellHeight, cursor);
+        session.FillRectangle(left, top, right - left, bottom - top, cursor);
     }
 
     private static bool ColorsEqual(Color left, Color right) =>

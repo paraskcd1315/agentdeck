@@ -28,10 +28,20 @@ public sealed partial class MainWindow : Window
         AppTitleBar.Title = Title;
 
         Panels.ButtonInvoked += OnPanelButtonInvoked;
+        Activated += OnActivated;
+    }
+
+    private void OnActivated(object sender, WindowActivatedEventArgs args)
+    {
+        if (args.WindowActivationState != WindowActivationState.Deactivated)
+        {
+            Terminal.TakeFocus();
+        }
     }
 
     private async void OnPanelButtonInvoked(object? sender, PanelButton button)
     {
         await Terminal.InjectAsync(button.Prompt);
+        Terminal.TakeFocus();
     }
 }
