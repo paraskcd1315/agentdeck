@@ -12,9 +12,10 @@ public static class Constants
     public static class Theme
     {
         public const double DefaultBackgroundGradientOpacity = 0.75;
-        public const double DefaultTerminalOpacity = 0.92;
-        public const double DefaultTerminalBlur = 0;
-        public const double DefaultTerminalSaturation = 1.15;
+        public const double DefaultTerminalOpacity = 0.5;
+        public const double DefaultTerminalBlur = 24;
+        public const double DefaultTerminalSaturation = 1.2;
+        public const double DefaultDitherStrength = 0.035;
 
         public const string GradientAppKey = "AdGradientApp";
         public const string TerminalCanvasKey = "AdTermCanvasBrush";
@@ -43,6 +44,14 @@ public static class Constants
 
     public static class Shell
     {
-        public const string DefaultProgram = "powershell.exe";
+        public const string FallbackProgram = "powershell.exe";
+
+        public static readonly string[] GitBashCandidates =
+        [
+            @"C:\Program Files\Git\bin\bash.exe",
+            @"C:\Program Files (x86)\Git\bin\bash.exe",
+        ];
+
+        public static readonly string[] GitBashDefaultArgs = ["--noprofile", "--norc"];
     }
 }

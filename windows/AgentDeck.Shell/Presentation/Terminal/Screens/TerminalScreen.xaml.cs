@@ -29,7 +29,9 @@ public sealed partial class TerminalScreen : UserControl
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
         InputBox.PlaceholderText = AppServices.Strings.Get(StringKeys.TerminalInputPlaceholder);
-        CanvasBorder.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
+        var terminalTheme = AppServices.Config.Theme?.Terminal;
+        CanvasBorder.Background = TerminalCanvasBrush.Build(terminalTheme);
+        InputBorder.Background = TerminalCanvasBrush.Build(terminalTheme);
 
         var foreground = ColorParser.Parse(AppServices.Config.Theme?.Terminal?.Foreground);
         if (foreground is { } color)

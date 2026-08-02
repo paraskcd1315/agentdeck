@@ -62,9 +62,10 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
             return;
         }
 
+        var shell = AppServices.Config.Shell;
         _ptyId = await _client.SpawnAsync(
-            Constants.Shell.DefaultProgram,
-            Array.Empty<string>(),
+            ShellResolver.Program(shell),
+            ShellResolver.Args(shell),
             TerminalMetrics.DefaultCols,
             TerminalMetrics.DefaultRows,
             cancellationToken);
