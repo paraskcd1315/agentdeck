@@ -106,8 +106,11 @@ public sealed partial class TerminalScreen : UserControl
             CancellationToken.None);
     }
 
-    private void OnCanvasGotFocus(object sender, RoutedEventArgs args) =>
+    private async void OnCanvasGotFocus(object sender, RoutedEventArgs args)
+    {
         CanvasBorder.BorderBrush = PanelResources.Brush(StrokeBrandKey);
+        await _viewModel.RefreshAsync(CancellationToken.None);
+    }
 
     private void OnCanvasLostFocus(object sender, RoutedEventArgs args) =>
         CanvasBorder.BorderBrush = PanelResources.Brush(StrokeKey);

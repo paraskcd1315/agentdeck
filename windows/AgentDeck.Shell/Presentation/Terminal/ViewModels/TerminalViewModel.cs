@@ -89,6 +89,19 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         await _client.WriteAsync(ptyId, text, cancellationToken);
     }
 
+    public async Task RefreshAsync(CancellationToken cancellationToken)
+    {
+        if (_ptyId is not { } ptyId)
+        {
+            return;
+        }
+
+        if (await _client.SnapshotAsync(ptyId, cancellationToken) is { } snapshot)
+        {
+            ApplySnapshot(snapshot);
+        }
+    }
+
     public async Task WheelAsync(int notches, int columnIndex, int rowIndex, CancellationToken cancellationToken)
     {
         if (_ptyId is not { } ptyId)
@@ -141,6 +154,7 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         if (_ptyId is { } ptyId)
         {
             await _client.ResizeAsync(ptyId, columns, rows, cancellationToken);
+            await RefreshAsync(cancellationToken);
         }
     }
 
