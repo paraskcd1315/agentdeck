@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Domain.Interfaces;
+using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Utils;
 
@@ -13,38 +13,34 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
 {
     private readonly IDaemonClient _client;
     private readonly IStringProvider _strings;
-    private readonly StringBuilder _buffer = new();
     private readonly SynchronizationContext? _uiContext;
 
     private long? _ptyId;
     private bool _started;
-    private string _output = string.Empty;
     private string _status = string.Empty;
+    private int _columns = TerminalMetrics.DefaultCols;
+    private int _rows = TerminalMetrics.DefaultRows;
 
     public TerminalViewModel(IDaemonClient client, IStringProvider strings)
     {
         _client = client;
         _strings = strings;
         _uiContext = SynchronizationContext.Current;
-        _client.PtyOutputReceived += OnPtyOutputReceived;
+        _client.TerminalDamaged += OnTerminalDamaged;
         _client.HookEventReceived += OnHookEventReceived;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public string Output
-    {
-        get => _output;
-        private set => Set(ref _output, value);
-    }
+    public event EventHandler? GridChanged;
+
+    public TextGridModel Grid { get; } = new();
 
     public string Status
     {
         get => _status;
         private set => Set(ref _status, value);
     }
-
-    public bool HasSession => _ptyId is not null;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -66,12 +62,18 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         _ptyId = await _client.SpawnAsync(
             ShellResolver.Program(shell),
             ShellResolver.Args(shell),
-            TerminalMetrics.DefaultCols,
-            TerminalMetrics.DefaultRows,
+            _columns,
+            _rows,
             cancellationToken);
 
         Status = _strings.Get(
             _ptyId is null ? StringKeys.TerminalStatusSpawnFailed : StringKeys.TerminalStatusReady);
+
+        if (_ptyId is { } ptyId
+            && await _client.SnapshotAsync(ptyId, cancellationToken) is { } snapshot)
+        {
+            ApplySnapshot(snapshot);
+        }
     }
 
     public async Task SendAsync(string text, CancellationToken cancellationToken)
@@ -84,24 +86,36 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
         await _client.WriteAsync(ptyId, text, cancellationToken);
     }
 
-    private void OnPtyOutputReceived(object? sender, PtyOutputEventArgs args)
+    public async Task ResizeAsync(int columns, int rows, CancellationToken cancellationToken)
     {
-        if (_ptyId != args.PtyId)
+        if (columns == _columns && rows == _rows)
         {
             return;
         }
 
-        Post(() =>
+        _columns = columns;
+        _rows = rows;
+
+        if (_ptyId is { } ptyId)
         {
-            _buffer.Append(AnsiFilter.Strip(args.Text));
+            await _client.ResizeAsync(ptyId, columns, rows, cancellationToken);
+        }
+    }
 
-            if (_buffer.Length > TerminalMetrics.MaxBufferCharacters)
-            {
-                _buffer.Remove(0, _buffer.Length - TerminalMetrics.TrimToCharacters);
-            }
+    private void OnTerminalDamaged(object? sender, GridSnapshotEventArgs args)
+    {
+        if (_ptyId != args.Snapshot.PtyId)
+        {
+            return;
+        }
 
-            Output = _buffer.ToString();
-        });
+        Post(() => ApplySnapshot(args.Snapshot));
+    }
+
+    private void ApplySnapshot(Data.Daemon.Dto.GridSnapshotDto snapshot)
+    {
+        GridSnapshotMapper.Apply(Grid, snapshot);
+        GridChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnHookEventReceived(object? sender, HookEventArgs args)

@@ -30,6 +30,8 @@ public sealed class DaemonClient : IDaemonClient
 
     public event EventHandler<PanelChangedEventArgs>? PanelChanged;
 
+    public event EventHandler<GridSnapshotEventArgs>? TerminalDamaged;
+
     public bool IsConnected => _pipe?.IsConnected == true;
 
     public async Task<bool> ConnectAsync(CancellationToken cancellationToken)
@@ -144,6 +146,13 @@ public sealed class DaemonClient : IDaemonClient
         return envelope?.Result.Deserialize<PanelDefinition>(DaemonJson.Options);
     }
 
+    public async Task<GridSnapshotDto?> SnapshotAsync(long ptyId, CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["ptyId"] = ptyId };
+        var envelope = await CallAsync(Constants.Method.TerminalSnapshot, parameters, cancellationToken);
+        return envelope?.Result.Deserialize<GridSnapshotDto>();
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _shutdown.CancelAsync();
@@ -248,6 +257,15 @@ public sealed class DaemonClient : IDaemonClient
 
             case Constants.Notification.HookEvent:
                 HookEventReceived?.Invoke(this, new HookEventArgs(envelope.Params?.ToJsonString() ?? string.Empty));
+                break;
+
+            case Constants.Notification.TerminalDamage:
+                var damage = envelope.Params.Deserialize<GridSnapshotDto>();
+                if (damage is not null)
+                {
+                    TerminalDamaged?.Invoke(this, new GridSnapshotEventArgs(damage));
+                }
+
                 break;
 
             case Constants.Notification.PanelChanged:

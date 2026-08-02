@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:textgrid="using:AgentDeck.Shell.Presentation.DesignSystem.TextGrid"
     mc:Ignorable="d">
 
     <Grid Padding="{StaticResource AdPadPanel}" RowSpacing="{StaticResource AdSpace3}">
@@ -27,20 +28,7 @@
             PreviewKeyDown="OnCanvasPreviewKeyDown"
             UseSystemFocusVisuals="False">
             <Grid>
-                <ScrollViewer
-                    x:Name="OutputScroller"
-                    Padding="{StaticResource AdPadCanvas}"
-                    VerticalScrollBarVisibility="Auto"
-                    VerticalScrollMode="Auto">
-                    <TextBlock
-                        x:Name="OutputText"
-                        FontFamily="{StaticResource AdFontMono}"
-                        FontSize="{StaticResource AdMonoSize}"
-                        Foreground="{ThemeResource AdTermForegroundBrush}"
-                        IsTextSelectionEnabled="True"
-                        LineHeight="{StaticResource AdMonoLine}"
-                        TextWrapping="Wrap" />
-                </ScrollViewer>
+                <textgrid:TextGridView x:Name="GridView" Margin="{StaticResource AdPadCanvas}" />
 
                 <Border
                     Height="1"

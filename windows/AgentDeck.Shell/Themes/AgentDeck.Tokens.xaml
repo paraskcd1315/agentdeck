@@ -251,6 +251,7 @@
 
     <FontFamily x:Key="AdFontUi">Quicksand, Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="AdFontMono">JetBrainsMono NF, Cascadia Mono, Consolas</FontFamily>
+    <x:String x:Key="AdFontMonoCandidates">MesloLGS NF|MesloLGS Nerd Font Mono|MesloLGS Nerd Font|JetBrainsMono NF|Cascadia Mono|Consolas</x:String>
 
     <x:Double x:Key="AdDisplaySize">28</x:Double>
     <x:Double x:Key="AdDisplayLine">34</x:Double>

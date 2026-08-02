@@ -1,5 +1,6 @@
 using System.ComponentModel;
 
+using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
 using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
@@ -8,7 +9,6 @@ using AgentDeck.Shell.Utils;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Screens;
 
@@ -25,15 +25,12 @@ public sealed partial class TerminalScreen : UserControl
 
         _viewModel = new TerminalViewModel(AppServices.Daemon, AppServices.Strings);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        _viewModel.GridChanged += OnGridChanged;
 
-        var terminalTheme = AppServices.Config.Theme?.Terminal;
-        CanvasBorder.Background = TerminalCanvasBrush.Build(terminalTheme);
+        GridView.Model = _viewModel.Grid;
+        GridView.GridSizeChanged += OnGridSizeChanged;
 
-        var foreground = ColorParser.Parse(terminalTheme?.Foreground);
-        if (foreground is { } color)
-        {
-            OutputText.Foreground = new SolidColorBrush(color);
-        }
+        CanvasBorder.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
 
         Loaded += OnLoaded;
     }
@@ -45,6 +42,11 @@ public sealed partial class TerminalScreen : UserControl
         CanvasBorder.Focus(FocusState.Programmatic);
         await _viewModel.StartAsync(CancellationToken.None);
     }
+
+    private void OnGridChanged(object? sender, EventArgs args) => GridView.Invalidate();
+
+    private async void OnGridSizeChanged(object? sender, TextGridSize size) =>
+        await _viewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
 
     private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs args) =>
         CanvasBorder.Focus(FocusState.Pointer);
@@ -79,16 +81,9 @@ public sealed partial class TerminalScreen : UserControl
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs args)
     {
-        switch (args.PropertyName)
+        if (args.PropertyName == nameof(TerminalViewModel.Status))
         {
-            case nameof(TerminalViewModel.Output):
-                OutputText.Text = _viewModel.Output;
-                OutputScroller.ChangeView(null, OutputScroller.ScrollableHeight, null, true);
-                break;
-
-            case nameof(TerminalViewModel.Status):
-                StatusText.Text = _viewModel.Status;
-                break;
+            StatusText.Text = _viewModel.Status;
         }
     }
 }

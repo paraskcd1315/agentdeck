@@ -18,4 +18,7 @@ public sealed class TerminalThemeConfig
 
     [JsonPropertyName("foreground")]
     public string? Foreground { get; init; }
+
+    [JsonPropertyName("font")]
+    public string? Font { get; init; }
 }

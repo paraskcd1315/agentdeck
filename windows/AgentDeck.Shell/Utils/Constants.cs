@@ -32,6 +32,7 @@ public static class Constants
         public const string PanelList = "panel.list";
         public const string PanelRead = "panel.read";
         public const string WorkspaceOpen = "workspace.open";
+        public const string TerminalSnapshot = "terminal.snapshot";
     }
 
     public static class Notification
@@ -40,6 +41,7 @@ public static class Constants
         public const string PtyExit = "pty.exit";
         public const string HookEvent = "hook.event";
         public const string PanelChanged = "panel.changed";
+        public const string TerminalDamage = "terminal.damage";
     }
 
     public static class Shell
@@ -52,6 +54,6 @@ public static class Constants
             @"C:\Program Files (x86)\Git\bin\bash.exe",
         ];
 
-        public static readonly string[] GitBashDefaultArgs = ["--noprofile", "--norc"];
+        public static readonly string[] GitBashDefaultArgs = [];
     }
 }

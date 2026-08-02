@@ -1,3 +1,4 @@
+using AgentDeck.Shell.Data.Daemon.Dto;
 using AgentDeck.Shell.Domain.Entities;
 
 namespace AgentDeck.Shell.Domain.Interfaces;
@@ -9,6 +10,8 @@ public interface IDaemonClient : IAsyncDisposable
     event EventHandler<HookEventArgs>? HookEventReceived;
 
     event EventHandler<PanelChangedEventArgs>? PanelChanged;
+
+    event EventHandler<GridSnapshotEventArgs>? TerminalDamaged;
 
     bool IsConnected { get; }
 
@@ -25,4 +28,6 @@ public interface IDaemonClient : IAsyncDisposable
     Task<IReadOnlyList<string>> ListPanelsAsync(string workspaceId, CancellationToken cancellationToken);
 
     Task<PanelDefinition?> ReadPanelAsync(string workspaceId, string id, CancellationToken cancellationToken);
+
+    Task<GridSnapshotDto?> SnapshotAsync(long ptyId, CancellationToken cancellationToken);
 }
