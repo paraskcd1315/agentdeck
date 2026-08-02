@@ -21,4 +21,7 @@ public sealed class TerminalThemeConfig
 
     [JsonPropertyName("font")]
     public string? Font { get; init; }
+
+    [JsonPropertyName("symbolFont")]
+    public string? SymbolFont { get; init; }
 }

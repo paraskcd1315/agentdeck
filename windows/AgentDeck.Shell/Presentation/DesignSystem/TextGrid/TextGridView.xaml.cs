@@ -17,8 +17,7 @@ public sealed partial class TextGridView : UserControl
 {
     private const float CursorOpacity = 0.75f;
 
-    private CanvasTextFormat? _format;
-    private CanvasTextFormat? _boldFormat;
+    private TextGridFormats? _formats;
     private TextGridMetrics? _metrics;
 
     public TextGridView()
@@ -39,35 +38,15 @@ public sealed partial class TextGridView : UserControl
 
     private void OnCreateResources(CanvasControl sender, CanvasCreateResourcesEventArgs args)
     {
-        var family = TextGridFonts.Resolve(AppServices.Config.Theme?.Terminal?.Font);
+        var terminal = AppServices.Config.Theme?.Terminal;
+        var family = TextGridFonts.Resolve(terminal?.Font);
+        var symbolFamily = TextGridFonts.ResolveSymbols(terminal?.SymbolFont);
         var size = (float)PanelResources.Size(PanelMetrics.MonoSize);
 
-        _format = new CanvasTextFormat
-        {
-            FontFamily = family,
-            FontSize = size,
-            WordWrapping = CanvasWordWrapping.NoWrap,
-        };
-
-        _boldFormat = new CanvasTextFormat
-        {
-            FontFamily = family,
-            FontSize = size,
-            FontWeight = Microsoft.UI.Text.FontWeights.Bold,
-            WordWrapping = CanvasWordWrapping.NoWrap,
-        };
-
-        _metrics = TextGridMetrics.Measure(sender, _format);
-        ApplyLineSpacing(_format, _metrics);
-        ApplyLineSpacing(_boldFormat, _metrics);
+        _formats = TextGridFormats.Create(family, symbolFamily, size);
+        _metrics = TextGridMetrics.Measure(sender, _formats.Base);
+        _formats.ApplyLineSpacing(_metrics);
         ReportGridSize();
-    }
-
-    private static void ApplyLineSpacing(CanvasTextFormat format, TextGridMetrics metrics)
-    {
-        format.LineSpacingMode = CanvasLineSpacingMode.Uniform;
-        format.LineSpacing = (float)metrics.CellHeight;
-        format.LineSpacingBaseline = (float)metrics.Baseline;
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs args) => ReportGridSize();
@@ -86,7 +65,7 @@ public sealed partial class TextGridView : UserControl
 
     private void OnDraw(CanvasControl sender, CanvasDrawEventArgs args)
     {
-        if (_format is not { } format || _boldFormat is not { } boldFormat || _metrics is not { } metrics)
+        if (_formats is not { } formats || _metrics is not { } metrics)
         {
             return;
         }
@@ -110,7 +89,7 @@ public sealed partial class TextGridView : UserControl
             foreach (var run in Model.Lines[row].Runs)
             {
                 var left = (float)Math.Round(run.Column * metrics.CellWidth);
-                var right = (float)Math.Round((run.Column + run.Text.Length) * metrics.CellWidth);
+                var right = (float)Math.Round((run.Column + TextGridGlyphs.Width(run.Text)) * metrics.CellWidth);
                 var width = right - left;
 
                 if (!ColorsEqual(run.Style.Background, background))
@@ -118,12 +97,10 @@ public sealed partial class TextGridView : UserControl
                     session.FillRectangle(left, top, width, height, run.Style.Background);
                 }
 
-                session.DrawText(
-                    run.Text,
-                    left,
-                    top,
-                    run.Style.Foreground,
-                    run.Style.Bold ? boldFormat : format);
+                foreach (var segment in TextGridGlyphs.Segments(run.Text, run.Column))
+                {
+                    DrawSegment(session, segment, run.Style, top, metrics, formats);
+                }
 
                 if (run.Style.Underline)
                 {
@@ -134,6 +111,24 @@ public sealed partial class TextGridView : UserControl
         }
 
         DrawCursor(session, metrics);
+    }
+
+    private static void DrawSegment(
+        CanvasDrawingSession session,
+        TextGridSegment segment,
+        TextGridStyle style,
+        float top,
+        TextGridMetrics metrics,
+        TextGridFormats formats)
+    {
+        var format = formats.For(segment.IsSymbol, style.Bold);
+
+        session.DrawText(
+            segment.Text,
+            (float)Math.Round(segment.Column * metrics.CellWidth),
+            top,
+            style.Foreground,
+            format);
     }
 
     private void DrawCursor(CanvasDrawingSession session, TextGridMetrics metrics)

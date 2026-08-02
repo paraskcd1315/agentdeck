@@ -66,7 +66,7 @@ public static class GridSnapshotMapper
                 },
             });
 
-            column += span.Text.Length;
+            column += TextGridGlyphs.Width(span.Text);
         }
 
         return runs;
