@@ -12,6 +12,10 @@ impl PtyId {
         Self(NEXT_ID.fetch_add(1, Ordering::Relaxed))
     }
 
+    pub fn from_value(value: u64) -> Self {
+        Self(value)
+    }
+
     pub fn value(self) -> u64 {
         self.0
     }

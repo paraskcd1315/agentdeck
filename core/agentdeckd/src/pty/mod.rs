@@ -3,6 +3,7 @@ pub mod command;
 pub mod conpty;
 pub mod error;
 pub mod handle;
+pub mod registry;
 pub mod session;
 pub mod session_id;
 pub mod size;
