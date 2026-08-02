@@ -8,6 +8,7 @@ namespace AgentDeck.Shell.Presentation.Terminal.Utils;
 
 public static class KeyEncoder
 {
+
     private const string Escape = "";
     private const char Delete = '';
 

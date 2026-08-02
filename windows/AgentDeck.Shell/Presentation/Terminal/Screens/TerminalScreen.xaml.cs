@@ -121,7 +121,7 @@ public sealed partial class TerminalScreen : UserControl
 
     private async void OnCanvasPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {
-        if (ScrollKeys.Pages(args) is { } pages)
+        if (!_viewModel.UsesAlternateScreen && ScrollKeys.Pages(args) is { } pages)
         {
             args.Handled = true;
             await _viewModel.ScrollPageAsync(pages, CancellationToken.None);

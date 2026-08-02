@@ -40,6 +40,8 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
 
     public TextGridModel Grid { get; } = new();
 
+    public bool UsesAlternateScreen => _mode?.AltScreen == true;
+
     public int DisplayOffset => _displayOffset;
 
     public int History => _history;
