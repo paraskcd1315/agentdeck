@@ -52,6 +52,20 @@
                     Orientation="Horizontal"
                     Spacing="{StaticResource AdSpace4}">
                     <Button
+                        x:Name="ClosePaneButton"
+                        AllowFocusOnInteraction="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnClosePaneClick"
+                        CornerRadius="{StaticResource AdRadiusSm}"
+                        FontFamily="{StaticResource AdFontUi}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}"
+                        IsTabStop="False"
+                        Padding="{StaticResource AdPadStrip}"
+                        Visibility="Collapsed" />
+
+                    <Button
                         x:Name="SplitButton"
                         AllowFocusOnInteraction="False"
                         Background="Transparent"

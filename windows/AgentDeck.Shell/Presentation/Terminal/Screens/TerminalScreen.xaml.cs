@@ -37,6 +37,7 @@ public sealed partial class TerminalScreen : UserControl
         _tabs.PanesChanged += OnPanesChanged;
 
         SplitButton.Content = AppServices.Strings.Get(StringKeys.TerminalSplit);
+        ClosePaneButton.Content = AppServices.Strings.Get(StringKeys.TerminalPaneClose);
         CanvasHost.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
 
         Loaded += OnLoaded;
@@ -186,6 +187,19 @@ public sealed partial class TerminalScreen : UserControl
         SplitButton.Content = TerminalChrome.Split(
             AppServices.Strings.Get(StringKeys.TerminalSplit),
             tab.Panes.Count);
+
+        ClosePaneButton.Visibility = tab.Panes.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async void OnClosePaneClick(object sender, RoutedEventArgs args)
+    {
+        if (_tabs.Active is not { } tab)
+        {
+            return;
+        }
+
+        await _tabs.ClosePaneAsync(tab.Active, CancellationToken.None);
+        TakeFocus(FocusState.Programmatic);
     }
 
     private TerminalPaneView? PaneAt(PointerRoutedEventArgs args)

@@ -68,4 +68,7 @@
   <data name="TerminalSplit" xml:space="preserve">
     <value>split</value>
   </data>
+  <data name="TerminalPaneClose" xml:space="preserve">
+    <value>close pane</value>
+  </data>
 </root>

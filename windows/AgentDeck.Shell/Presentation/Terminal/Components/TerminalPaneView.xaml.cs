@@ -1,7 +1,11 @@
 using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+
+using Windows.Foundation;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
 
@@ -13,6 +17,7 @@ public sealed partial class TerminalPaneView : UserControl
     {
         InitializeComponent();
         GridView.GridSizeChanged += OnGridSizeChanged;
+        SizeChanged += OnSizeChanged;
     }
 
     public event EventHandler<TextGridSize>? GridSizeChanged;
@@ -48,6 +53,12 @@ public sealed partial class TerminalPaneView : UserControl
         GridView.Invalidate();
         ScrollIndicator.Update(viewModel.History, viewModel.DisplayOffset, viewModel.Grid.Rows);
     }
+
+    private void OnSizeChanged(object sender, SizeChangedEventArgs args) =>
+        Surface.Clip = new RectangleGeometry
+        {
+            Rect = new Rect(0, 0, args.NewSize.Width, args.NewSize.Height),
+        };
 
     private void OnGridChanged(object? sender, EventArgs args) => Redraw();
 
