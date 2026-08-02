@@ -11,7 +11,7 @@ public static class Constants
 
     public static class Theme
     {
-        public const double DefaultBackgroundGradientOpacity = 0.85;
+        public const double DefaultBackgroundGradientOpacity = 0.75;
         public const double DefaultTerminalOpacity = 0.92;
         public const double DefaultTerminalBlur = 0;
         public const double DefaultTerminalSaturation = 1.15;
