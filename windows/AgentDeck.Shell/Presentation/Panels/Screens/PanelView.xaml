@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.Panels.Screens.PanelView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border
+        Background="{ThemeResource AdGlassBrush}"
+        BorderBrush="{ThemeResource AdBorderBrush}"
+        BorderThickness="1"
+        CornerRadius="{StaticResource AdRadiusLg}"
+        Padding="{StaticResource AdPadCanvas}">
+        <StackPanel Spacing="{StaticResource AdSpace3}">
+            <TextBlock
+                x:Name="TitleText"
+                FontFamily="{StaticResource AdFontUi}"
+                FontSize="{StaticResource AdFontSizeBody}"
+                FontWeight="SemiBold"
+                Foreground="{ThemeResource AdTextPrimaryBrush}"
+                TextWrapping="Wrap" />
+            <Rectangle Height="1" Fill="{ThemeResource AdBorderBrush}" />
+            <StackPanel x:Name="BlockHost" Spacing="{StaticResource AdSpace3}" />
+        </StackPanel>
+    </Border>
+</UserControl>

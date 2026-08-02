@@ -1,4 +1,4 @@
-using AgentDeck.Shell.Data.Localization;
+using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Xaml;
@@ -16,8 +16,14 @@ public sealed partial class MainWindow : Window
 
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
-        var strings = new ResourceStringProvider();
-        Title = strings.Get(StringKeys.WindowTitle);
+        Title = AppServices.Strings.Get(StringKeys.WindowTitle);
         AppTitleBar.Title = Title;
+
+        Panels.ButtonInvoked += OnPanelButtonInvoked;
+    }
+
+    private async void OnPanelButtonInvoked(object? sender, PanelButton button)
+    {
+        await Terminal.InjectAsync(button.Prompt);
     }
 }

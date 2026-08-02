@@ -1,7 +1,5 @@
 using System.ComponentModel;
 
-using AgentDeck.Shell.Data.Daemon;
-using AgentDeck.Shell.Data.Localization;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
@@ -16,18 +14,19 @@ namespace AgentDeck.Shell.Presentation.Terminal.Screens;
 public sealed partial class TerminalScreen : UserControl
 {
     private readonly TerminalViewModel _viewModel;
-    private readonly ResourceStringProvider _strings = new();
 
     public TerminalScreen()
     {
         InitializeComponent();
 
-        _viewModel = new TerminalViewModel(new DaemonClient(), _strings);
+        _viewModel = new TerminalViewModel(AppServices.Daemon, AppServices.Strings);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
-        InputBox.PlaceholderText = _strings.Get(StringKeys.TerminalInputPlaceholder);
+        InputBox.PlaceholderText = AppServices.Strings.Get(StringKeys.TerminalInputPlaceholder);
         Loaded += OnLoaded;
     }
+
+    public Task InjectAsync(string prompt) => _viewModel.SendAsync($"{prompt}\r", CancellationToken.None);
 
     private async void OnLoaded(object sender, RoutedEventArgs args)
     {

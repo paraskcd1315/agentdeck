@@ -17,6 +17,7 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
     private readonly SynchronizationContext? _uiContext;
 
     private long? _ptyId;
+    private bool _started;
     private string _output = string.Empty;
     private string _status = string.Empty;
 
@@ -47,6 +48,12 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        if (_started)
+        {
+            return;
+        }
+
+        _started = true;
         Status = _strings.Get(StringKeys.TerminalStatusConnecting);
 
         if (!await _client.ConnectAsync(cancellationToken))
@@ -78,6 +85,11 @@ public sealed class TerminalViewModel : INotifyPropertyChanged
 
     private void OnPtyOutputReceived(object? sender, PtyOutputEventArgs args)
     {
+        if (_ptyId != args.PtyId)
+        {
+            return;
+        }
+
         Post(() =>
         {
             _buffer.Append(AnsiFilter.Strip(args.Text));

@@ -8,6 +8,8 @@ public interface IDaemonClient : IAsyncDisposable
 
     event EventHandler<HookEventArgs>? HookEventReceived;
 
+    event EventHandler<PanelChangedEventArgs>? PanelChanged;
+
     bool IsConnected { get; }
 
     Task<bool> ConnectAsync(CancellationToken cancellationToken);
@@ -17,4 +19,10 @@ public interface IDaemonClient : IAsyncDisposable
     Task WriteAsync(long ptyId, string text, CancellationToken cancellationToken);
 
     Task ResizeAsync(long ptyId, int cols, int rows, CancellationToken cancellationToken);
+
+    Task<string?> OpenWorkspaceAsync(string path, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> ListPanelsAsync(string workspaceId, CancellationToken cancellationToken);
+
+    Task<PanelDefinition?> ReadPanelAsync(string workspaceId, string id, CancellationToken cancellationToken);
 }

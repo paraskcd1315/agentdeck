@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using AgentDeck.Shell.Data.Daemon.Dto;
+using AgentDeck.Shell.Data.Daemon.Json;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Domain.Interfaces;
 using AgentDeck.Shell.Utils;
@@ -15,6 +16,7 @@ public sealed class DaemonClient : IDaemonClient
 {
     private readonly ConcurrentDictionary<long, TaskCompletionSource<JsonRpcEnvelopeDto>> _pending = new();
     private readonly SemaphoreSlim _writeLock = new(1, 1);
+    private readonly SemaphoreSlim _connectLock = new(1, 1);
     private readonly CancellationTokenSource _shutdown = new();
 
     private NamedPipeClientStream? _pipe;
@@ -26,9 +28,24 @@ public sealed class DaemonClient : IDaemonClient
 
     public event EventHandler<HookEventArgs>? HookEventReceived;
 
+    public event EventHandler<PanelChangedEventArgs>? PanelChanged;
+
     public bool IsConnected => _pipe?.IsConnected == true;
 
     public async Task<bool> ConnectAsync(CancellationToken cancellationToken)
+    {
+        await _connectLock.WaitAsync(cancellationToken);
+        try
+        {
+            return await ConnectCoreAsync(cancellationToken);
+        }
+        finally
+        {
+            _connectLock.Release();
+        }
+    }
+
+    private async Task<bool> ConnectCoreAsync(CancellationToken cancellationToken)
     {
         if (IsConnected)
         {
@@ -100,6 +117,33 @@ public sealed class DaemonClient : IDaemonClient
         await CallAsync(Constants.Method.PtyResize, parameters, cancellationToken);
     }
 
+    public async Task<string?> OpenWorkspaceAsync(string path, CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["path"] = path };
+        var envelope = await CallAsync(Constants.Method.WorkspaceOpen, parameters, cancellationToken);
+        return envelope?.Result.Deserialize<WorkspaceOpenResultDto>()?.WorkspaceId;
+    }
+
+    public async Task<IReadOnlyList<string>> ListPanelsAsync(
+        string workspaceId,
+        CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["workspaceId"] = workspaceId };
+        var envelope = await CallAsync(Constants.Method.PanelList, parameters, cancellationToken);
+        var result = envelope?.Result.Deserialize<PanelListResultDto>();
+        return result?.Panels.Select(panel => panel.Id).ToList() ?? [];
+    }
+
+    public async Task<PanelDefinition?> ReadPanelAsync(
+        string workspaceId,
+        string id,
+        CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["workspaceId"] = workspaceId, ["id"] = id };
+        var envelope = await CallAsync(Constants.Method.PanelRead, parameters, cancellationToken);
+        return envelope?.Result.Deserialize<PanelDefinition>(DaemonJson.Options);
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _shutdown.CancelAsync();
@@ -116,6 +160,7 @@ public sealed class DaemonClient : IDaemonClient
 
         _shutdown.Dispose();
         _writeLock.Dispose();
+        _connectLock.Dispose();
     }
 
     private async Task<JsonRpcEnvelopeDto?> CallAsync(
@@ -203,6 +248,15 @@ public sealed class DaemonClient : IDaemonClient
 
             case Constants.Notification.HookEvent:
                 HookEventReceived?.Invoke(this, new HookEventArgs(envelope.Params?.ToJsonString() ?? string.Empty));
+                break;
+
+            case Constants.Notification.PanelChanged:
+                var changed = envelope.Params.Deserialize<PanelChangedDto>();
+                if (changed is not null)
+                {
+                    PanelChanged?.Invoke(this, new PanelChangedEventArgs(changed.WorkspaceId, changed.Id));
+                }
+
                 break;
         }
     }
