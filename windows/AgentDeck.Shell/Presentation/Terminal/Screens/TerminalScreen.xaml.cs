@@ -84,43 +84,68 @@ public sealed partial class TerminalScreen : UserControl
     {
         CanvasHost.Children.Clear();
         CanvasHost.ColumnDefinitions.Clear();
+        CanvasHost.RowDefinitions.Clear();
 
         if (_tabs.Active is not { } tab)
         {
             return;
         }
 
+        var vertical = tab.Orientation == TerminalSplitOrientation.Vertical;
+
         for (var index = 0; index < tab.Panes.Count; index++)
         {
-            CanvasHost.ColumnDefinitions.Add(new ColumnDefinition());
-            CanvasHost.Children.Add(BuildPaneView(tab.Panes[index], index, tab));
+            if (vertical)
+            {
+                CanvasHost.RowDefinitions.Add(new RowDefinition());
+            }
+            else
+            {
+                CanvasHost.ColumnDefinitions.Add(new ColumnDefinition());
+            }
+
+            var view = BuildPaneView(tab.Panes[index], index, tab);
+            Place(view, index, vertical);
+            CanvasHost.Children.Add(view);
 
             if (index > 0)
             {
-                CanvasHost.Children.Add(BuildPaneDivider(index));
+                var divider = BuildPaneDivider(index, vertical);
+                Place(divider, index, vertical);
+                CanvasHost.Children.Add(divider);
             }
         }
     }
 
-    private TerminalPaneView BuildPaneView(TerminalPane pane, int column, TerminalTab tab)
+    private static void Place(FrameworkElement element, int index, bool vertical)
+    {
+        if (vertical)
+        {
+            Grid.SetRow(element, index);
+            return;
+        }
+
+        Grid.SetColumn(element, index);
+    }
+
+    private TerminalPaneView BuildPaneView(TerminalPane pane, int index, TerminalTab tab)
     {
         var view = new TerminalPaneView();
         view.Bind(pane, ReferenceEquals(tab.Active, pane), tab.Panes.Count > 1);
         view.GridSizeChanged += OnGridSizeChanged;
         view.SplitRequested += OnPaneSplitRequested;
         view.CloseRequested += OnPaneCloseRequested;
-        Grid.SetColumn(view, column);
         return view;
     }
 
-    private async void OnPaneSplitRequested(object? sender, TerminalPane pane)
+    private async void OnPaneSplitRequested(object? sender, TerminalSplitRequest request)
     {
         if (_tabs.Active is { } tab)
         {
-            tab.Active = pane;
+            tab.Active = request.Pane;
         }
 
-        await _tabs.SplitAsync(CancellationToken.None);
+        await _tabs.SplitAsync(request.Orientation, CancellationToken.None);
         TakeFocus(FocusState.Programmatic);
     }
 
@@ -130,35 +155,65 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private DragDivider BuildPaneDivider(int column)
+    private DragDivider BuildPaneDivider(int index, bool vertical)
     {
-        var divider = new DragDivider { HorizontalAlignment = HorizontalAlignment.Left };
-        divider.Dragged += (_, delta) => ResizePanes(column, delta);
+        var divider = new DragDivider
+        {
+            HorizontalAlignment = vertical ? HorizontalAlignment.Stretch : HorizontalAlignment.Left,
+            VerticalAlignment = vertical ? VerticalAlignment.Top : VerticalAlignment.Stretch,
+        };
 
-        Grid.SetColumn(divider, column);
+        divider.SetVertical(vertical);
+        divider.Dragged += (_, delta) => ResizePanes(index, delta, vertical);
         return divider;
     }
 
-    private void ResizePanes(int column, double delta)
+    private void ResizePanes(int index, double delta, bool vertical)
     {
-        if (column <= 0 || column >= CanvasHost.ColumnDefinitions.Count)
+        if (vertical)
+        {
+            ResizeRows(index, delta);
+            return;
+        }
+
+        if (index <= 0 || index >= CanvasHost.ColumnDefinitions.Count)
         {
             return;
         }
 
-        var left = CanvasHost.ColumnDefinitions[column - 1];
-        var right = CanvasHost.ColumnDefinitions[column];
+        var first = CanvasHost.ColumnDefinitions[index - 1];
+        var second = CanvasHost.ColumnDefinitions[index];
+        var firstSize = first.ActualWidth + delta;
+        var secondSize = second.ActualWidth - delta;
 
-        var leftWidth = left.ActualWidth + delta;
-        var rightWidth = right.ActualWidth - delta;
-
-        if (leftWidth < TerminalMetrics.MinimumPaneWidth || rightWidth < TerminalMetrics.MinimumPaneWidth)
+        if (firstSize < TerminalMetrics.MinimumPaneWidth || secondSize < TerminalMetrics.MinimumPaneWidth)
         {
             return;
         }
 
-        left.Width = new GridLength(leftWidth, GridUnitType.Star);
-        right.Width = new GridLength(rightWidth, GridUnitType.Star);
+        first.Width = new GridLength(firstSize, GridUnitType.Star);
+        second.Width = new GridLength(secondSize, GridUnitType.Star);
+    }
+
+    private void ResizeRows(int index, double delta)
+    {
+        if (index <= 0 || index >= CanvasHost.RowDefinitions.Count)
+        {
+            return;
+        }
+
+        var first = CanvasHost.RowDefinitions[index - 1];
+        var second = CanvasHost.RowDefinitions[index];
+        var firstSize = first.ActualHeight + delta;
+        var secondSize = second.ActualHeight - delta;
+
+        if (firstSize < TerminalMetrics.MinimumPaneHeight || secondSize < TerminalMetrics.MinimumPaneHeight)
+        {
+            return;
+        }
+
+        first.Height = new GridLength(firstSize, GridUnitType.Star);
+        second.Height = new GridLength(secondSize, GridUnitType.Star);
     }
 
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);

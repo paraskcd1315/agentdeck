@@ -7,6 +7,7 @@ public static class TerminalMetrics
     public const int WheelScrollLines = 3;
     public const int PageOverlapLines = 2;
     public const double MinimumPaneWidth = 180;
+    public const double MinimumPaneHeight = 120;
     public const double MinimumPanelWidth = 280;
     public const double MinimumTerminalWidth = 320;
 }

@@ -20,6 +20,8 @@ public sealed class TerminalTab
 
     public ObservableCollection<TerminalPane> Panes { get; } = [];
 
+    public TerminalSplitOrientation Orientation { get; set; } = TerminalSplitOrientation.Horizontal;
+
     public TerminalPane Active
     {
         get => _active;

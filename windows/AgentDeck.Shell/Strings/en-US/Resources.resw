@@ -71,6 +71,12 @@
   <data name="TerminalPaneClose" xml:space="preserve">
     <value>Close pane</value>
   </data>
+  <data name="TerminalSplitRight" xml:space="preserve">
+    <value>Split right</value>
+  </data>
+  <data name="TerminalSplitDown" xml:space="preserve">
+    <value>Split down</value>
+  </data>
   <data name="TerminalTabNewTooltip" xml:space="preserve">
     <value>New tab</value>
   </data>

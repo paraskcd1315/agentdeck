@@ -7,6 +7,7 @@ using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 
 using Windows.Foundation;
@@ -33,7 +34,7 @@ public sealed partial class TerminalPaneView : UserControl
 
     public event EventHandler<TextGridSize>? GridSizeChanged;
 
-    public event EventHandler<TerminalPane>? SplitRequested;
+    public event EventHandler<TerminalSplitRequest>? SplitRequested;
 
     public event EventHandler<TerminalPane>? CloseRequested;
 
@@ -113,10 +114,46 @@ public sealed partial class TerminalPaneView : UserControl
 
     private void OnSplitClick(object sender, RoutedEventArgs args)
     {
-        if (Pane is { } pane)
+        if (Pane is not { } pane)
         {
-            SplitRequested?.Invoke(this, pane);
+            return;
         }
+
+        var menu = new MenuFlyout { Placement = FlyoutPlacementMode.Bottom };
+        menu.Items.Add(BuildSplitItem(
+            StringKeys.TerminalSplitRight,
+            TerminalGlyphs.SplitRight,
+            pane,
+            TerminalSplitOrientation.Horizontal));
+        menu.Items.Add(BuildSplitItem(
+            StringKeys.TerminalSplitDown,
+            TerminalGlyphs.SplitDown,
+            pane,
+            TerminalSplitOrientation.Vertical));
+
+        menu.ShowAt(SplitButton);
+    }
+
+    private MenuFlyoutItem BuildSplitItem(
+        string key,
+        string glyph,
+        TerminalPane pane,
+        TerminalSplitOrientation orientation)
+    {
+        var item = new MenuFlyoutItem
+        {
+            Text = AppServices.Strings.Get(key),
+            Icon = new FontIcon
+            {
+                Glyph = glyph,
+                FontFamily = Panels.Utils.PanelResources.Font("AdFontIcon"),
+            },
+        };
+
+        item.Click += (_, _) =>
+            SplitRequested?.Invoke(this, new TerminalSplitRequest(pane, orientation));
+
+        return item;
     }
 
     private void OnCloseClick(object sender, RoutedEventArgs args)

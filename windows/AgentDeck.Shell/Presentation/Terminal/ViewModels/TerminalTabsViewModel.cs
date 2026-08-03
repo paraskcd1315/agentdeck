@@ -71,12 +71,16 @@ public sealed class TerminalTabsViewModel
         return tab;
     }
 
-    public async Task<TerminalPane?> SplitAsync(CancellationToken cancellationToken)
+    public async Task<TerminalPane?> SplitAsync(
+        TerminalSplitOrientation orientation,
+        CancellationToken cancellationToken)
     {
         if (_active is not { } tab)
         {
             return null;
         }
+
+        tab.Orientation = orientation;
 
         var viewModel = new TerminalViewModel(_client, _strings, tab.Profile);
         var pane = tab.Add(viewModel);
