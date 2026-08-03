@@ -14,6 +14,8 @@ public sealed class PaneNode
 
     public List<PaneNode> Children { get; } = [];
 
+    public double Weight { get; set; } = 1;
+
     public bool IsLeaf => Pane is not null;
 
     public static PaneNode Leaf(TerminalPane pane) =>

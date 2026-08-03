@@ -46,6 +46,10 @@ public sealed partial class TerminalScreen : UserControl
 
     private TerminalViewModel? Active => _tabs.Active?.Active.ViewModel;
 
+    public event EventHandler? LayoutChanged;
+
+    public WorkspaceLayout CaptureLayout(double panelWidth) => _tabs.Capture(panelWidth);
+
     public void AttachTabStrip(TerminalTabStrip strip)
     {
         _strip = strip;
@@ -73,7 +77,11 @@ public sealed partial class TerminalScreen : UserControl
         await _tabs.StartAsync(CancellationToken.None);
     }
 
-    private void OnTabsChanged(object? sender, EventArgs args) => RenderTabs();
+    private void OnTabsChanged(object? sender, EventArgs args)
+    {
+        RenderTabs();
+        LayoutChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     private void OnActiveChanged(object? sender, EventArgs args)
     {
@@ -82,7 +90,11 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private void OnPanesChanged(object? sender, EventArgs args) => RenderPanes();
+    private void OnPanesChanged(object? sender, EventArgs args)
+    {
+        RenderPanes();
+        LayoutChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     private void RenderPanes()
     {
@@ -110,13 +122,15 @@ public sealed partial class TerminalScreen : UserControl
 
         for (var index = 0; index < node.Children.Count; index++)
         {
+            var weight = new GridLength(node.Children[index].Weight, GridUnitType.Star);
+
             if (vertical)
             {
-                grid.RowDefinitions.Add(new RowDefinition());
+                grid.RowDefinitions.Add(new RowDefinition { Height = weight });
             }
             else
             {
-                grid.ColumnDefinitions.Add(new ColumnDefinition());
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = weight });
             }
 
             var child = BuildNode(node.Children[index], tab);
@@ -125,7 +139,7 @@ public sealed partial class TerminalScreen : UserControl
 
             if (index > 0)
             {
-                var divider = BuildPaneDivider(grid, index, vertical);
+                var divider = BuildPaneDivider(grid, node, index, vertical);
                 Place(divider, index, vertical);
                 grid.Children.Add(divider);
             }
@@ -201,7 +215,7 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private static DragDivider BuildPaneDivider(Grid host, int index, bool vertical)
+    private DragDivider BuildPaneDivider(Grid host, PaneNode node, int index, bool vertical)
     {
         var divider = new DragDivider
         {
@@ -210,56 +224,42 @@ public sealed partial class TerminalScreen : UserControl
         };
 
         divider.SetVertical(vertical);
-        divider.Dragged += (_, delta) => ResizePanes(host, index, delta, vertical);
+        divider.Dragged += (_, delta) => ResizePanes(host, node, index, delta, vertical);
         return divider;
     }
 
-    private static void ResizePanes(Grid host, int index, double delta, bool vertical)
+    private void ResizePanes(Grid host, PaneNode node, int index, double delta, bool vertical)
     {
+        var minimum = vertical ? TerminalMetrics.MinimumPaneHeight : TerminalMetrics.MinimumPaneWidth;
+
+        var firstSize = (vertical
+            ? host.RowDefinitions[index - 1].ActualHeight
+            : host.ColumnDefinitions[index - 1].ActualWidth) + delta;
+
+        var secondSize = (vertical
+            ? host.RowDefinitions[index].ActualHeight
+            : host.ColumnDefinitions[index].ActualWidth) - delta;
+
+        if (firstSize < minimum || secondSize < minimum)
+        {
+            return;
+        }
+
+        node.Children[index - 1].Weight = firstSize;
+        node.Children[index].Weight = secondSize;
+
         if (vertical)
         {
-            ResizeRows(host, index, delta);
-            return;
+            host.RowDefinitions[index - 1].Height = new GridLength(firstSize, GridUnitType.Star);
+            host.RowDefinitions[index].Height = new GridLength(secondSize, GridUnitType.Star);
         }
-
-        if (index <= 0 || index >= host.ColumnDefinitions.Count)
+        else
         {
-            return;
+            host.ColumnDefinitions[index - 1].Width = new GridLength(firstSize, GridUnitType.Star);
+            host.ColumnDefinitions[index].Width = new GridLength(secondSize, GridUnitType.Star);
         }
 
-        var first = host.ColumnDefinitions[index - 1];
-        var second = host.ColumnDefinitions[index];
-        var firstSize = first.ActualWidth + delta;
-        var secondSize = second.ActualWidth - delta;
-
-        if (firstSize < TerminalMetrics.MinimumPaneWidth || secondSize < TerminalMetrics.MinimumPaneWidth)
-        {
-            return;
-        }
-
-        first.Width = new GridLength(firstSize, GridUnitType.Star);
-        second.Width = new GridLength(secondSize, GridUnitType.Star);
-    }
-
-    private static void ResizeRows(Grid host, int index, double delta)
-    {
-        if (index <= 0 || index >= host.RowDefinitions.Count)
-        {
-            return;
-        }
-
-        var first = host.RowDefinitions[index - 1];
-        var second = host.RowDefinitions[index];
-        var firstSize = first.ActualHeight + delta;
-        var secondSize = second.ActualHeight - delta;
-
-        if (firstSize < TerminalMetrics.MinimumPaneHeight || secondSize < TerminalMetrics.MinimumPaneHeight)
-        {
-            return;
-        }
-
-        first.Height = new GridLength(firstSize, GridUnitType.Star);
-        second.Height = new GridLength(secondSize, GridUnitType.Star);
+        LayoutChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);

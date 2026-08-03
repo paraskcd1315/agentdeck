@@ -9,6 +9,14 @@ public static class Constants
     public const string StateDirectoryName = ".agentdeck";
     public const string ConfigFileName = "config.json";
 
+    public static class Layout
+    {
+        public const string FileName = "layout.json";
+        public const string TemporarySuffix = ".tmp";
+        public const string Vertical = "vertical";
+        public const string Horizontal = "horizontal";
+    }
+
     public static class Theme
     {
         public const double DefaultBackgroundGradientOpacity = 0.75;

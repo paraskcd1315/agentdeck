@@ -1,3 +1,4 @@
+using AgentDeck.Shell.Data.Layout;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.DesignSystem.Foundation;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
@@ -34,7 +35,14 @@ public sealed partial class MainWindow : Window
         PanelDivider.Dragged += OnPanelDividerDragged;
 
         Panels.ButtonInvoked += OnPanelButtonInvoked;
+        Terminal.LayoutChanged += (_, _) => SaveLayout();
         Activated += OnActivated;
+        Closed += (_, _) => SaveLayout();
+
+        if (LayoutStore.Load() is { PanelWidth: > 0 } layout)
+        {
+            PanelColumn.Width = new GridLength(layout.PanelWidth);
+        }
     }
 
     private void OnPanelDividerDragged(object? sender, double delta)
@@ -48,7 +56,10 @@ public sealed partial class MainWindow : Window
         }
 
         PanelColumn.Width = new GridLength(width);
+        SaveLayout();
     }
+
+    private void SaveLayout() => LayoutStore.Save(Terminal.CaptureLayout(PanelColumn.ActualWidth));
 
     private void SizeCaptionSpace()
     {

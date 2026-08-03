@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 
+using AgentDeck.Shell.Data.Layout;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Domain.Interfaces;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
@@ -53,10 +54,83 @@ public sealed class TerminalTabsViewModel
             return;
         }
 
+        if (LayoutStore.Load() is { Tabs.Count: > 0 } layout)
+        {
+            await RestoreAsync(layout, cancellationToken);
+            return;
+        }
+
         foreach (var profile in ShellProfiles.AutoStarting(Profiles))
         {
             await OpenAsync(profile, cancellationToken);
         }
+    }
+
+    public WorkspaceLayout Capture(double panelWidth) => new()
+    {
+        PanelWidth = panelWidth,
+        Tabs = [.. Tabs.Select(tab => new TabLayout
+        {
+            ProfileId = tab.Profile.Id,
+            Name = tab.Name,
+            Root = PaneLayoutMapper.Capture(tab.Root),
+        })],
+    };
+
+    private async Task RestoreAsync(WorkspaceLayout layout, CancellationToken cancellationToken)
+    {
+        foreach (var saved in layout.Tabs)
+        {
+            if (saved.Root is not { } root)
+            {
+                continue;
+            }
+
+            var profile = Profiles.FirstOrDefault(candidate => candidate.Id == saved.ProfileId)
+                ?? Profiles[0];
+
+            var panes = new List<TerminalPane>();
+            var node = BuildNode(root, profile, panes);
+
+            if (panes.Count == 0)
+            {
+                continue;
+            }
+
+            var tab = TerminalTab.FromLayout(profile, node, panes[0], saved.Name);
+
+            Tabs.Add(tab);
+            TabsChanged?.Invoke(this, EventArgs.Empty);
+            Active = tab;
+
+            foreach (var pane in panes)
+            {
+                await pane.ViewModel.StartAsync(cancellationToken);
+            }
+        }
+    }
+
+    private PaneNode BuildNode(PaneLayout layout, ShellProfile profile, List<TerminalPane> panes)
+    {
+        if (layout.Children is { Count: > 0 } children)
+        {
+            var split = PaneNode.Split(
+                PaneLayoutMapper.Orientation(layout),
+                [.. children.Select(child => BuildNode(child, profile, panes))]);
+
+            split.Weight = layout.Weight;
+            return split;
+        }
+
+        var pane = new TerminalPane(
+            layout.Title ?? profile.Name ?? Constants.Shell.DefaultProfileName,
+            new TerminalViewModel(_client, _strings, profile));
+
+        panes.Add(pane);
+
+        var leaf = PaneNode.Leaf(pane);
+        leaf.Weight = layout.Weight;
+        return leaf;
     }
 
     public async Task<TerminalTab> OpenAsync(ShellProfile profile, CancellationToken cancellationToken)

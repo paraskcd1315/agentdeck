@@ -57,9 +57,16 @@ public sealed class TerminalTab
         return pane;
     }
 
-    public static TerminalTab Adopt(ShellProfile profile, TerminalPane pane)
+    public static TerminalTab Adopt(ShellProfile profile, TerminalPane pane) => new(profile, pane);
+
+    public static TerminalTab FromLayout(
+        ShellProfile profile,
+        PaneNode root,
+        TerminalPane active,
+        string? name)
     {
-        var tab = new TerminalTab(profile, pane);
+        var tab = new TerminalTab(profile, active) { Name = name };
+        tab.Root = root;
         return tab;
     }
 
