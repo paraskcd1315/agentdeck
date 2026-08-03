@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
 using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
 
@@ -45,6 +46,8 @@ public sealed partial class TerminalTabStrip : UserControl
     public event EventHandler<ShellProfile>? ProfileRequested;
 
     public event EventHandler? PaneDroppedOnStrip;
+
+    public event EventHandler<TerminalTab>? TabRenamed;
 
     private void OnStripDragOver(object sender, DragEventArgs args)
     {
@@ -131,7 +134,76 @@ public sealed partial class TerminalTabStrip : UserControl
         Background = PanelResources.Brush(active ? ActiveDotKey : IdleDotKey),
     };
 
-    private static TextBlock BuildLabel(TerminalTab tab, bool active) => new()
+    private TextBlock BuildLabel(TerminalTab tab, bool active)
+    {
+        var label = NewLabel(tab, active);
+        label.DoubleTapped += (_, args) =>
+        {
+            args.Handled = true;
+            BeginRename(tab, label);
+        };
+
+        return label;
+    }
+
+    private void BeginRename(TerminalTab tab, TextBlock label)
+    {
+        if (label.Parent is not StackPanel host)
+        {
+            return;
+        }
+
+        var index = host.Children.IndexOf(label);
+        var editor = new TextBox
+        {
+            Text = tab.Title,
+            MinWidth = TerminalTabMetrics.MaxLabelWidth,
+            Margin = TerminalTabMetrics.ContentGap,
+            Padding = new Thickness(0),
+            Background = null,
+            BorderThickness = new Thickness(0),
+            FontFamily = PanelResources.Font(FontKey),
+            FontSize = PanelResources.Size(SizeKey),
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+
+        void Commit()
+        {
+            var name = editor.Text.Trim();
+
+            if (name.Length > 0)
+            {
+                tab.Name = name;
+            }
+
+            host.Children[index] = label;
+            label.Text = tab.StripTitle;
+            TabRenamed?.Invoke(this, tab);
+        }
+
+        editor.LostFocus += (_, _) => Commit();
+        editor.KeyDown += (_, args) =>
+        {
+            if (args.Key == VirtualKey.Enter)
+            {
+                args.Handled = true;
+                Commit();
+                return;
+            }
+
+            if (args.Key == VirtualKey.Escape)
+            {
+                args.Handled = true;
+                host.Children[index] = label;
+            }
+        };
+
+        host.Children[index] = editor;
+        editor.Focus(FocusState.Programmatic);
+        editor.SelectAll();
+    }
+
+    private static TextBlock NewLabel(TerminalTab tab, bool active) => new()
     {
         Text = tab.StripTitle,
         Margin = TerminalTabMetrics.ContentGap,

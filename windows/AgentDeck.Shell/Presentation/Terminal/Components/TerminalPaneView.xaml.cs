@@ -11,8 +11,11 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 
+using Microsoft.UI.Xaml.Input;
+
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.System;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
 
@@ -112,7 +115,65 @@ public sealed partial class TerminalPaneView : UserControl
 
         args.Data.RequestedOperation = DataPackageOperation.Move;
         args.Data.SetText(pane.Title);
+        args.DragUI.SetContentFromDataPackage();
         DragStarted?.Invoke(this, pane);
+    }
+
+    private void OnRenameRequested(object sender, DoubleTappedRoutedEventArgs args)
+    {
+        if (Pane is not { } pane)
+        {
+            return;
+        }
+
+        args.Handled = true;
+        SessionEdit.Text = pane.Title;
+        SessionEdit.Visibility = Visibility.Visible;
+        SessionText.Visibility = Visibility.Collapsed;
+        SessionEdit.Focus(FocusState.Programmatic);
+        SessionEdit.SelectAll();
+    }
+
+    private void OnRenameKeyDown(object sender, KeyRoutedEventArgs args)
+    {
+        if (args.Key == VirtualKey.Enter)
+        {
+            args.Handled = true;
+            CommitRename();
+            return;
+        }
+
+        if (args.Key == VirtualKey.Escape)
+        {
+            args.Handled = true;
+            CancelRename();
+        }
+    }
+
+    private void OnRenameCommitted(object sender, RoutedEventArgs args) => CommitRename();
+
+    private void CommitRename()
+    {
+        if (SessionEdit.Visibility == Visibility.Collapsed)
+        {
+            return;
+        }
+
+        var name = SessionEdit.Text.Trim();
+
+        if (Pane is { } pane && name.Length > 0)
+        {
+            pane.Title = name;
+            RenderStrip();
+        }
+
+        CancelRename();
+    }
+
+    private void CancelRename()
+    {
+        SessionEdit.Visibility = Visibility.Collapsed;
+        SessionText.Visibility = Visibility.Visible;
     }
 
     private void OnPaneDragOver(object sender, DragEventArgs args)

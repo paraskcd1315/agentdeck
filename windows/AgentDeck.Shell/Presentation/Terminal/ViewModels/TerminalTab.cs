@@ -41,7 +41,9 @@ public sealed class TerminalTab
 
     public TerminalViewModel ViewModel => _active.ViewModel;
 
-    public string Title => Profile.Name ?? Constants.Shell.DefaultProfileName;
+    public string? Name { get; set; }
+
+    public string Title => Name ?? Profile.Name ?? Constants.Shell.DefaultProfileName;
 
     public string StripTitle => TerminalChrome.TabTitle(Title, Panes.Count);
 

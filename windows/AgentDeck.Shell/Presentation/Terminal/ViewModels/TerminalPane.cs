@@ -8,7 +8,7 @@ public sealed class TerminalPane
         ViewModel = viewModel;
     }
 
-    public string Title { get; }
+    public string Title { get; set; }
 
     public TerminalViewModel ViewModel { get; }
 }

@@ -38,12 +38,28 @@
                     VerticalAlignment="Center"
                     Background="{StaticResource AdGradientSelect}"
                     CornerRadius="{StaticResource AdRadiusSm}">
-                    <TextBlock
-                        x:Name="SessionText"
-                        FontFamily="{StaticResource AdFontUi}"
-                        FontSize="{StaticResource AdCaptionSize}"
-                        FontWeight="SemiBold"
-                        Foreground="{ThemeResource AdTextBrush}" />
+                    <Grid>
+                        <TextBlock
+                            x:Name="SessionText"
+                            DoubleTapped="OnRenameRequested"
+                            FontFamily="{StaticResource AdFontUi}"
+                            FontSize="{StaticResource AdCaptionSize}"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource AdTextBrush}" />
+
+                        <TextBox
+                            x:Name="SessionEdit"
+                            MinWidth="120"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            FontFamily="{StaticResource AdFontUi}"
+                            FontSize="{StaticResource AdCaptionSize}"
+                            FontWeight="SemiBold"
+                            KeyDown="OnRenameKeyDown"
+                            LostFocus="OnRenameCommitted"
+                            Padding="0"
+                            Visibility="Collapsed" />
+                    </Grid>
                 </Border>
 
                 <StackPanel
