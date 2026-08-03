@@ -38,6 +38,7 @@ public sealed partial class MainWindow : Window
 
         Panels.ButtonInvoked += OnPanelButtonInvoked;
         Terminal.LayoutChanged += (_, _) => SaveLayout();
+        Terminal.PaneDragChanged += OnPaneDragChanged;
         Activated += OnActivated;
         Closed += (_, _) => SaveLayout();
 
@@ -62,6 +63,9 @@ public sealed partial class MainWindow : Window
     }
 
     private void SaveLayout() => LayoutStore.Save(Terminal.CaptureLayout(PanelColumn.ActualWidth));
+
+    private void OnPaneDragChanged(object? sender, bool dragging) =>
+        SetTitleBar(dragging ? null : DragRegion);
 
     private void OnTitleBarDragOver(object sender, DragEventArgs args)
     {

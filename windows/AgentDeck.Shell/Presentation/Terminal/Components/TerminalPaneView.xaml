@@ -29,7 +29,8 @@
             BorderBrush="{ThemeResource AdStrokeBrush}"
             BorderThickness="0,0,0,1"
             CanDrag="True"
-            DragStarting="OnStripDragStarting">
+            DragStarting="OnStripDragStarting"
+            DropCompleted="OnStripDropCompleted">
             <Grid>
                 <Border
                     x:Name="SessionChip"

@@ -50,6 +50,8 @@ public sealed partial class TerminalPaneView : UserControl
 
     public event EventHandler<TerminalPane>? DragStarted;
 
+    public event EventHandler? DragEnded;
+
     public event EventHandler<TerminalDropRequest>? PaneDropped;
 
     public TerminalPane? Pane { get; private set; }
@@ -141,6 +143,9 @@ public sealed partial class TerminalPaneView : UserControl
             deferral.Complete();
         }
     }
+
+    private void OnStripDropCompleted(UIElement sender, DropCompletedEventArgs args) =>
+        DragEnded?.Invoke(this, EventArgs.Empty);
 
     private void OnRenameRequested(object sender, DoubleTappedRoutedEventArgs args)
     {

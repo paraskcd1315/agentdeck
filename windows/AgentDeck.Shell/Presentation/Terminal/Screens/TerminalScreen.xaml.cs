@@ -48,6 +48,8 @@ public sealed partial class TerminalScreen : UserControl
 
     public event EventHandler? LayoutChanged;
 
+    public event EventHandler<bool>? PaneDragChanged;
+
     public WorkspaceLayout CaptureLayout(double panelWidth) => _tabs.Capture(panelWidth);
 
     public bool HasPaneInFlight => _dragging is not null;
@@ -171,6 +173,7 @@ public sealed partial class TerminalScreen : UserControl
         view.SplitRequested += OnPaneSplitRequested;
         view.CloseRequested += OnPaneCloseRequested;
         view.DragStarted += OnPaneDragStarted;
+        view.DragEnded += OnPaneDragEnded;
         view.PaneDropped += OnPaneDropped;
         _paneViews.Add(view);
         return view;
@@ -187,7 +190,17 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private void OnPaneDragStarted(object? sender, TerminalPane pane) => _dragging = pane;
+    private void OnPaneDragStarted(object? sender, TerminalPane pane)
+    {
+        _dragging = pane;
+        PaneDragChanged?.Invoke(this, true);
+    }
+
+    private void OnPaneDragEnded(object? sender, EventArgs args)
+    {
+        _dragging = null;
+        PaneDragChanged?.Invoke(this, false);
+    }
 
     private void OnPaneDropped(object? sender, TerminalDropRequest request)
     {
