@@ -10,11 +10,13 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 using Microsoft.UI.Xaml.Input;
 
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.System;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
@@ -105,7 +107,7 @@ public sealed partial class TerminalPaneView : UserControl
         StripMeta.Text = TerminalChrome.Dimensions(viewModel);
     }
 
-    private void OnStripDragStarting(UIElement sender, DragStartingEventArgs args)
+    private async void OnStripDragStarting(UIElement sender, DragStartingEventArgs args)
     {
         if (Pane is not { } pane)
         {
@@ -115,8 +117,29 @@ public sealed partial class TerminalPaneView : UserControl
 
         args.Data.RequestedOperation = DataPackageOperation.Move;
         args.Data.SetText(pane.Title);
-        args.DragUI.SetContentFromDataPackage();
         DragStarted?.Invoke(this, pane);
+
+        var deferral = args.GetDeferral();
+
+        try
+        {
+            var render = new RenderTargetBitmap();
+            await render.RenderAsync(SessionChip);
+
+            var pixels = await render.GetPixelsAsync();
+            var bitmap = SoftwareBitmap.CreateCopyFromBuffer(
+                pixels,
+                BitmapPixelFormat.Bgra8,
+                render.PixelWidth,
+                render.PixelHeight,
+                BitmapAlphaMode.Premultiplied);
+
+            args.DragUI.SetContentFromSoftwareBitmap(bitmap);
+        }
+        finally
+        {
+            deferral.Complete();
+        }
     }
 
     private void OnRenameRequested(object sender, DoubleTappedRoutedEventArgs args)
