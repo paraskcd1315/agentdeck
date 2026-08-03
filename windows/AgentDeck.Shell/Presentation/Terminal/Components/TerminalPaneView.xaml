@@ -9,14 +9,107 @@
     IsTabStop="False"
     mc:Ignorable="d">
 
-    <Grid x:Name="Surface">
-        <textgrid:TextGridView
-            x:Name="GridView"
-            IsHitTestVisible="False"
-            IsTabStop="False" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <textgrid:TextGridScrollBar x:Name="ScrollIndicator" HorizontalAlignment="Right" />
+        <Border
+            Grid.Row="0"
+            Height="{StaticResource AdTermStripHeight}"
+            Padding="{StaticResource AdPadStrip}"
+            Background="{ThemeResource AdGlassBrush}"
+            BorderBrush="{ThemeResource AdStrokeBrush}"
+            BorderThickness="0,0,0,1">
+            <Grid>
+                <Border
+                    x:Name="SessionChip"
+                    Padding="12,4,12,4"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Background="{StaticResource AdGradientSelect}"
+                    CornerRadius="{StaticResource AdRadiusSm}">
+                    <TextBlock
+                        x:Name="SessionText"
+                        FontFamily="{StaticResource AdFontUi}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource AdTextBrush}" />
+                </Border>
 
-        <Border x:Name="InputCatcher" Background="Transparent" />
+                <StackPanel
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="{StaticResource AdSpace2}">
+                    <TextBlock
+                        x:Name="StripMeta"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource AdFontMono}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}" />
+
+                    <Button
+                        x:Name="SplitButton"
+                        Width="24"
+                        Height="24"
+                        AllowFocusOnInteraction="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnSplitClick"
+                        CornerRadius="{StaticResource AdRadiusXs}"
+                        FontFamily="{StaticResource AdFontIcon}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}"
+                        IsTabStop="False"
+                        Padding="0" />
+
+                    <Button
+                        x:Name="CloseButton"
+                        Width="24"
+                        Height="24"
+                        AllowFocusOnInteraction="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnCloseClick"
+                        CornerRadius="{StaticResource AdRadiusXs}"
+                        FontFamily="{StaticResource AdFontIcon}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}"
+                        IsTabStop="False"
+                        Padding="0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid x:Name="Surface" Grid.Row="1" SizeChanged="OnSurfaceSizeChanged">
+            <textgrid:TextGridView
+                x:Name="GridView"
+                IsHitTestVisible="False"
+                IsTabStop="False" />
+
+            <textgrid:TextGridScrollBar x:Name="ScrollIndicator" HorizontalAlignment="Right" />
+
+            <Border x:Name="InputCatcher" Background="Transparent" />
+        </Grid>
+
+        <Border
+            Grid.Row="2"
+            Height="{StaticResource AdTermFootHeight}"
+            Padding="{StaticResource AdPadStrip}"
+            Background="{ThemeResource AdGlassBrush}"
+            BorderBrush="{ThemeResource AdStrokeBrush}"
+            BorderThickness="0,1,0,0">
+            <TextBlock
+                x:Name="FootText"
+                VerticalAlignment="Center"
+                FontFamily="{StaticResource AdFontMono}"
+                FontSize="{StaticResource AdCaptionSize}"
+                Foreground="{ThemeResource AdText3Brush}"
+                TextTrimming="CharacterEllipsis" />
+        </Border>
     </Grid>
 </UserControl>

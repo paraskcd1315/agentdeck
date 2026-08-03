@@ -32,6 +32,7 @@ public sealed partial class TerminalTabStrip : UserControl
     {
         InitializeComponent();
         AddButton.Content = AppServices.Strings.Get(StringKeys.TerminalTabNew);
+        ToolTipService.SetToolTip(AddButton, AppServices.Strings.Get(StringKeys.TerminalTabNewTooltip));
         SizeChanged += (_, _) => ShowOverflowEdge();
     }
 
@@ -137,6 +138,8 @@ public sealed partial class TerminalTabStrip : UserControl
             FontWeight = FontWeights.SemiBold,
             Foreground = PanelResources.Brush(TextFaintKey),
         };
+
+        ToolTipService.SetToolTip(glyph, AppServices.Strings.Get(StringKeys.TerminalTabCloseTooltip));
 
         var close = new Border
         {

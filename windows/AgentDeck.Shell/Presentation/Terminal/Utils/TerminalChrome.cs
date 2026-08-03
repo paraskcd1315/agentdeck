@@ -9,11 +9,8 @@ public static class TerminalChrome
     private const string DimensionSeparator = "×";
     private const string PendingPty = "—";
 
-    public static string Session(TerminalTab tab) =>
-        $"{tab.Title}{SessionSeparator}{PtyLabel}{tab.ViewModel.PtyId?.ToString() ?? PendingPty}";
-
-    public static string Split(string label, int panes) =>
-        panes > 1 ? $"{label} {panes}" : label;
+    public static string Session(string title, long? ptyId) =>
+        $"{title}{SessionSeparator}{PtyLabel}{ptyId?.ToString() ?? PendingPty}";
 
     public static string Dimensions(TerminalViewModel viewModel) =>
         $"{viewModel.Columns}{DimensionSeparator}{viewModel.Rows}";

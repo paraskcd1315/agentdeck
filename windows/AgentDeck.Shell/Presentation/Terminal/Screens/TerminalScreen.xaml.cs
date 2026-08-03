@@ -24,7 +24,6 @@ public sealed partial class TerminalScreen : UserControl
 
     private readonly TerminalTabsViewModel _tabs;
 
-    private TerminalViewModel? _bound;
     private TerminalTabStrip? _strip;
 
     public TerminalScreen()
@@ -36,8 +35,6 @@ public sealed partial class TerminalScreen : UserControl
         _tabs.TabsChanged += OnTabsChanged;
         _tabs.PanesChanged += OnPanesChanged;
 
-        SplitButton.Content = AppServices.Strings.Get(StringKeys.TerminalSplit);
-        ClosePaneButton.Content = AppServices.Strings.Get(StringKeys.TerminalPaneClose);
         CanvasHost.Background = TerminalCanvasBrush.Build(AppServices.Config.Theme?.Terminal);
 
         Loaded += OnLoaded;
@@ -76,32 +73,11 @@ public sealed partial class TerminalScreen : UserControl
     private void OnActiveChanged(object? sender, EventArgs args)
     {
         RenderTabs();
-
-        if (_bound is { } previous)
-        {
-            previous.PropertyChanged -= OnViewModelPropertyChanged;
-        }
-
-        _bound = Active;
-
-        if (_bound is not { } viewModel)
-        {
-            return;
-        }
-
-        viewModel.PropertyChanged += OnViewModelPropertyChanged;
-
-        StatusText.Text = viewModel.Status;
         RenderPanes();
-        RenderStrip();
         TakeFocus(FocusState.Programmatic);
     }
 
-    private void OnPanesChanged(object? sender, EventArgs args)
-    {
-        RenderPanes();
-        RenderStrip();
-    }
+    private void OnPanesChanged(object? sender, EventArgs args) => RenderPanes();
 
     private void RenderPanes()
     {
@@ -116,7 +92,7 @@ public sealed partial class TerminalScreen : UserControl
         for (var index = 0; index < tab.Panes.Count; index++)
         {
             CanvasHost.ColumnDefinitions.Add(new ColumnDefinition());
-            CanvasHost.Children.Add(BuildPaneView(tab.Panes[index], index));
+            CanvasHost.Children.Add(BuildPaneView(tab.Panes[index], index, tab));
 
             if (index > 0)
             {
@@ -125,13 +101,32 @@ public sealed partial class TerminalScreen : UserControl
         }
     }
 
-    private TerminalPaneView BuildPaneView(TerminalPane pane, int column)
+    private TerminalPaneView BuildPaneView(TerminalPane pane, int column, TerminalTab tab)
     {
         var view = new TerminalPaneView();
-        view.Bind(pane);
+        view.Bind(pane, ReferenceEquals(tab.Active, pane), tab.Panes.Count > 1);
         view.GridSizeChanged += OnGridSizeChanged;
+        view.SplitRequested += OnPaneSplitRequested;
+        view.CloseRequested += OnPaneCloseRequested;
         Grid.SetColumn(view, column);
         return view;
+    }
+
+    private async void OnPaneSplitRequested(object? sender, TerminalPane pane)
+    {
+        if (_tabs.Active is { } tab)
+        {
+            tab.Active = pane;
+        }
+
+        await _tabs.SplitAsync(CancellationToken.None);
+        TakeFocus(FocusState.Programmatic);
+    }
+
+    private async void OnPaneCloseRequested(object? sender, TerminalPane pane)
+    {
+        await _tabs.ClosePaneAsync(pane, CancellationToken.None);
+        TakeFocus(FocusState.Programmatic);
     }
 
     private static Border BuildPaneDivider(int column)
@@ -166,40 +161,6 @@ public sealed partial class TerminalScreen : UserControl
         }
 
         await pane.ViewModel.ResizeAsync(size.Columns, size.Rows, CancellationToken.None);
-        RenderStrip();
-    }
-
-    private async void OnSplitClick(object sender, RoutedEventArgs args)
-    {
-        await _tabs.SplitAsync(CancellationToken.None);
-        TakeFocus(FocusState.Programmatic);
-    }
-
-    private void RenderStrip()
-    {
-        if (_tabs.Active is not { } tab)
-        {
-            return;
-        }
-
-        SessionText.Text = TerminalChrome.Session(tab);
-        StripMeta.Text = TerminalChrome.Dimensions(tab.ViewModel);
-        SplitButton.Content = TerminalChrome.Split(
-            AppServices.Strings.Get(StringKeys.TerminalSplit),
-            tab.Panes.Count);
-
-        ClosePaneButton.Visibility = tab.Panes.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    private async void OnClosePaneClick(object sender, RoutedEventArgs args)
-    {
-        if (_tabs.Active is not { } tab)
-        {
-            return;
-        }
-
-        await _tabs.ClosePaneAsync(tab.Active, CancellationToken.None);
-        TakeFocus(FocusState.Programmatic);
     }
 
     private TerminalPaneView? PaneAt(PointerRoutedEventArgs args)
@@ -235,7 +196,7 @@ public sealed partial class TerminalScreen : UserControl
         if (_tabs.Active is { } tab && !ReferenceEquals(tab.Active, pane))
         {
             tab.Active = pane;
-            RenderStrip();
+            SetPaneHighlights();
         }
 
         var point = args.GetCurrentPoint(view);
@@ -297,7 +258,7 @@ public sealed partial class TerminalScreen : UserControl
 
     private async void OnCanvasGotFocus(object sender, RoutedEventArgs args)
     {
-        SessionChip.Opacity = FocusedOpacity;
+        SetPaneHighlights();
 
         if (Active is { } viewModel)
         {
@@ -305,8 +266,18 @@ public sealed partial class TerminalScreen : UserControl
         }
     }
 
-    private void OnCanvasLostFocus(object sender, RoutedEventArgs args) =>
-        SessionChip.Opacity = UnfocusedOpacity;
+    private void OnCanvasLostFocus(object sender, RoutedEventArgs args) => SetPaneHighlights();
+
+    private void SetPaneHighlights()
+    {
+        foreach (var child in CanvasHost.Children)
+        {
+            if (child is TerminalPaneView view && view.Pane is { } pane)
+            {
+                view.SetActive(ReferenceEquals(_tabs.Active?.Active, pane));
+            }
+        }
+    }
 
     private async void OnCanvasPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {
@@ -342,11 +313,4 @@ public sealed partial class TerminalScreen : UserControl
         await viewModel.SendAsync(args.Character.ToString(), CancellationToken.None);
     }
 
-    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        if (args.PropertyName == nameof(TerminalViewModel.Status) && sender is TerminalViewModel viewModel)
-        {
-            StatusText.Text = viewModel.Status;
-        }
-    }
 }

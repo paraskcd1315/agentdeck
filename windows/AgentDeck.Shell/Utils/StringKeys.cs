@@ -12,4 +12,6 @@ public static class StringKeys
     public const string TerminalTabClose = "TerminalTabClose";
     public const string TerminalSplit = "TerminalSplit";
     public const string TerminalPaneClose = "TerminalPaneClose";
+    public const string TerminalTabNewTooltip = "TerminalTabNewTooltip";
+    public const string TerminalTabCloseTooltip = "TerminalTabCloseTooltip";
 }

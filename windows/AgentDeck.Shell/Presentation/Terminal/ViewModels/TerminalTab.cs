@@ -12,7 +12,7 @@ public sealed class TerminalTab
     public TerminalTab(ShellProfile profile, TerminalViewModel viewModel)
     {
         Profile = profile;
-        _active = new TerminalPane(viewModel);
+        _active = new TerminalPane(profile.Name ?? Constants.Shell.DefaultProfileName, viewModel);
         Panes.Add(_active);
     }
 
@@ -38,7 +38,7 @@ public sealed class TerminalTab
 
     public TerminalPane Add(TerminalViewModel viewModel)
     {
-        var pane = new TerminalPane(viewModel);
+        var pane = new TerminalPane(Title, viewModel);
         Panes.Add(pane);
         _active = pane;
         return pane;
