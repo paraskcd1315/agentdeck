@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
@@ -37,6 +38,10 @@ public sealed partial class TerminalPaneView : UserControl
     public event EventHandler<TerminalSplitRequest>? SplitRequested;
 
     public event EventHandler<TerminalPane>? CloseRequested;
+
+    public event EventHandler<TerminalPane>? DragStarted;
+
+    public event EventHandler<TerminalDropRequest>? PaneDropped;
 
     public TerminalPane? Pane { get; private set; }
 
@@ -88,6 +93,72 @@ public sealed partial class TerminalPaneView : UserControl
 
         SessionText.Text = TerminalChrome.Session(pane.Title, viewModel.PtyId);
         StripMeta.Text = TerminalChrome.Dimensions(viewModel);
+    }
+
+    private void OnStripDragStarting(UIElement sender, DragStartingEventArgs args)
+    {
+        if (Pane is not { } pane)
+        {
+            args.Cancel = true;
+            return;
+        }
+
+        args.Data.RequestedOperation = DataPackageOperation.Move;
+        args.Data.SetText(pane.Title);
+        DragStarted?.Invoke(this, pane);
+    }
+
+    private void OnPaneDragOver(object sender, DragEventArgs args)
+    {
+        args.AcceptedOperation = DataPackageOperation.Move;
+        args.DragUIOverride.IsGlyphVisible = false;
+        args.Handled = true;
+
+        var zone = TerminalDropZones.Resolve(
+            args.GetPosition(Surface),
+            Surface.ActualWidth,
+            Surface.ActualHeight);
+
+        ShowDropHint(zone);
+    }
+
+    private void OnPaneDragLeave(object sender, DragEventArgs args) =>
+        DropHint.Visibility = Visibility.Collapsed;
+
+    private void OnPaneDrop(object sender, DragEventArgs args)
+    {
+        DropHint.Visibility = Visibility.Collapsed;
+        args.Handled = true;
+
+        if (Pane is not { } pane)
+        {
+            return;
+        }
+
+        var zone = TerminalDropZones.Resolve(
+            args.GetPosition(Surface),
+            Surface.ActualWidth,
+            Surface.ActualHeight);
+
+        PaneDropped?.Invoke(this, new TerminalDropRequest(pane, zone.Orientation, zone.Before));
+    }
+
+    private void ShowDropHint(TerminalDropZone zone)
+    {
+        DropHint.Visibility = Visibility.Visible;
+
+        var horizontal = zone.Orientation == TerminalSplitOrientation.Horizontal;
+
+        DropHint.HorizontalAlignment = horizontal
+            ? (zone.Before ? HorizontalAlignment.Left : HorizontalAlignment.Right)
+            : HorizontalAlignment.Stretch;
+
+        DropHint.VerticalAlignment = horizontal
+            ? VerticalAlignment.Stretch
+            : (zone.Before ? VerticalAlignment.Top : VerticalAlignment.Bottom);
+
+        DropHint.Width = horizontal ? Surface.ActualWidth / 2 : double.NaN;
+        DropHint.Height = horizontal ? double.NaN : Surface.ActualHeight / 2;
     }
 
     private void OnSurfaceSizeChanged(object sender, SizeChangedEventArgs args) =>

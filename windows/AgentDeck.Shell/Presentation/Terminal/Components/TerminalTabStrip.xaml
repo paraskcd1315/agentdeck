@@ -8,7 +8,12 @@
     IsTabStop="False"
     mc:Ignorable="d">
 
-    <Grid Padding="0,5,0,0" VerticalAlignment="Bottom">
+    <Grid
+        Padding="0,5,0,0"
+        VerticalAlignment="Bottom"
+        AllowDrop="True"
+        DragOver="OnStripDragOver"
+        Drop="OnStripDrop">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />

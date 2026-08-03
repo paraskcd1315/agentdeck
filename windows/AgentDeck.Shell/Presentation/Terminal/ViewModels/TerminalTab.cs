@@ -9,10 +9,15 @@ public sealed class TerminalTab
     private TerminalPane _active;
 
     public TerminalTab(ShellProfile profile, TerminalViewModel viewModel)
+        : this(profile, new TerminalPane(profile.Name ?? Constants.Shell.DefaultProfileName, viewModel))
+    {
+    }
+
+    private TerminalTab(ShellProfile profile, TerminalPane pane)
     {
         Profile = profile;
-        _active = new TerminalPane(profile.Name ?? Constants.Shell.DefaultProfileName, viewModel);
-        Root = PaneNode.Leaf(_active);
+        _active = pane;
+        Root = PaneNode.Leaf(pane);
     }
 
     public ShellProfile Profile { get; }
@@ -44,6 +49,54 @@ public sealed class TerminalTab
         Root = PaneTree.Insert(Root, _active, pane, orientation);
         _active = pane;
 
+        return pane;
+    }
+
+    public static TerminalTab Adopt(ShellProfile profile, TerminalPane pane)
+    {
+        var tab = new TerminalTab(profile, pane);
+        return tab;
+    }
+
+    public bool Move(
+        TerminalPane pane,
+        TerminalPane target,
+        TerminalSplitOrientation orientation,
+        bool before)
+    {
+        if (ReferenceEquals(pane, target) || Panes.Count == 1)
+        {
+            return false;
+        }
+
+        var detached = PaneTree.Remove(Root, pane);
+
+        if (detached is null)
+        {
+            return false;
+        }
+
+        Root = PaneTree.Insert(detached, target, pane, orientation, before);
+        _active = pane;
+        return true;
+    }
+
+    public TerminalPane? Detach(TerminalPane pane)
+    {
+        if (Panes.Count == 1)
+        {
+            return null;
+        }
+
+        var remaining = PaneTree.Remove(Root, pane);
+
+        if (remaining is null)
+        {
+            return null;
+        }
+
+        Root = remaining;
+        _active = Panes[0];
         return pane;
     }
 

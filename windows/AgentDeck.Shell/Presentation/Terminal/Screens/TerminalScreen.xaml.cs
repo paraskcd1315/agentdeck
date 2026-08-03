@@ -28,6 +28,7 @@ public sealed partial class TerminalScreen : UserControl
     private readonly List<TerminalPaneView> _paneViews = [];
 
     private TerminalTabStrip? _strip;
+    private TerminalPane? _dragging;
 
     public TerminalScreen()
     {
@@ -51,6 +52,7 @@ public sealed partial class TerminalScreen : UserControl
         strip.TabSelected += OnTabSelected;
         strip.TabClosed += OnTabClosed;
         strip.ProfileRequested += OnProfileRequested;
+        strip.PaneDroppedOnStrip += OnPaneDroppedOnStrip;
         RenderTabs();
     }
 
@@ -149,6 +151,8 @@ public sealed partial class TerminalScreen : UserControl
         view.GridSizeChanged += OnGridSizeChanged;
         view.SplitRequested += OnPaneSplitRequested;
         view.CloseRequested += OnPaneCloseRequested;
+        view.DragStarted += OnPaneDragStarted;
+        view.PaneDropped += OnPaneDropped;
         _paneViews.Add(view);
         return view;
     }
@@ -161,6 +165,32 @@ public sealed partial class TerminalScreen : UserControl
         }
 
         await _tabs.SplitAsync(request.Orientation, CancellationToken.None);
+        TakeFocus(FocusState.Programmatic);
+    }
+
+    private void OnPaneDragStarted(object? sender, TerminalPane pane) => _dragging = pane;
+
+    private void OnPaneDropped(object? sender, TerminalDropRequest request)
+    {
+        if (_dragging is not { } pane)
+        {
+            return;
+        }
+
+        _dragging = null;
+        _tabs.MovePane(pane, request.Target, request.Orientation, request.Before);
+        TakeFocus(FocusState.Programmatic);
+    }
+
+    private void OnPaneDroppedOnStrip(object? sender, EventArgs args)
+    {
+        if (_dragging is not { } pane)
+        {
+            return;
+        }
+
+        _dragging = null;
+        _tabs.MovePaneToNewTab(pane);
         TakeFocus(FocusState.Programmatic);
     }
 

@@ -89,6 +89,32 @@ public sealed class TerminalTabsViewModel
         return pane;
     }
 
+    public void MovePane(
+        TerminalPane pane,
+        TerminalPane target,
+        TerminalSplitOrientation orientation,
+        bool before)
+    {
+        if (_active is { } tab && tab.Move(pane, target, orientation, before))
+        {
+            PanesChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public void MovePaneToNewTab(TerminalPane pane)
+    {
+        if (_active is not { } tab || tab.Detach(pane) is null)
+        {
+            return;
+        }
+
+        var created = TerminalTab.Adopt(tab.Profile, pane);
+
+        Tabs.Add(created);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        Active = created;
+    }
+
     public async Task ClosePaneAsync(TerminalPane pane, CancellationToken cancellationToken)
     {
         if (_active is not { } tab || tab.Panes.Count == 1)

@@ -10,6 +10,8 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
+using Windows.ApplicationModel.DataTransfer;
+
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
 
 public sealed partial class TerminalTabStrip : UserControl
@@ -41,6 +43,21 @@ public sealed partial class TerminalTabStrip : UserControl
     public event EventHandler<TerminalTab>? TabClosed;
 
     public event EventHandler<ShellProfile>? ProfileRequested;
+
+    public event EventHandler? PaneDroppedOnStrip;
+
+    private void OnStripDragOver(object sender, DragEventArgs args)
+    {
+        args.AcceptedOperation = DataPackageOperation.Move;
+        args.DragUIOverride.IsGlyphVisible = false;
+        args.Handled = true;
+    }
+
+    private void OnStripDrop(object sender, DragEventArgs args)
+    {
+        args.Handled = true;
+        PaneDroppedOnStrip?.Invoke(this, EventArgs.Empty);
+    }
 
     public void Render(
         IReadOnlyList<TerminalTab> tabs,

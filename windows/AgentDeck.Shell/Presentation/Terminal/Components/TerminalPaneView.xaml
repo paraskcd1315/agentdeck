@@ -9,7 +9,11 @@
     IsTabStop="False"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid
+        AllowDrop="True"
+        DragLeave="OnPaneDragLeave"
+        DragOver="OnPaneDragOver"
+        Drop="OnPaneDrop">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -17,12 +21,15 @@
         </Grid.RowDefinitions>
 
         <Border
+            x:Name="StripBar"
             Grid.Row="0"
             Height="{StaticResource AdTermStripHeight}"
             Padding="{StaticResource AdPadStrip}"
             Background="{ThemeResource AdGlassBrush}"
             BorderBrush="{ThemeResource AdStrokeBrush}"
-            BorderThickness="0,0,0,1">
+            BorderThickness="0,0,0,1"
+            CanDrag="True"
+            DragStarting="OnStripDragStarting">
             <Grid>
                 <Border
                     x:Name="SessionChip"
@@ -94,6 +101,13 @@
             <textgrid:TextGridScrollBar x:Name="ScrollIndicator" HorizontalAlignment="Right" />
 
             <Border x:Name="InputCatcher" Background="Transparent" />
+
+            <Border
+                x:Name="DropHint"
+                Background="{ThemeResource AdStrokeBrandBrush}"
+                IsHitTestVisible="False"
+                Opacity="0.35"
+                Visibility="Collapsed" />
         </Grid>
 
         <Border
