@@ -50,6 +50,10 @@ public sealed partial class TerminalScreen : UserControl
 
     public WorkspaceLayout CaptureLayout(double panelWidth) => _tabs.Capture(panelWidth);
 
+    public bool HasPaneInFlight => _dragging is not null;
+
+    public void DropPaneAsNewTab() => OnPaneDroppedOnStrip(this, EventArgs.Empty);
+
     public void AttachTabStrip(TerminalTabStrip strip)
     {
         _strip = strip;

@@ -7,6 +7,8 @@ using AgentDeck.Shell.Utils;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 
+using Windows.ApplicationModel.DataTransfer;
+
 namespace AgentDeck.Shell;
 
 public sealed partial class MainWindow : Window
@@ -60,6 +62,29 @@ public sealed partial class MainWindow : Window
     }
 
     private void SaveLayout() => LayoutStore.Save(Terminal.CaptureLayout(PanelColumn.ActualWidth));
+
+    private void OnTitleBarDragOver(object sender, DragEventArgs args)
+    {
+        if (!Terminal.HasPaneInFlight)
+        {
+            return;
+        }
+
+        args.AcceptedOperation = DataPackageOperation.Move;
+        args.DragUIOverride.IsGlyphVisible = false;
+        args.Handled = true;
+    }
+
+    private void OnTitleBarDrop(object sender, DragEventArgs args)
+    {
+        if (!Terminal.HasPaneInFlight)
+        {
+            return;
+        }
+
+        args.Handled = true;
+        Terminal.DropPaneAsNewTab();
+    }
 
     private void SizeCaptionSpace()
     {

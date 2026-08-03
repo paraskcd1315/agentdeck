@@ -26,7 +26,10 @@
                 x:Name="AppTitleBar"
                 Grid.Row="0"
                 Height="{StaticResource AdTitleHeight}"
-                Background="{ThemeResource AdGlassBrush}">
+                AllowDrop="True"
+                Background="{ThemeResource AdGlassBrush}"
+                DragOver="OnTitleBarDragOver"
+                Drop="OnTitleBarDrop">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
