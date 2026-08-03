@@ -31,9 +31,23 @@ public sealed partial class MainWindow : Window
         Workspace.Show(ShellResolver.Cwd(AppServices.Config.Shell));
 
         Terminal.AttachTabStrip(TitleTabs);
+        PanelDivider.Dragged += OnPanelDividerDragged;
 
         Panels.ButtonInvoked += OnPanelButtonInvoked;
         Activated += OnActivated;
+    }
+
+    private void OnPanelDividerDragged(object? sender, double delta)
+    {
+        var width = PanelColumn.ActualWidth - delta;
+        var terminal = Terminal.ActualWidth + delta;
+
+        if (width < TerminalMetrics.MinimumPanelWidth || terminal < TerminalMetrics.MinimumTerminalWidth)
+        {
+            return;
+        }
+
+        PanelColumn.Width = new GridLength(width);
     }
 
     private void SizeCaptionSpace()

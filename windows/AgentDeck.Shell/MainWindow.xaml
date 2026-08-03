@@ -64,18 +64,21 @@
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="380" />
+                    <ColumnDefinition x:Name="PanelColumn" Width="380" />
                 </Grid.ColumnDefinitions>
 
                 <screens:TerminalScreen x:Name="Terminal" Grid.Column="0" />
 
                 <Border
                     Grid.Column="1"
-                    Background="{ThemeResource AdGlassBrush}"
-                    BorderBrush="{ThemeResource AdStrokeBrush}"
-                    BorderThickness="1,0,0,0">
+                    Background="{ThemeResource AdGlassBrush}">
                     <panels:PanelsPane x:Name="Panels" />
                 </Border>
+
+                <foundation:DragDivider
+                    x:Name="PanelDivider"
+                    Grid.Column="1"
+                    HorizontalAlignment="Left" />
             </Grid>
 
             <Border

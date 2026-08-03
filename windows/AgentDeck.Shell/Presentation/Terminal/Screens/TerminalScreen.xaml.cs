@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using AgentDeck.Shell.Domain.Entities;
+using AgentDeck.Shell.Presentation.DesignSystem.Foundation;
 using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
 using AgentDeck.Shell.Presentation.Terminal.Components;
 using AgentDeck.Shell.Presentation.Panels.Utils;
@@ -129,18 +130,35 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private static Border BuildPaneDivider(int column)
+    private DragDivider BuildPaneDivider(int column)
     {
-        var divider = new Border
-        {
-            Width = 1,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            Background = PanelResources.Brush(StrokeKey),
-            IsHitTestVisible = false,
-        };
+        var divider = new DragDivider { HorizontalAlignment = HorizontalAlignment.Left };
+        divider.Dragged += (_, delta) => ResizePanes(column, delta);
 
         Grid.SetColumn(divider, column);
         return divider;
+    }
+
+    private void ResizePanes(int column, double delta)
+    {
+        if (column <= 0 || column >= CanvasHost.ColumnDefinitions.Count)
+        {
+            return;
+        }
+
+        var left = CanvasHost.ColumnDefinitions[column - 1];
+        var right = CanvasHost.ColumnDefinitions[column];
+
+        var leftWidth = left.ActualWidth + delta;
+        var rightWidth = right.ActualWidth - delta;
+
+        if (leftWidth < TerminalMetrics.MinimumPaneWidth || rightWidth < TerminalMetrics.MinimumPaneWidth)
+        {
+            return;
+        }
+
+        left.Width = new GridLength(leftWidth, GridUnitType.Star);
+        right.Width = new GridLength(rightWidth, GridUnitType.Star);
     }
 
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
