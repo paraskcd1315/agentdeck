@@ -80,10 +80,8 @@ public sealed class TerminalTabsViewModel
             return null;
         }
 
-        tab.Orientation = orientation;
-
         var viewModel = new TerminalViewModel(_client, _strings, tab.Profile);
-        var pane = tab.Add(viewModel);
+        var pane = tab.Add(viewModel, orientation);
 
         PanesChanged?.Invoke(this, EventArgs.Empty);
         await viewModel.StartAsync(cancellationToken);

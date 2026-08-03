@@ -1,6 +1,5 @@
-using System.Collections.ObjectModel;
-
 using AgentDeck.Shell.Domain.Entities;
+using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Utils;
 
 namespace AgentDeck.Shell.Presentation.Terminal.ViewModels;
@@ -13,14 +12,14 @@ public sealed class TerminalTab
     {
         Profile = profile;
         _active = new TerminalPane(profile.Name ?? Constants.Shell.DefaultProfileName, viewModel);
-        Panes.Add(_active);
+        Root = PaneNode.Leaf(_active);
     }
 
     public ShellProfile Profile { get; }
 
-    public ObservableCollection<TerminalPane> Panes { get; } = [];
+    public PaneNode Root { get; private set; }
 
-    public TerminalSplitOrientation Orientation { get; set; } = TerminalSplitOrientation.Horizontal;
+    public IReadOnlyList<TerminalPane> Panes => [.. PaneTree.Leaves(Root)];
 
     public TerminalPane Active
     {
@@ -38,27 +37,28 @@ public sealed class TerminalTab
 
     public string Title => Profile.Name ?? Constants.Shell.DefaultProfileName;
 
-    public TerminalPane Add(TerminalViewModel viewModel)
+    public TerminalPane Add(TerminalViewModel viewModel, TerminalSplitOrientation orientation)
     {
         var pane = new TerminalPane(Title, viewModel);
-        Panes.Add(pane);
+
+        Root = PaneTree.Insert(Root, _active, pane, orientation);
         _active = pane;
+
         return pane;
     }
 
     public void Remove(TerminalPane pane)
     {
-        var index = Panes.IndexOf(pane);
-        if (index < 0 || Panes.Count == 1)
+        if (Panes.Count == 1)
         {
             return;
         }
 
-        Panes.RemoveAt(index);
+        Root = PaneTree.Remove(Root, pane) ?? Root;
 
         if (ReferenceEquals(_active, pane))
         {
-            _active = Panes[Math.Min(index, Panes.Count - 1)];
+            _active = Panes[0];
         }
     }
 }

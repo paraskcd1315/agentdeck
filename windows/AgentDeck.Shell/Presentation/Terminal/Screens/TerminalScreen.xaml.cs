@@ -83,38 +83,49 @@ public sealed partial class TerminalScreen : UserControl
     private void RenderPanes()
     {
         CanvasHost.Children.Clear();
-        CanvasHost.ColumnDefinitions.Clear();
-        CanvasHost.RowDefinitions.Clear();
 
         if (_tabs.Active is not { } tab)
         {
             return;
         }
 
-        var vertical = tab.Orientation == TerminalSplitOrientation.Vertical;
+        CanvasHost.Children.Add(BuildNode(tab.Root, tab));
+    }
 
-        for (var index = 0; index < tab.Panes.Count; index++)
+    private FrameworkElement BuildNode(PaneNode node, TerminalTab tab)
+    {
+        if (node.Pane is { } pane)
+        {
+            return BuildPaneView(pane, tab);
+        }
+
+        var vertical = node.Orientation == TerminalSplitOrientation.Vertical;
+        var grid = new Grid();
+
+        for (var index = 0; index < node.Children.Count; index++)
         {
             if (vertical)
             {
-                CanvasHost.RowDefinitions.Add(new RowDefinition());
+                grid.RowDefinitions.Add(new RowDefinition());
             }
             else
             {
-                CanvasHost.ColumnDefinitions.Add(new ColumnDefinition());
+                grid.ColumnDefinitions.Add(new ColumnDefinition());
             }
 
-            var view = BuildPaneView(tab.Panes[index], index, tab);
-            Place(view, index, vertical);
-            CanvasHost.Children.Add(view);
+            var child = BuildNode(node.Children[index], tab);
+            Place(child, index, vertical);
+            grid.Children.Add(child);
 
             if (index > 0)
             {
-                var divider = BuildPaneDivider(index, vertical);
+                var divider = BuildPaneDivider(grid, index, vertical);
                 Place(divider, index, vertical);
-                CanvasHost.Children.Add(divider);
+                grid.Children.Add(divider);
             }
         }
+
+        return grid;
     }
 
     private static void Place(FrameworkElement element, int index, bool vertical)
@@ -128,7 +139,7 @@ public sealed partial class TerminalScreen : UserControl
         Grid.SetColumn(element, index);
     }
 
-    private TerminalPaneView BuildPaneView(TerminalPane pane, int index, TerminalTab tab)
+    private TerminalPaneView BuildPaneView(TerminalPane pane, TerminalTab tab)
     {
         var view = new TerminalPaneView();
         view.Bind(pane, ReferenceEquals(tab.Active, pane), tab.Panes.Count > 1);
@@ -155,7 +166,7 @@ public sealed partial class TerminalScreen : UserControl
         TakeFocus(FocusState.Programmatic);
     }
 
-    private DragDivider BuildPaneDivider(int index, bool vertical)
+    private static DragDivider BuildPaneDivider(Grid host, int index, bool vertical)
     {
         var divider = new DragDivider
         {
@@ -164,25 +175,25 @@ public sealed partial class TerminalScreen : UserControl
         };
 
         divider.SetVertical(vertical);
-        divider.Dragged += (_, delta) => ResizePanes(index, delta, vertical);
+        divider.Dragged += (_, delta) => ResizePanes(host, index, delta, vertical);
         return divider;
     }
 
-    private void ResizePanes(int index, double delta, bool vertical)
+    private static void ResizePanes(Grid host, int index, double delta, bool vertical)
     {
         if (vertical)
         {
-            ResizeRows(index, delta);
+            ResizeRows(host, index, delta);
             return;
         }
 
-        if (index <= 0 || index >= CanvasHost.ColumnDefinitions.Count)
+        if (index <= 0 || index >= host.ColumnDefinitions.Count)
         {
             return;
         }
 
-        var first = CanvasHost.ColumnDefinitions[index - 1];
-        var second = CanvasHost.ColumnDefinitions[index];
+        var first = host.ColumnDefinitions[index - 1];
+        var second = host.ColumnDefinitions[index];
         var firstSize = first.ActualWidth + delta;
         var secondSize = second.ActualWidth - delta;
 
@@ -195,15 +206,15 @@ public sealed partial class TerminalScreen : UserControl
         second.Width = new GridLength(secondSize, GridUnitType.Star);
     }
 
-    private void ResizeRows(int index, double delta)
+    private static void ResizeRows(Grid host, int index, double delta)
     {
-        if (index <= 0 || index >= CanvasHost.RowDefinitions.Count)
+        if (index <= 0 || index >= host.RowDefinitions.Count)
         {
             return;
         }
 
-        var first = CanvasHost.RowDefinitions[index - 1];
-        var second = CanvasHost.RowDefinitions[index];
+        var first = host.RowDefinitions[index - 1];
+        var second = host.RowDefinitions[index];
         var firstSize = first.ActualHeight + delta;
         var secondSize = second.ActualHeight - delta;
 
