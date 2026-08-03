@@ -101,7 +101,8 @@ public sealed partial class TerminalScreen : UserControl
     {
         if (node.Pane is { } pane)
         {
-            return BuildPaneView(pane, tab);
+            var panes = tab.Panes.ToList();
+            return BuildPaneView(pane, tab, panes.IndexOf(pane) + 1, panes.Count);
         }
 
         var vertical = node.Orientation == TerminalSplitOrientation.Vertical;
@@ -144,10 +145,10 @@ public sealed partial class TerminalScreen : UserControl
         Grid.SetColumn(element, index);
     }
 
-    private TerminalPaneView BuildPaneView(TerminalPane pane, TerminalTab tab)
+    private TerminalPaneView BuildPaneView(TerminalPane pane, TerminalTab tab, int index, int total)
     {
         var view = new TerminalPaneView();
-        view.Bind(pane, ReferenceEquals(tab.Active, pane), tab.Panes.Count > 1);
+        view.Bind(pane, ReferenceEquals(tab.Active, pane), total > 1, index, total);
         view.GridSizeChanged += OnGridSizeChanged;
         view.SplitRequested += OnPaneSplitRequested;
         view.CloseRequested += OnPaneCloseRequested;

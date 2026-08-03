@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using AgentDeck.Shell.Presentation.DesignSystem.TextGrid;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
+using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
@@ -17,10 +18,13 @@ namespace AgentDeck.Shell.Presentation.Terminal.Components;
 
 public sealed partial class TerminalPaneView : UserControl
 {
+    private const string IconFontKey = "AdFontIcon";
     private const double ActiveOpacity = 1;
     private const double InactiveOpacity = 0.45;
 
     private TerminalViewModel? _viewModel;
+    private int _index;
+    private int _total;
 
     public TerminalPaneView()
     {
@@ -45,8 +49,11 @@ public sealed partial class TerminalPaneView : UserControl
 
     public TerminalPane? Pane { get; private set; }
 
-    public void Bind(TerminalPane pane, bool active, bool closable)
+    public void Bind(TerminalPane pane, bool active, bool closable, int index, int total)
     {
+        _index = index;
+        _total = total;
+
         if (_viewModel is { } previous)
         {
             previous.GridChanged -= OnGridChanged;
@@ -91,7 +98,7 @@ public sealed partial class TerminalPaneView : UserControl
             return;
         }
 
-        SessionText.Text = TerminalChrome.Session(pane.Title, viewModel.PtyId);
+        SessionText.Text = TerminalChrome.Session(pane.Title, viewModel.PtyId, _index, _total);
         StripMeta.Text = TerminalChrome.Dimensions(viewModel);
     }
 
@@ -157,8 +164,8 @@ public sealed partial class TerminalPaneView : UserControl
             ? VerticalAlignment.Stretch
             : (zone.Before ? VerticalAlignment.Top : VerticalAlignment.Bottom);
 
-        DropHint.Width = horizontal ? Surface.ActualWidth / 2 : double.NaN;
-        DropHint.Height = horizontal ? double.NaN : Surface.ActualHeight / 2;
+        DropHint.Width = horizontal ? TerminalMetrics.DropHintThickness : double.NaN;
+        DropHint.Height = horizontal ? double.NaN : TerminalMetrics.DropHintThickness;
     }
 
     private void OnSurfaceSizeChanged(object sender, SizeChangedEventArgs args) =>
@@ -217,7 +224,7 @@ public sealed partial class TerminalPaneView : UserControl
             Icon = new FontIcon
             {
                 Glyph = glyph,
-                FontFamily = Panels.Utils.PanelResources.Font("AdFontIcon"),
+                FontFamily = PanelResources.Font(IconFontKey),
             },
         };
 

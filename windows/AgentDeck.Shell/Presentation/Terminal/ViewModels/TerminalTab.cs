@@ -2,6 +2,7 @@ using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Utils;
 
+
 namespace AgentDeck.Shell.Presentation.Terminal.ViewModels;
 
 public sealed class TerminalTab
@@ -41,6 +42,8 @@ public sealed class TerminalTab
     public TerminalViewModel ViewModel => _active.ViewModel;
 
     public string Title => Profile.Name ?? Constants.Shell.DefaultProfileName;
+
+    public string StripTitle => TerminalChrome.TabTitle(Title, Panes.Count);
 
     public TerminalPane Add(TerminalViewModel viewModel, TerminalSplitOrientation orientation)
     {

@@ -133,7 +133,7 @@ public sealed partial class TerminalTabStrip : UserControl
 
     private static TextBlock BuildLabel(TerminalTab tab, bool active) => new()
     {
-        Text = tab.Title,
+        Text = tab.StripTitle,
         Margin = TerminalTabMetrics.ContentGap,
         MaxWidth = TerminalTabMetrics.MaxLabelWidth,
         TextTrimming = TextTrimming.CharacterEllipsis,

@@ -104,9 +104,8 @@
 
             <Border
                 x:Name="DropHint"
-                Background="{ThemeResource AdStrokeBrandBrush}"
+                Background="{ThemeResource AdBrandTextBrush}"
                 IsHitTestVisible="False"
-                Opacity="0.35"
                 Visibility="Collapsed" />
         </Grid>
 
