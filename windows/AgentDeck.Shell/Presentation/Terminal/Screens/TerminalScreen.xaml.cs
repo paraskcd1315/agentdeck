@@ -25,6 +25,8 @@ public sealed partial class TerminalScreen : UserControl
 
     private readonly TerminalTabsViewModel _tabs;
 
+    private readonly List<TerminalPaneView> _paneViews = [];
+
     private TerminalTabStrip? _strip;
 
     public TerminalScreen()
@@ -83,6 +85,7 @@ public sealed partial class TerminalScreen : UserControl
     private void RenderPanes()
     {
         CanvasHost.Children.Clear();
+        _paneViews.Clear();
 
         if (_tabs.Active is not { } tab)
         {
@@ -146,6 +149,7 @@ public sealed partial class TerminalScreen : UserControl
         view.GridSizeChanged += OnGridSizeChanged;
         view.SplitRequested += OnPaneSplitRequested;
         view.CloseRequested += OnPaneCloseRequested;
+        _paneViews.Add(view);
         return view;
     }
 
@@ -249,13 +253,8 @@ public sealed partial class TerminalScreen : UserControl
 
     private TerminalPaneView? PaneAt(PointerRoutedEventArgs args)
     {
-        foreach (var child in CanvasHost.Children)
+        foreach (var view in _paneViews)
         {
-            if (child is not TerminalPaneView view)
-            {
-                continue;
-            }
-
             var local = args.GetCurrentPoint(view).Position;
 
             if (local.X >= 0 && local.Y >= 0 && local.X < view.ActualWidth && local.Y < view.ActualHeight)
@@ -354,9 +353,9 @@ public sealed partial class TerminalScreen : UserControl
 
     private void SetPaneHighlights()
     {
-        foreach (var child in CanvasHost.Children)
+        foreach (var view in _paneViews)
         {
-            if (child is TerminalPaneView view && view.Pane is { } pane)
+            if (view.Pane is { } pane)
             {
                 view.SetActive(ReferenceEquals(_tabs.Active?.Active, pane));
             }
