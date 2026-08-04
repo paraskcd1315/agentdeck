@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.Panels.Components.KeyValueBlockView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel x:Name="Rows" Spacing="{StaticResource AdSpace2}" />
+</UserControl>

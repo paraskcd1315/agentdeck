@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.Terminal.Components.TerminalPaneView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:textgrid="using:AgentDeck.Shell.Presentation.DesignSystem.TextGrid"
+    IsTabStop="False"
+    mc:Ignorable="d">
+
+    <Grid
+        AllowDrop="True"
+        DragLeave="OnPaneDragLeave"
+        DragOver="OnPaneDragOver"
+        Drop="OnPaneDrop">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border
+            x:Name="StripBar"
+            Grid.Row="0"
+            Height="{StaticResource AdTermStripHeight}"
+            Padding="{StaticResource AdPadStrip}"
+            Background="{ThemeResource AdGlassBrush}"
+            BorderBrush="{ThemeResource AdStrokeBrush}"
+            BorderThickness="0,0,0,1"
+            CanDrag="True"
+            DragStarting="OnStripDragStarting"
+            DropCompleted="OnStripDropCompleted">
+            <Grid>
+                <Border
+                    x:Name="SessionChip"
+                    Padding="12,4,12,4"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Background="{StaticResource AdGradientSelect}"
+                    CornerRadius="{StaticResource AdRadiusSm}">
+                    <Grid>
+                        <TextBlock
+                            x:Name="SessionText"
+                            DoubleTapped="OnRenameRequested"
+                            FontFamily="{StaticResource AdFontUi}"
+                            FontSize="{StaticResource AdCaptionSize}"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource AdTextBrush}" />
+
+                        <TextBox
+                            x:Name="SessionEdit"
+                            MinWidth="120"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            FontFamily="{StaticResource AdFontUi}"
+                            FontSize="{StaticResource AdCaptionSize}"
+                            FontWeight="SemiBold"
+                            KeyDown="OnRenameKeyDown"
+                            LostFocus="OnRenameCommitted"
+                            Padding="0"
+                            Visibility="Collapsed" />
+                    </Grid>
+                </Border>
+
+                <StackPanel
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="{StaticResource AdSpace2}">
+                    <TextBlock
+                        x:Name="StripMeta"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource AdFontMono}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}" />
+
+                    <Button
+                        x:Name="SplitButton"
+                        Width="24"
+                        Height="24"
+                        AllowFocusOnInteraction="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnSplitClick"
+                        CornerRadius="{StaticResource AdRadiusXs}"
+                        FontFamily="{StaticResource AdFontIcon}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}"
+                        IsTabStop="False"
+                        Padding="0" />
+
+                    <Button
+                        x:Name="CloseButton"
+                        Width="24"
+                        Height="24"
+                        AllowFocusOnInteraction="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnCloseClick"
+                        CornerRadius="{StaticResource AdRadiusXs}"
+                        FontFamily="{StaticResource AdFontIcon}"
+                        FontSize="{StaticResource AdCaptionSize}"
+                        Foreground="{ThemeResource AdText3Brush}"
+                        IsTabStop="False"
+                        Padding="0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid x:Name="Surface" Grid.Row="1" SizeChanged="OnSurfaceSizeChanged">
+            <textgrid:TextGridView
+                x:Name="GridView"
+                IsHitTestVisible="False"
+                IsTabStop="False" />
+
+            <textgrid:TextGridScrollBar x:Name="ScrollIndicator" HorizontalAlignment="Right" />
+
+            <Border x:Name="InputCatcher" Background="Transparent" />
+
+            <Border
+                x:Name="DropHint"
+                Background="{ThemeResource AdBrandTextBrush}"
+                IsHitTestVisible="False"
+                Visibility="Collapsed" />
+        </Grid>
+
+        <Border
+            Grid.Row="2"
+            Height="{StaticResource AdTermFootHeight}"
+            Padding="{StaticResource AdPadStrip}"
+            Background="{ThemeResource AdGlassBrush}"
+            BorderBrush="{ThemeResource AdStrokeBrush}"
+            BorderThickness="0,1,0,0">
+            <TextBlock
+                x:Name="FootText"
+                VerticalAlignment="Center"
+                FontFamily="{StaticResource AdFontMono}"
+                FontSize="{StaticResource AdCaptionSize}"
+                Foreground="{ThemeResource AdText3Brush}"
+                TextTrimming="CharacterEllipsis" />
+        </Border>
+    </Grid>
+</UserControl>

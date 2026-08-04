@@ -1,0 +1,13 @@
+{
+  "theme": {
+    "mode": "dark",
+    "backgroundGradientFrom": "#2A2F3B",
+    "backgroundGradientTo": "#0B0C10",
+    "backgroundGradientOpacity": 0.75,
+    "terminal": {
+      "opacity": 0.5,
+      "blur": 24,
+      "saturation": 1.2
+    }
+  }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.Workspace.Components.WorkspaceChip"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    IsTabStop="False"
+    mc:Ignorable="d">
+
+    <Border
+        Padding="12,4,12,4"
+        VerticalAlignment="Center"
+        Background="{ThemeResource AdGlassThinBrush}"
+        BorderBrush="{ThemeResource AdStrokeBrush}"
+        BorderThickness="1"
+        CornerRadius="{StaticResource AdRadiusSm}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Border
+                Width="16"
+                Height="16"
+                VerticalAlignment="Center"
+                Background="{StaticResource AdGradientDuo}"
+                CornerRadius="4" />
+
+            <TextBlock
+                x:Name="NameText"
+                VerticalAlignment="Center"
+                FontFamily="{StaticResource AdFontUi}"
+                FontSize="{StaticResource AdUiSize}"
+                FontWeight="SemiBold"
+                Foreground="{ThemeResource AdTextBrush}" />
+
+            <TextBlock
+                x:Name="PathText"
+                VerticalAlignment="Center"
+                FontFamily="{StaticResource AdFontMono}"
+                FontSize="{StaticResource AdCaptionSize}"
+                Foreground="{ThemeResource AdText3Brush}" />
+        </StackPanel>
+    </Border>
+</UserControl>

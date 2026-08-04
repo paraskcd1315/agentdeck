@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.DesignSystem.TextGrid.TextGridView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml">
+
+    <canvas:CanvasControl
+        x:Name="Surface"
+        ClearColor="Transparent"
+        CreateResources="OnCreateResources"
+        Draw="OnDraw"
+        IsHitTestVisible="False"
+        IsTabStop="False" />
+</UserControl>
