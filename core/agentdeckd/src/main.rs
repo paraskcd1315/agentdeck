@@ -1,5 +1,6 @@
 mod config;
 mod constants;
+mod git;
 mod panel;
 mod pty;
 mod rpc;
