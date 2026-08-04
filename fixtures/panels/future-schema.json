@@ -1,0 +1,10 @@
+{
+  "schema": "panel/v2",
+  "title": "From a newer AgentDeck",
+  "blocks": [
+    {
+      "type": "markdown",
+      "text": "None of this should render — the schema version is not one this build understands."
+    }
+  ]
+}

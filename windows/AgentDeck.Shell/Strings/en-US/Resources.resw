@@ -80,6 +80,15 @@
   <data name="TerminalTabNewTooltip" xml:space="preserve">
     <value>New tab</value>
   </data>
+  <data name="PanelUnknownBlock" xml:space="preserve">
+    <value>Unsupported block "{0}"</value>
+  </data>
+  <data name="PanelUnknownBlockUntyped" xml:space="preserve">
+    <value>Unsupported block</value>
+  </data>
+  <data name="PanelUnsupportedSchema" xml:space="preserve">
+    <value>Unsupported panel schema "{0}" — this panel needs a newer AgentDeck</value>
+  </data>
   <data name="TerminalTabRename" xml:space="preserve">
     <value>Rename</value>
   </data>

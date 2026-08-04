@@ -1,0 +1,98 @@
+{
+  "schema": "panel/v1",
+  "title": "Block vocabulary",
+  "blocks": [
+    {
+      "type": "status",
+      "state": "working",
+      "text": "Rendering every block type from a fixture, with no agent involved"
+    },
+    {
+      "type": "markdown",
+      "text": "Every block in `panel/v1`, drawn natively. This file is a **fixture** — nothing wrote it but a human."
+    },
+    {
+      "type": "keyvalue",
+      "rows": [
+        { "key": "Schema", "value": "panel/v1" },
+        { "key": "Source", "value": "fixtures/panels/showcase.json" },
+        { "key": "Agent", "value": "none" }
+      ]
+    },
+    {
+      "type": "steps",
+      "steps": [
+        { "label": "Schema and daemon block types", "state": "done" },
+        { "label": "Shell entities and converter", "state": "done" },
+        { "label": "Views for every block", "state": "active" },
+        { "label": "Fixtures and manual QA", "state": "pending" },
+        { "label": "A step that failed", "state": "failed" }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": ["Block", "Since", "Notes"],
+      "rows": [
+        ["markdown", "spike 0", "inline code and bold"],
+        ["keyvalue", "spike 0", "two columns"],
+        ["status", "spike 0", "state dot"],
+        ["actions", "spike 0", "injects a prompt"],
+        ["table", "phase 2", "auto-sized columns"],
+        ["diff", "phase 2", "DS diff palette"],
+        ["steps", "phase 2", "four states"],
+        ["log", "phase 2", "six levels"],
+        ["chart", "phase 2", "bar and line"]
+      ]
+    },
+    {
+      "type": "diff",
+      "file": "core/agentdeckd/src/panel/block.rs",
+      "lines": [
+        { "kind": "hunk", "text": "@@ -1,9 +1,10 @@" },
+        { "kind": "context", "text": "use serde::{Deserialize, Serialize};" },
+        { "kind": "context", "text": "" },
+        { "kind": "delete", "text": "#[serde(tag = \"type\", rename_all = \"lowercase\")]" },
+        { "kind": "add", "text": "#[serde(untagged)]" },
+        { "kind": "add", "text": "pub enum Block {" },
+        { "kind": "add", "text": "    Known(KnownBlock)," },
+        { "kind": "add", "text": "    Unknown(serde_json::Value)," },
+        { "kind": "context", "text": "}" }
+      ]
+    },
+    {
+      "type": "log",
+      "entries": [
+        { "level": "trace", "time": "09:14:02", "text": "watcher armed on ~/.agentdeck/workspaces" },
+        { "level": "debug", "time": "09:14:02", "text": "panel showcase.json parsed in 0.4ms" },
+        { "level": "info", "time": "09:14:03", "text": "9 blocks rendered" },
+        { "level": "warn", "time": "09:14:05", "text": "chart series 2 has fewer points than labels" },
+        { "level": "error", "time": "09:14:09", "text": "failed to read panels/broken.json" },
+        { "level": "fatal", "time": "09:14:09", "text": "this level exists so the palette is complete" }
+      ]
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "labels": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+      "series": [
+        { "label": "Commits", "points": [4, 9, 6, 12, 7] },
+        { "label": "Reverts", "points": [1, 0, 2, 1, 0] }
+      ]
+    },
+    {
+      "type": "chart",
+      "kind": "line",
+      "labels": ["0", "1", "2", "3", "4", "5"],
+      "series": [
+        { "label": "Tokens (k)", "points": [12, 28, 24, 61, 48, 73] }
+      ]
+    },
+    {
+      "type": "actions",
+      "buttons": [
+        { "label": "Explain this panel", "prompt": "Explain what the showcase panel is testing.", "target": "live" },
+        { "label": "New session", "prompt": "Start a fresh review of the panel renderer.", "target": "new" }
+      ]
+    }
+  ]
+}

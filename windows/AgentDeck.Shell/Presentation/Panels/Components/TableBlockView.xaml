@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.Panels.Components.TableBlockView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer
+        HorizontalScrollBarVisibility="Auto"
+        HorizontalScrollMode="Enabled"
+        VerticalScrollMode="Disabled">
+        <Grid x:Name="Cells" ColumnSpacing="12" RowSpacing="6" />
+    </ScrollViewer>
+</UserControl>

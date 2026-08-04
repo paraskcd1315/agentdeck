@@ -17,6 +17,11 @@ public static class Constants
         public const string Horizontal = "horizontal";
     }
 
+    public static class Panel
+    {
+        public const string SchemaV1 = "panel/v1";
+    }
+
     public static class Diagnostics
     {
         public const string CrashFileName = "crash.log";
