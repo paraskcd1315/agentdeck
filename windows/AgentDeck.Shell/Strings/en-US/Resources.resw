@@ -80,6 +80,57 @@
   <data name="TerminalTabNewTooltip" xml:space="preserve">
     <value>New tab</value>
   </data>
+  <data name="ExplorerTitle" xml:space="preserve">
+    <value>Explorer</value>
+  </data>
+  <data name="ExplorerAllFiles" xml:space="preserve">
+    <value>All files</value>
+  </data>
+  <data name="ExplorerChangedOnly" xml:space="preserve">
+    <value>Changed only</value>
+  </data>
+  <data name="ExplorerOpen" xml:space="preserve">
+    <value>Explorer</value>
+  </data>
+  <data name="DiffBinary" xml:space="preserve">
+    <value>Binary file — no textual diff</value>
+  </data>
+  <data name="DiffNoChanges" xml:space="preserve">
+    <value>No changes against HEAD</value>
+  </data>
+  <data name="DiffUnavailable" xml:space="preserve">
+    <value>Could not read this file's diff</value>
+  </data>
+  <data name="GitChanges" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="GitRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="GitClean" xml:space="preserve">
+    <value>Working tree clean</value>
+  </data>
+  <data name="GitNoRepository" xml:space="preserve">
+    <value>Not a git repository — set "workspace": { "path": "…" } in ~/.agentdeck/config.json</value>
+  </data>
+  <data name="PanelUnknownBlock" xml:space="preserve">
+    <value>Unsupported block "{0}"</value>
+  </data>
+  <data name="PanelUnknownBlockUntyped" xml:space="preserve">
+    <value>Unsupported block</value>
+  </data>
+  <data name="PanelUnsupportedSchema" xml:space="preserve">
+    <value>Unsupported panel schema "{0}" — this panel needs a newer AgentDeck</value>
+  </data>
+  <data name="TerminalTabRename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="TerminalTabMoveToNewWindow" xml:space="preserve">
+    <value>Move to new window</value>
+  </data>
+  <data name="TerminalTabCloseCommand" xml:space="preserve">
+    <value>Close tab</value>
+  </data>
   <data name="TerminalTabCloseTooltip" xml:space="preserve">
     <value>Close tab</value>
   </data>

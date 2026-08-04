@@ -166,6 +166,23 @@ public sealed class DaemonClient : IDaemonClient
         return envelope?.Result.Deserialize<PanelDefinition>(DaemonJson.Options);
     }
 
+    public async Task<WorkspaceStatus?> GitStatusAsync(string path, CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["path"] = path };
+        var envelope = await CallAsync(Constants.Method.GitStatus, parameters, cancellationToken);
+        return envelope?.Result.Deserialize<WorkspaceStatus>(DaemonJson.Options);
+    }
+
+    public async Task<FileDiff?> GitDiffAsync(
+        string path,
+        string file,
+        CancellationToken cancellationToken)
+    {
+        var parameters = new JsonObject { ["path"] = path, ["file"] = file };
+        var envelope = await CallAsync(Constants.Method.GitDiff, parameters, cancellationToken);
+        return envelope?.Result.Deserialize<FileDiff>(DaemonJson.Options);
+    }
+
     public async Task<GridSnapshotDto?> SnapshotAsync(long ptyId, CancellationToken cancellationToken)
     {
         var parameters = new JsonObject { ["ptyId"] = ptyId };

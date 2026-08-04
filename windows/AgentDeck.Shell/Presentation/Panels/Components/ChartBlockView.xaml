@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="AgentDeck.Shell.Presentation.Panels.Components.ChartBlockView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="{StaticResource AdSpace2}">
+        <Grid x:Name="Plot" Height="120" SizeChanged="OnPlotSizeChanged" />
+
+        <StackPanel
+            x:Name="Labels"
+            Orientation="Horizontal"
+            Spacing="{StaticResource AdSpace2}" />
+
+        <StackPanel
+            x:Name="Legend"
+            Orientation="Horizontal"
+            Spacing="{StaticResource AdSpace3}" />
+    </StackPanel>
+</UserControl>

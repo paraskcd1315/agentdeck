@@ -16,4 +16,21 @@ public static class StringKeys
     public const string TerminalSplitDown = "TerminalSplitDown";
     public const string TerminalTabNewTooltip = "TerminalTabNewTooltip";
     public const string TerminalTabCloseTooltip = "TerminalTabCloseTooltip";
+    public const string ExplorerTitle = "ExplorerTitle";
+    public const string ExplorerAllFiles = "ExplorerAllFiles";
+    public const string ExplorerChangedOnly = "ExplorerChangedOnly";
+    public const string ExplorerOpen = "ExplorerOpen";
+    public const string DiffBinary = "DiffBinary";
+    public const string DiffNoChanges = "DiffNoChanges";
+    public const string DiffUnavailable = "DiffUnavailable";
+    public const string GitChanges = "GitChanges";
+    public const string GitRefresh = "GitRefresh";
+    public const string GitClean = "GitClean";
+    public const string GitNoRepository = "GitNoRepository";
+    public const string PanelUnknownBlock = "PanelUnknownBlock";
+    public const string PanelUnknownBlockUntyped = "PanelUnknownBlockUntyped";
+    public const string PanelUnsupportedSchema = "PanelUnsupportedSchema";
+    public const string TerminalTabRename = "TerminalTabRename";
+    public const string TerminalTabMoveToNewWindow = "TerminalTabMoveToNewWindow";
+    public const string TerminalTabCloseCommand = "TerminalTabCloseCommand";
 }

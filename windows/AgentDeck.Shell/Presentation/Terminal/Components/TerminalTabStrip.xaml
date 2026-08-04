@@ -9,9 +9,11 @@
     mc:Ignorable="d">
 
     <Grid
+        x:Name="StripRoot"
         Padding="0,5,0,0"
         VerticalAlignment="Bottom"
         AllowDrop="True"
+        DragLeave="OnStripDragLeave"
         DragOver="OnStripDragOver"
         Drop="OnStripDrop">
         <Grid.ColumnDefinitions>

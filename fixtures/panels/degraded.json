@@ -1,0 +1,31 @@
+{
+  "schema": "panel/v1",
+  "title": "Degradation",
+  "blocks": [
+    {
+      "type": "markdown",
+      "text": "Blocks this build does not know must render as raw JSON, never vanish."
+    },
+    {
+      "type": "timeline",
+      "events": [
+        { "at": "09:14", "what": "a block type from a future version" }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": ["Still", "Renders"],
+      "rows": [["known blocks", "after an unknown one"]]
+    },
+    {
+      "type": "status",
+      "state": "failed",
+      "text": "A malformed known block also degrades to raw rather than killing the panel"
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "series": "this should be an array"
+    }
+  ]
+}

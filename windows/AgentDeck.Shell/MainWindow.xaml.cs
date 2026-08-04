@@ -1,7 +1,9 @@
 using AgentDeck.Shell.Data.Layout;
+using AgentDeck.Shell.Data.Windows;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.DesignSystem.Foundation;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
+using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Composition.SystemBackdrops;
@@ -10,14 +12,26 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
 using Windows.Graphics;
 
 namespace AgentDeck.Shell;
 
 public sealed partial class MainWindow : Window
 {
+    private readonly bool _primary;
+
+    private bool _paneDragging;
+
     public MainWindow()
+        : this(null)
     {
+    }
+
+    private MainWindow(TerminalTab? adopted)
+    {
+        _primary = adopted is null;
+
         InitializeComponent();
 
         SystemBackdrop = new AdAcrylicBackdrop { Kind = DesktopAcrylicKind.Thin };
@@ -36,7 +50,14 @@ public sealed partial class MainWindow : Window
         Title = AppServices.Strings.Get(StringKeys.WindowTitle);
         Workspace.Show(ShellResolver.Cwd(AppServices.Config.Shell));
 
+        if (adopted is { } tab)
+        {
+            Terminal.AdoptTab(tab);
+        }
+
         Terminal.AttachTabStrip(TitleTabs);
+        TitleTabs.RegionsChanged += (_, _) => UpdatePassthrough();
+        Terminal.TabTornOff += OnTabTornOff;
         PanelDivider.Dragged += OnPanelDividerDragged;
 
         Panels.ButtonInvoked += OnPanelButtonInvoked;
@@ -65,28 +86,62 @@ public sealed partial class MainWindow : Window
         SaveLayout();
     }
 
-    private void SaveLayout() => LayoutStore.Save(Terminal.CaptureLayout(PanelColumn.ActualWidth));
-
-    private void OnPaneDragChanged(object? sender, bool dragging)
+    private void SaveLayout()
     {
-        var source = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
-
-        if (!dragging)
+        if (_primary)
         {
-            source.ClearRegionRects(NonClientRegionKind.Passthrough);
+            LayoutStore.Save(Terminal.CaptureLayout(PanelColumn.ActualWidth));
+        }
+    }
+
+    private void OnTabTornOff(object? sender, TerminalTab tab)
+    {
+        if (WindowBounds.Contains(WindowRect(), CursorPosition.Current()))
+        {
             return;
         }
 
+        if (Terminal.ReleaseTab(tab) is not { } released)
+        {
+            return;
+        }
+
+        new MainWindow(released).Activate();
+    }
+
+    private RectInt32 WindowRect() => new(
+        AppWindow.Position.X,
+        AppWindow.Position.Y,
+        AppWindow.Size.Width,
+        AppWindow.Size.Height);
+
+    private void OnPaneDragChanged(object? sender, bool dragging)
+    {
+        _paneDragging = dragging;
+        UpdatePassthrough();
+    }
+
+    private void UpdatePassthrough()
+    {
         if (Content?.XamlRoot is not { RasterizationScale: > 0 } root)
         {
             return;
         }
 
-        source.SetRegionRects(NonClientRegionKind.Passthrough, [new RectInt32(
-            0,
-            0,
-            (int)(AppTitleBar.ActualWidth * root.RasterizationScale),
-            (int)(AppTitleBar.ActualHeight * root.RasterizationScale))]);
+        IReadOnlyList<Rect> regions = _paneDragging
+            ? [new Rect(0, 0, AppTitleBar.ActualWidth, AppTitleBar.ActualHeight)]
+            : TitleTabs.InteractiveRegions(Content);
+
+        if (regions.Count == 0)
+        {
+            return;
+        }
+
+        InputNonClientPointerSource
+            .GetForWindowId(AppWindow.Id)
+            .SetRegionRects(
+                NonClientRegionKind.Passthrough,
+                PassthroughRegions.Scale(regions, root.RasterizationScale));
     }
 
     private void OnTitleBarDragOver(object sender, DragEventArgs args)
@@ -120,6 +175,7 @@ public sealed partial class MainWindow : Window
         }
 
         CaptionSpace.Width = AppWindow.TitleBar.RightInset / root.RasterizationScale;
+        UpdatePassthrough();
     }
 
     private void OnActivated(object sender, WindowActivatedEventArgs args)

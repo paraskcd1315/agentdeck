@@ -85,6 +85,10 @@
             <SolidColorBrush x:Key="AdDiffAddGutterBrush" Color="#6FA06B" />
             <SolidColorBrush x:Key="AdDiffDelGutterBrush" Color="#F08D86" />
             <SolidColorBrush x:Key="AdDiffHunkTextBrush" Color="#8FBEFF" />
+            <SolidColorBrush x:Key="AdDiffAddBackgroundBrush" Color="#4E9A5F" Opacity="0.16" />
+            <SolidColorBrush x:Key="AdDiffDelBackgroundBrush" Color="#E5484D" Opacity="0.15" />
+            <SolidColorBrush x:Key="AdDiffAddTextBrush" Color="#8FD49B" />
+            <SolidColorBrush x:Key="AdDiffDelTextBrush" Color="#F2999B" />
 
             <SolidColorBrush x:Key="AdSynKeywordBrush" Color="#C99BF0" />
             <SolidColorBrush x:Key="AdSynStringBrush" Color="#8FD49B" />
@@ -176,6 +180,10 @@
             <SolidColorBrush x:Key="AdDiffAddGutterBrush" Color="#416A43" />
             <SolidColorBrush x:Key="AdDiffDelGutterBrush" Color="#C9463D" />
             <SolidColorBrush x:Key="AdDiffHunkTextBrush" Color="#2C63C4" />
+            <SolidColorBrush x:Key="AdDiffAddBackgroundBrush" Color="#416A43" Opacity="0.14" />
+            <SolidColorBrush x:Key="AdDiffDelBackgroundBrush" Color="#C9463D" Opacity="0.12" />
+            <SolidColorBrush x:Key="AdDiffAddTextBrush" Color="#2F6B3C" />
+            <SolidColorBrush x:Key="AdDiffDelTextBrush" Color="#8C231C" />
 
             <SolidColorBrush x:Key="AdSynKeywordBrush" Color="#8E4FC4" />
             <SolidColorBrush x:Key="AdSynStringBrush" Color="#2F7A46" />
@@ -235,6 +243,10 @@
     <x:Double x:Key="AdGlassStrongSaturation">1.35</x:Double>
     <x:Double x:Key="AdGlassThinBlur">14</x:Double>
     <x:Double x:Key="AdGlassThinSaturation">1.15</x:Double>
+
+    <x:Double x:Key="AdMotionFast">120</x:Double>
+    <x:Double x:Key="AdMotionBase">200</x:Double>
+    <x:Double x:Key="AdMotionSlow">320</x:Double>
 
     <x:Double x:Key="AdSpace1">4</x:Double>
     <x:Double x:Key="AdSpace2">8</x:Double>

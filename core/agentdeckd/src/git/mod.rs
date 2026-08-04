@@ -1,0 +1,11 @@
+pub mod diff;
+pub mod discovery;
+pub mod diff_line;
+pub mod diff_line_kind;
+pub mod error;
+pub mod file_diff;
+pub mod repository_status;
+pub mod service;
+pub mod status_entry;
+pub mod status_kind;
+pub mod workspace_status;

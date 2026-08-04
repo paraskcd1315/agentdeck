@@ -1,5 +1,6 @@
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.Panels.ViewModels;
+using AgentDeck.Shell.Presentation.Workspace.Utils;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Xaml;
@@ -24,7 +25,7 @@ public sealed partial class PanelsPane : UserControl
 
     private async void OnLoaded(object sender, RoutedEventArgs args)
     {
-        await _viewModel.OpenAsync(Environment.CurrentDirectory, CancellationToken.None);
+        await _viewModel.OpenAsync(WorkspaceResolver.Path(AppServices.Config), CancellationToken.None);
     }
 
     private void OnPanelsLoaded(object? sender, IReadOnlyList<PanelDefinition> panels)

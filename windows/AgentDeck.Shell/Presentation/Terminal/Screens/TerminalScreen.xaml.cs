@@ -7,6 +7,9 @@ using AgentDeck.Shell.Presentation.Terminal.Components;
 using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
+using AgentDeck.Shell.Presentation.Workspace.Components;
+using AgentDeck.Shell.Presentation.Workspace.Utils;
+using AgentDeck.Shell.Presentation.Workspace.ViewModels;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Dispatching;
@@ -29,6 +32,7 @@ public sealed partial class TerminalScreen : UserControl
 
     private TerminalTabStrip? _strip;
     private TerminalPane? _dragging;
+    private TerminalTab? _draggingTab;
 
     public TerminalScreen()
     {
@@ -50,6 +54,8 @@ public sealed partial class TerminalScreen : UserControl
 
     public event EventHandler<bool>? PaneDragChanged;
 
+    public event EventHandler<TerminalTab>? TabTornOff;
+
     public WorkspaceLayout CaptureLayout(double panelWidth) => _tabs.Capture(panelWidth);
 
     public bool HasPaneInFlight => _dragging is not null;
@@ -63,6 +69,11 @@ public sealed partial class TerminalScreen : UserControl
         strip.TabClosed += OnTabClosed;
         strip.ProfileRequested += OnProfileRequested;
         strip.PaneDroppedOnStrip += OnPaneDroppedOnStrip;
+        strip.TabMoved += OnTabMoved;
+        strip.TabDragChanged += OnTabDragChanged;
+        strip.ExplorerRequested += (_, _) => OpenExplorer();
+        strip.TabDroppedOutside += OnTabDroppedOutside;
+        strip.TabRenamed += (_, _) => LayoutChanged?.Invoke(this, EventArgs.Empty);
         RenderTabs();
     }
 
@@ -112,8 +123,39 @@ public sealed partial class TerminalScreen : UserControl
             return;
         }
 
+        if (tab.Document is { } document)
+        {
+            CanvasHost.Children.Add(BuildDocument(document));
+            return;
+        }
+
         CanvasHost.Children.Add(BuildNode(tab.Root, tab));
     }
+
+    private FrameworkElement BuildDocument(WorkspaceDocument document)
+    {
+        if (document is DiffDocument diff)
+        {
+            return new DiffView(diff.Root, diff.File);
+        }
+
+        var explorer = new ExplorerView(((ExplorerDocument)document).Root);
+        explorer.FileInvoked += OnExplorerFileInvoked;
+        return explorer;
+    }
+
+    private void OnExplorerFileInvoked(object? sender, string file)
+    {
+        if (_tabs.Active?.Document is not ExplorerDocument explorer)
+        {
+            return;
+        }
+
+        _tabs.OpenDocument(new DiffDocument(explorer.Root, file));
+    }
+
+    public void OpenExplorer() =>
+        _tabs.OpenDocument(new ExplorerDocument(WorkspaceResolver.Path(AppServices.Config)));
 
     private FrameworkElement BuildNode(PaneNode node, TerminalTab tab)
     {
@@ -204,6 +246,14 @@ public sealed partial class TerminalScreen : UserControl
 
     private void OnPaneDropped(object? sender, TerminalDropRequest request)
     {
+        if (_draggingTab is { } source)
+        {
+            _draggingTab = null;
+            _tabs.MergeTab(source, request.Target, request.Orientation, request.Before);
+            TakeFocus(FocusState.Programmatic);
+            return;
+        }
+
         if (_dragging is not { } pane)
         {
             return;
@@ -213,6 +263,23 @@ public sealed partial class TerminalScreen : UserControl
         _tabs.MovePane(pane, request.Target, request.Orientation, request.Before);
         TakeFocus(FocusState.Programmatic);
     }
+
+    private void OnTabDragChanged(object? sender, TerminalTab? tab)
+    {
+        _draggingTab = tab;
+
+        if (tab is not null)
+        {
+            _tabs.ActivateSibling(tab);
+        }
+    }
+
+    private void OnTabDroppedOutside(object? sender, TerminalTab tab) =>
+        TabTornOff?.Invoke(this, tab);
+
+    public TerminalTab? ReleaseTab(TerminalTab tab) => _tabs.Release(tab);
+
+    public void AdoptTab(TerminalTab tab) => _tabs.Adopt(tab);
 
     private void OnPaneDroppedOnStrip(object? sender, EventArgs args)
     {
@@ -282,6 +349,12 @@ public sealed partial class TerminalScreen : UserControl
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
 
     private void OnTabSelected(object? sender, TerminalTab tab) => _tabs.Activate(tab);
+
+    private void OnTabMoved(object? sender, TerminalTabMoveRequest request)
+    {
+        _tabs.Move(request.Tab, request.Index);
+        TakeFocus(FocusState.Programmatic);
+    }
 
     private async void OnTabClosed(object? sender, TerminalTab tab) =>
         await _tabs.CloseAsync(tab, CancellationToken.None);

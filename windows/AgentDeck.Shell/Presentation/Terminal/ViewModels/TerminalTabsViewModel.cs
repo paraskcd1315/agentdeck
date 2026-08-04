@@ -4,6 +4,7 @@ using AgentDeck.Shell.Data.Layout;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Domain.Interfaces;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
+using AgentDeck.Shell.Presentation.Workspace.ViewModels;
 using AgentDeck.Shell.Utils;
 
 namespace AgentDeck.Shell.Presentation.Terminal.ViewModels;
@@ -66,10 +67,38 @@ public sealed class TerminalTabsViewModel
         }
     }
 
+    public TerminalTab OpenDocument(WorkspaceDocument document)
+    {
+        if (Tabs.FirstOrDefault(tab => Matches(tab, document)) is { } existing)
+        {
+            Active = existing;
+            return existing;
+        }
+
+        var profile = Profiles[0];
+        var tab = TerminalTab.ForDocument(
+            profile,
+            new TerminalViewModel(_client, _strings, profile),
+            document);
+
+        Tabs.Add(tab);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        Active = tab;
+        return tab;
+    }
+
+    private static bool Matches(TerminalTab tab, WorkspaceDocument document) => tab.Document switch
+    {
+        ExplorerDocument => document is ExplorerDocument,
+        DiffDocument diff => document is DiffDocument other
+            && string.Equals(diff.File, other.File, StringComparison.OrdinalIgnoreCase),
+        _ => false,
+    };
+
     public WorkspaceLayout Capture(double panelWidth) => new()
     {
         PanelWidth = panelWidth,
-        Tabs = [.. Tabs.Select(tab => new TabLayout
+        Tabs = [.. Tabs.Where(tab => tab.Document is null).Select(tab => new TabLayout
         {
             ProfileId = tab.Profile.Id,
             Name = tab.Name,
@@ -221,6 +250,80 @@ public sealed class TerminalTabsViewModel
         {
             await pane.ViewModel.CloseAsync(cancellationToken);
         }
+    }
+
+    public void MergeTab(
+        TerminalTab source,
+        TerminalPane target,
+        TerminalSplitOrientation orientation,
+        bool before)
+    {
+        if (_active is not { } tab || ReferenceEquals(source, tab) || !Tabs.Contains(source))
+        {
+            return;
+        }
+
+        tab.Merge(source.Root, target, orientation, before);
+        Tabs.Remove(source);
+
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        PanesChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ActivateSibling(TerminalTab tab)
+    {
+        if (!ReferenceEquals(_active, tab) || Tabs.Count < 2)
+        {
+            return;
+        }
+
+        var index = Tabs.IndexOf(tab);
+        Active = Tabs[index == 0 ? 1 : index - 1];
+    }
+
+    public TerminalTab? Release(TerminalTab tab)
+    {
+        var index = Tabs.IndexOf(tab);
+
+        if (index < 0 || Tabs.Count < 2)
+        {
+            return null;
+        }
+
+        Tabs.RemoveAt(index);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+
+        if (ReferenceEquals(Active, tab))
+        {
+            Active = Tabs[Math.Min(index, Tabs.Count - 1)];
+        }
+
+        return tab;
+    }
+
+    public void Adopt(TerminalTab tab)
+    {
+        Tabs.Add(tab);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        Active = tab;
+    }
+
+    public void Move(TerminalTab tab, int index)
+    {
+        var from = Tabs.IndexOf(tab);
+        if (from < 0)
+        {
+            return;
+        }
+
+        var to = Math.Clamp(index, 0, Tabs.Count - 1);
+        if (to == from)
+        {
+            return;
+        }
+
+        Tabs.Move(from, to);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void Activate(TerminalTab tab)

@@ -7,6 +7,8 @@ use serde_json::{Value, json};
 
 use crate::config::workspace_id;
 use crate::constants::{NOTIFY_HOOK_EVENT, STATE_DIR_ENV};
+use crate::git::diff as git_diff_service;
+use crate::git::service as git_service;
 use crate::panel::service as panel_service;
 use crate::pty::command::PtyCommand;
 use crate::pty::session_id::PtyId;
@@ -16,6 +18,8 @@ use super::context::ServerContext;
 use super::error::RpcError;
 use super::method::Method;
 use super::notification::Notification;
+use super::params::git_diff::GitDiffParams;
+use super::params::git_status::GitStatusParams;
 use super::params::panel_list::PanelListParams;
 use super::params::panel_read::PanelReadParams;
 use super::params::pty_target::PtyTargetParams;
@@ -42,6 +46,8 @@ pub fn dispatch(method: Method, params: Value, context: &ServerContext) -> Resul
         Method::TerminalText => terminal_text(parse(params)?, context),
         Method::TerminalSnapshot => terminal_snapshot(parse(params)?, context),
         Method::TerminalScroll => terminal_scroll(parse(params)?, context),
+        Method::GitStatus => git_status(parse(params)?),
+        Method::GitDiff => git_diff(parse(params)?),
         Method::Unknown => Err(RpcError::method_not_found("")),
     }
 }
@@ -64,6 +70,18 @@ fn panel_read(params: PanelReadParams, context: &ServerContext) -> Result<Value,
         .map_err(|error| RpcError::invalid_params(error.to_string()))?;
 
     serde_json::to_value(panel).map_err(|error| RpcError::internal(error.to_string()))
+}
+
+fn git_status(params: GitStatusParams) -> Result<Value, RpcError> {
+    let status = git_service::workspace(Path::new(&params.path));
+    serde_json::to_value(status).map_err(|error| RpcError::internal(error.to_string()))
+}
+
+fn git_diff(params: GitDiffParams) -> Result<Value, RpcError> {
+    let diff = git_diff_service::file(Path::new(&params.path), &params.file)
+        .map_err(|error| RpcError::invalid_params(error.to_string()))?;
+
+    serde_json::to_value(diff).map_err(|error| RpcError::internal(error.to_string()))
 }
 
 fn workspace_open(params: WorkspaceOpenParams, context: &ServerContext) -> Result<Value, RpcError> {
