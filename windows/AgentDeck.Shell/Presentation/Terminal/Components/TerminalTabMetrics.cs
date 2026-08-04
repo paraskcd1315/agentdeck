@@ -23,6 +23,7 @@ public static class TerminalTabMetrics
     public static readonly CornerRadius CloseRadius = new(4);
 
     public const double MaxLabelWidth = 140;
+    public const double MinEditorWidth = 56;
     public const double GhostOpacity = 0.3;
 
     public static readonly CornerRadius DragRadius = new(8);

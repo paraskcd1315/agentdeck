@@ -132,6 +132,11 @@ public sealed partial class MainWindow : Window
             ? [new Rect(0, 0, AppTitleBar.ActualWidth, AppTitleBar.ActualHeight)]
             : TitleTabs.InteractiveRegions(Content);
 
+        if (regions.Count == 0)
+        {
+            return;
+        }
+
         InputNonClientPointerSource
             .GetForWindowId(AppWindow.Id)
             .SetRegionRects(

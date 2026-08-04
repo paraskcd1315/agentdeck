@@ -46,6 +46,7 @@ public sealed partial class TerminalTabStrip : UserControl
         AddButton.Content = AppServices.Strings.Get(StringKeys.TerminalTabNew);
         ToolTipService.SetToolTip(AddButton, AppServices.Strings.Get(StringKeys.TerminalTabNewTooltip));
         SizeChanged += (_, _) => Reflow();
+        TabHost.SizeChanged += (_, _) => Reflow();
         TabScroller.ViewChanged += (_, _) => RegionsChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -69,22 +70,12 @@ public sealed partial class TerminalTabStrip : UserControl
 
     public IReadOnlyList<Rect> InteractiveRegions(UIElement reference)
     {
-        var clip = RectOf(TabScroller, reference);
-        var regions = new List<Rect>();
-
-        foreach (var surface in TabHost.Children.OfType<Border>())
+        if (StripRoot.ActualWidth <= 0 || StripRoot.ActualHeight <= 0)
         {
-            var rect = RectOf(surface, reference);
-            rect.Intersect(clip);
-
-            if (!rect.IsEmpty)
-            {
-                regions.Add(rect);
-            }
+            return [];
         }
 
-        regions.Add(RectOf(AddButton, reference));
-        return regions;
+        return [RectOf(StripRoot, reference)];
     }
 
     private static Rect RectOf(FrameworkElement element, UIElement reference)
@@ -338,7 +329,11 @@ public sealed partial class TerminalTabStrip : UserControl
         surface.PointerPressed += (_, args) =>
         {
             args.Handled = true;
-            TabSelected?.Invoke(this, tab);
+
+            if (args.GetCurrentPoint(surface).Properties.IsLeftButtonPressed)
+            {
+                TabSelected?.Invoke(this, tab);
+            }
         };
 
         surface.RightTapped += (_, args) =>
@@ -416,7 +411,7 @@ public sealed partial class TerminalTabStrip : UserControl
         }
 
         var index = host.Children.IndexOf(label);
-        var editor = NewEditor(tab);
+        var editor = NewEditor(tab, label);
         var closed = false;
 
         if (host.Parent is Border surface)
@@ -482,17 +477,22 @@ public sealed partial class TerminalTabStrip : UserControl
         editor.SelectAll();
     }
 
-    private static TextBox NewEditor(TerminalTab tab) => new()
+    private static TextBox NewEditor(TerminalTab tab, TextBlock label) => new()
     {
         Text = tab.Title,
-        MinWidth = TerminalTabMetrics.MaxLabelWidth,
+        Width = Math.Max(label.ActualWidth, TerminalTabMetrics.MinEditorWidth),
+        MinWidth = 0,
+        MinHeight = 0,
         Margin = TerminalTabMetrics.ContentGap,
         Padding = new Thickness(0),
         Background = null,
         BorderThickness = new Thickness(0),
         FontFamily = PanelResources.Font(FontKey),
         FontSize = PanelResources.Size(SizeKey),
+        FontWeight = label.FontWeight,
+        Foreground = PanelResources.Brush(TextKey),
         VerticalAlignment = VerticalAlignment.Center,
+        VerticalContentAlignment = VerticalAlignment.Center,
     };
 
     private static TextBlock NewLabel(TerminalTab tab, bool active) => new()
