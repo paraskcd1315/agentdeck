@@ -4,7 +4,7 @@ namespace AgentDeck.Shell.Presentation.Terminal.Utils;
 
 public static class TabInsertPoints
 {
-    public static TabInsertPoint Resolve(IReadOnlyList<Rect> bounds, double x)
+    public static int Resolve(IReadOnlyList<Rect> bounds, double x)
     {
         for (var index = 0; index < bounds.Count; index++)
         {
@@ -12,17 +12,15 @@ public static class TabInsertPoints
 
             if (x < rect.Left + (rect.Width / 2))
             {
-                return new TabInsertPoint(index, rect.Left);
+                return index;
             }
 
             if (x < rect.Right)
             {
-                return new TabInsertPoint(index + 1, rect.Right);
+                return index + 1;
             }
         }
 
-        return bounds.Count == 0
-            ? new TabInsertPoint(0, 0)
-            : new TabInsertPoint(bounds.Count, bounds[^1].Right);
+        return bounds.Count;
     }
 }

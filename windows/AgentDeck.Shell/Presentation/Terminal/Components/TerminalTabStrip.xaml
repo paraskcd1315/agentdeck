@@ -47,15 +47,6 @@
             IsHitTestVisible="False"
             Visibility="Collapsed" />
 
-        <Border
-            x:Name="InsertBar"
-            Grid.Column="0"
-            Width="2"
-            HorizontalAlignment="Left"
-            Background="{ThemeResource AdBrandTextBrush}"
-            IsHitTestVisible="False"
-            Visibility="Collapsed" />
-
         <Button
             x:Name="AddButton"
             Grid.Column="1"

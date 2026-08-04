@@ -223,6 +223,62 @@ public sealed class TerminalTabsViewModel
         }
     }
 
+    public void MergeTab(
+        TerminalTab source,
+        TerminalPane target,
+        TerminalSplitOrientation orientation,
+        bool before)
+    {
+        if (_active is not { } tab || ReferenceEquals(source, tab) || !Tabs.Contains(source))
+        {
+            return;
+        }
+
+        tab.Merge(source.Root, target, orientation, before);
+        Tabs.Remove(source);
+
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        PanesChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ActivateSibling(TerminalTab tab)
+    {
+        if (!ReferenceEquals(_active, tab) || Tabs.Count < 2)
+        {
+            return;
+        }
+
+        var index = Tabs.IndexOf(tab);
+        Active = Tabs[index == 0 ? 1 : index - 1];
+    }
+
+    public TerminalTab? Release(TerminalTab tab)
+    {
+        var index = Tabs.IndexOf(tab);
+
+        if (index < 0 || Tabs.Count < 2)
+        {
+            return null;
+        }
+
+        Tabs.RemoveAt(index);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+
+        if (ReferenceEquals(Active, tab))
+        {
+            Active = Tabs[Math.Min(index, Tabs.Count - 1)];
+        }
+
+        return tab;
+    }
+
+    public void Adopt(TerminalTab tab)
+    {
+        Tabs.Add(tab);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        Active = tab;
+    }
+
     public void Move(TerminalTab tab, int index)
     {
         var from = Tabs.IndexOf(tab);
@@ -231,7 +287,7 @@ public sealed class TerminalTabsViewModel
             return;
         }
 
-        var to = Math.Clamp(index > from ? index - 1 : index, 0, Tabs.Count - 1);
+        var to = Math.Clamp(index, 0, Tabs.Count - 1);
         if (to == from)
         {
             return;

@@ -9,6 +9,14 @@ public static class PaneTree
         TerminalPane target,
         TerminalPane added,
         TerminalSplitOrientation orientation,
+        bool before = false) =>
+        Insert(node, target, PaneNode.Leaf(added), orientation, before);
+
+    public static PaneNode Insert(
+        PaneNode node,
+        TerminalPane target,
+        PaneNode added,
+        TerminalSplitOrientation orientation,
         bool before = false)
     {
         if (node.IsLeaf)
@@ -18,11 +26,9 @@ public static class PaneTree
                 return node;
             }
 
-            var leaf = PaneNode.Leaf(added);
-
             return before
-                ? PaneNode.Split(orientation, leaf, node)
-                : PaneNode.Split(orientation, node, leaf);
+                ? PaneNode.Split(orientation, added, node)
+                : PaneNode.Split(orientation, node, added);
         }
 
         for (var index = 0; index < node.Children.Count; index++)
@@ -32,7 +38,7 @@ public static class PaneTree
             if (child.IsLeaf && ReferenceEquals(child.Pane, target)
                 && node.Orientation == orientation)
             {
-                node.Children.Insert(before ? index : index + 1, PaneNode.Leaf(added));
+                node.Children.Insert(before ? index : index + 1, added);
                 return node;
             }
 
