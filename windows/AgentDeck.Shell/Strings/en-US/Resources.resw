@@ -80,6 +80,15 @@
   <data name="TerminalTabNewTooltip" xml:space="preserve">
     <value>New tab</value>
   </data>
+  <data name="GitChanges" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="GitRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="GitClean" xml:space="preserve">
+    <value>Working tree clean</value>
+  </data>
   <data name="PanelUnknownBlock" xml:space="preserve">
     <value>Unsupported block "{0}"</value>
   </data>

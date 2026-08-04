@@ -52,6 +52,7 @@ public static class Constants
         public const string WorkspaceOpen = "workspace.open";
         public const string TerminalSnapshot = "terminal.snapshot";
         public const string TerminalScroll = "terminal.scroll";
+        public const string GitStatus = "git.status";
     }
 
     public static class Notification
