@@ -19,7 +19,12 @@
         { "$ref": "#/$defs/markdownBlock" },
         { "$ref": "#/$defs/keyValueBlock" },
         { "$ref": "#/$defs/statusBlock" },
-        { "$ref": "#/$defs/actionsBlock" }
+        { "$ref": "#/$defs/actionsBlock" },
+        { "$ref": "#/$defs/tableBlock" },
+        { "$ref": "#/$defs/diffBlock" },
+        { "$ref": "#/$defs/stepsBlock" },
+        { "$ref": "#/$defs/logBlock" },
+        { "$ref": "#/$defs/chartBlock" }
       ]
     },
     "markdownBlock": {
@@ -77,6 +82,103 @@
               "label": { "type": "string" },
               "prompt": { "type": "string" },
               "target": { "enum": ["live", "new"], "default": "live" }
+            }
+          }
+        }
+      }
+    },
+    "tableBlock": {
+      "type": "object",
+      "required": ["type", "columns", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "table" },
+        "columns": { "type": "array", "items": { "type": "string" } },
+        "rows": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "diffBlock": {
+      "type": "object",
+      "required": ["type", "file", "lines"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "diff" },
+        "file": { "type": "string" },
+        "lines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "enum": ["context", "add", "delete", "hunk"] },
+              "text": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "stepsBlock": {
+      "type": "object",
+      "required": ["type", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "steps" },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "state"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "state": { "enum": ["pending", "active", "done", "failed"] }
+            }
+          }
+        }
+      }
+    },
+    "logBlock": {
+      "type": "object",
+      "required": ["type", "entries"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "log" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["level", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "level": { "enum": ["trace", "debug", "info", "warn", "error", "fatal"] },
+              "text": { "type": "string" },
+              "time": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "chartBlock": {
+      "type": "object",
+      "required": ["type", "kind", "labels", "series"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "chart" },
+        "kind": { "enum": ["bar", "line"] },
+        "labels": { "type": "array", "items": { "type": "string" } },
+        "series": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "points"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "points": { "type": "array", "items": { "type": "number" } }
             }
           }
         }

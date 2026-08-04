@@ -1,23 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use super::button::Button;
-use super::key_value_row::KeyValueRow;
-use super::state::PanelState;
+use super::known_block::KnownBlock;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "type", rename_all = "lowercase")]
+#[serde(untagged)]
 pub enum Block {
-    Markdown {
-        text: String,
-    },
-    KeyValue {
-        rows: Vec<KeyValueRow>,
-    },
-    Status {
-        state: PanelState,
-        text: String,
-    },
-    Actions {
-        buttons: Vec<Button>,
-    },
+    Known(KnownBlock),
+    Unknown(serde_json::Value),
 }

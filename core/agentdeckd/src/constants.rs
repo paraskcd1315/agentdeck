@@ -43,7 +43,6 @@ pub const STATE_DIR_ENV: &str = "AGENTDECK_STATE_DIR";
 pub const WORKSPACES_DIRECTORY: &str = "workspaces";
 pub const PANELS_DIRECTORY: &str = "panels";
 pub const PANEL_FILE_EXTENSION: &str = "json";
-pub const PANEL_SCHEMA_V1: &str = "panel/v1";
 pub const WORKSPACE_ID_HEX_LENGTH: usize = 16;
 
 pub const NOTIFY_PTY_DATA: &str = "pty.data";
