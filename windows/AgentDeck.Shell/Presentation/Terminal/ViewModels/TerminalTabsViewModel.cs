@@ -223,6 +223,24 @@ public sealed class TerminalTabsViewModel
         }
     }
 
+    public void Move(TerminalTab tab, int index)
+    {
+        var from = Tabs.IndexOf(tab);
+        if (from < 0)
+        {
+            return;
+        }
+
+        var to = Math.Clamp(index > from ? index - 1 : index, 0, Tabs.Count - 1);
+        if (to == from)
+        {
+            return;
+        }
+
+        Tabs.Move(from, to);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     public void Activate(TerminalTab tab)
     {
         if (Tabs.Contains(tab))

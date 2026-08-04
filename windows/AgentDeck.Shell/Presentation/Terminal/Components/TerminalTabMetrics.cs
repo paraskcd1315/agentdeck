@@ -23,4 +23,5 @@ public static class TerminalTabMetrics
     public static readonly CornerRadius CloseRadius = new(4);
 
     public const double MaxLabelWidth = 140;
+    public const double InsertBarWidth = 2;
 }

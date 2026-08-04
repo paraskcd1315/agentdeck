@@ -1,5 +1,6 @@
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.Panels.Utils;
+using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
 using AgentDeck.Shell.Utils;
 
@@ -9,8 +10,11 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.System;
 
 namespace AgentDeck.Shell.Presentation.Terminal.Components;
@@ -30,6 +34,8 @@ public sealed partial class TerminalTabStrip : UserControl
     private const string CaptionSizeKey = "AdCaptionSize";
 
     private IReadOnlyList<ShellProfile> _profiles = [];
+    private TerminalTab? _dragging;
+    private int _dropIndex;
 
     public TerminalTabStrip()
     {
@@ -49,17 +55,94 @@ public sealed partial class TerminalTabStrip : UserControl
 
     public event EventHandler<TerminalTab>? TabRenamed;
 
+    public event EventHandler<TerminalTabMoveRequest>? TabMoved;
+
     private void OnStripDragOver(object sender, DragEventArgs args)
     {
         args.AcceptedOperation = DataPackageOperation.Move;
         args.DragUIOverride.IsGlyphVisible = false;
         args.Handled = true;
+
+        if (_dragging is null)
+        {
+            return;
+        }
+
+        var point = TabInsertPoints.Resolve(TabBounds(), args.GetPosition(StripRoot).X);
+
+        _dropIndex = point.Index;
+        InsertBar.Margin = new Thickness(point.X - (TerminalTabMetrics.InsertBarWidth / 2), 0, 0, 0);
+        InsertBar.Visibility = Visibility.Visible;
     }
+
+    private void OnStripDragLeave(object sender, DragEventArgs args) => HideInsertBar();
 
     private void OnStripDrop(object sender, DragEventArgs args)
     {
         args.Handled = true;
-        PaneDroppedOnStrip?.Invoke(this, EventArgs.Empty);
+        HideInsertBar();
+
+        if (_dragging is not { } tab)
+        {
+            PaneDroppedOnStrip?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        _dragging = null;
+        TabMoved?.Invoke(this, new TerminalTabMoveRequest(tab, _dropIndex));
+    }
+
+    private void HideInsertBar() => InsertBar.Visibility = Visibility.Collapsed;
+
+    private IReadOnlyList<Rect> TabBounds() =>
+        [.. TabHost.Children.OfType<Border>().Select(BoundsOf)];
+
+    private Rect BoundsOf(Border surface)
+    {
+        var origin = surface.TransformToVisual(StripRoot).TransformPoint(new Point(0, 0));
+        return new Rect(origin.X, origin.Y, surface.ActualWidth, surface.ActualHeight);
+    }
+
+    private async void OnTabDragStarting(UIElement sender, DragStartingEventArgs args)
+    {
+        if (sender is not Border { Tag: TerminalTab tab } surface)
+        {
+            args.Cancel = true;
+            return;
+        }
+
+        _dragging = tab;
+        _dropIndex = TabHost.Children.IndexOf(surface);
+        args.Data.RequestedOperation = DataPackageOperation.Move;
+        args.Data.SetText(tab.StripTitle);
+
+        var deferral = args.GetDeferral();
+
+        try
+        {
+            var render = new RenderTargetBitmap();
+            await render.RenderAsync(surface);
+
+            var pixels = await render.GetPixelsAsync();
+            var bitmap = SoftwareBitmap.CreateCopyFromBuffer(
+                pixels,
+                BitmapPixelFormat.Bgra8,
+                render.PixelWidth,
+                render.PixelHeight,
+                BitmapAlphaMode.Premultiplied);
+
+            args.DragUI.SetContentFromSoftwareBitmap(bitmap);
+        }
+        finally
+        {
+            deferral.Complete();
+        }
+    }
+
+    private void OnTabDropCompleted(UIElement sender, DropCompletedEventArgs args)
+    {
+        _dragging = null;
+        HideInsertBar();
     }
 
     public void Render(
@@ -107,12 +190,17 @@ public sealed partial class TerminalTabStrip : UserControl
         var surface = new Border
         {
             Child = content,
+            Tag = tab,
+            CanDrag = true,
             Padding = TerminalTabMetrics.TabPadding,
             CornerRadius = TerminalTabMetrics.TabRadius,
             Background = resting,
             BorderBrush = active ? PanelResources.Brush(StrokeKey) : null,
             BorderThickness = active ? TerminalTabMetrics.TabBorder : new Thickness(0),
         };
+
+        surface.DragStarting += OnTabDragStarting;
+        surface.DropCompleted += OnTabDropCompleted;
 
         surface.PointerEntered += (_, _) => surface.Background = PanelResources.Brush(HoverKey);
         surface.PointerExited += (_, _) => surface.Background = resting;

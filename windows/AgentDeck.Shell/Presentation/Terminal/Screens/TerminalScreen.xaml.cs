@@ -63,6 +63,7 @@ public sealed partial class TerminalScreen : UserControl
         strip.TabClosed += OnTabClosed;
         strip.ProfileRequested += OnProfileRequested;
         strip.PaneDroppedOnStrip += OnPaneDroppedOnStrip;
+        strip.TabMoved += OnTabMoved;
         RenderTabs();
     }
 
@@ -282,6 +283,12 @@ public sealed partial class TerminalScreen : UserControl
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
 
     private void OnTabSelected(object? sender, TerminalTab tab) => _tabs.Activate(tab);
+
+    private void OnTabMoved(object? sender, TerminalTabMoveRequest request)
+    {
+        _tabs.Move(request.Tab, request.Index);
+        TakeFocus(FocusState.Programmatic);
+    }
 
     private async void OnTabClosed(object? sender, TerminalTab tab) =>
         await _tabs.CloseAsync(tab, CancellationToken.None);
