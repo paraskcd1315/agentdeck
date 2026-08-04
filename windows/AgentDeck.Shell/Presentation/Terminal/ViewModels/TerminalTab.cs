@@ -1,5 +1,6 @@
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
+using AgentDeck.Shell.Presentation.Workspace.ViewModels;
 using AgentDeck.Shell.Utils;
 
 
@@ -43,9 +44,16 @@ public sealed class TerminalTab
 
     public string? Name { get; set; }
 
-    public string Title => Name ?? Profile.Name ?? Constants.Shell.DefaultProfileName;
+    public WorkspaceDocument? Document { get; private init; }
 
-    public string StripTitle => TerminalChrome.TabTitle(Title, Panes.Count);
+    public string Title => Name ?? Document?.Title ?? Profile.Name ?? Constants.Shell.DefaultProfileName;
+
+    public string StripTitle => Document is null
+        ? TerminalChrome.TabTitle(Title, Panes.Count)
+        : Title;
+
+    public static TerminalTab ForDocument(ShellProfile profile, TerminalViewModel viewModel, WorkspaceDocument document) =>
+        new(profile, viewModel) { Document = document };
 
     public TerminalPane Add(TerminalViewModel viewModel, TerminalSplitOrientation orientation)
     {

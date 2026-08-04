@@ -7,6 +7,9 @@ using AgentDeck.Shell.Presentation.Terminal.Components;
 using AgentDeck.Shell.Presentation.Panels.Utils;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Presentation.Terminal.ViewModels;
+using AgentDeck.Shell.Presentation.Workspace.Components;
+using AgentDeck.Shell.Presentation.Workspace.Utils;
+using AgentDeck.Shell.Presentation.Workspace.ViewModels;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Dispatching;
@@ -68,6 +71,7 @@ public sealed partial class TerminalScreen : UserControl
         strip.PaneDroppedOnStrip += OnPaneDroppedOnStrip;
         strip.TabMoved += OnTabMoved;
         strip.TabDragChanged += OnTabDragChanged;
+        strip.ExplorerRequested += (_, _) => OpenExplorer();
         strip.TabDroppedOutside += OnTabDroppedOutside;
         strip.TabRenamed += (_, _) => LayoutChanged?.Invoke(this, EventArgs.Empty);
         RenderTabs();
@@ -119,8 +123,39 @@ public sealed partial class TerminalScreen : UserControl
             return;
         }
 
+        if (tab.Document is { } document)
+        {
+            CanvasHost.Children.Add(BuildDocument(document));
+            return;
+        }
+
         CanvasHost.Children.Add(BuildNode(tab.Root, tab));
     }
+
+    private FrameworkElement BuildDocument(WorkspaceDocument document)
+    {
+        if (document is DiffDocument diff)
+        {
+            return new DiffView(diff.Root, diff.File);
+        }
+
+        var explorer = new ExplorerView(((ExplorerDocument)document).Root);
+        explorer.FileInvoked += OnExplorerFileInvoked;
+        return explorer;
+    }
+
+    private void OnExplorerFileInvoked(object? sender, string file)
+    {
+        if (_tabs.Active?.Document is not ExplorerDocument explorer)
+        {
+            return;
+        }
+
+        _tabs.OpenDocument(new DiffDocument(explorer.Root, file));
+    }
+
+    public void OpenExplorer() =>
+        _tabs.OpenDocument(new ExplorerDocument(WorkspaceResolver.Path(AppServices.Config)));
 
     private FrameworkElement BuildNode(PaneNode node, TerminalTab tab)
     {

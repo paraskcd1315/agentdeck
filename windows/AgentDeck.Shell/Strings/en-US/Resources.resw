@@ -80,6 +80,27 @@
   <data name="TerminalTabNewTooltip" xml:space="preserve">
     <value>New tab</value>
   </data>
+  <data name="ExplorerTitle" xml:space="preserve">
+    <value>Explorer</value>
+  </data>
+  <data name="ExplorerAllFiles" xml:space="preserve">
+    <value>All files</value>
+  </data>
+  <data name="ExplorerChangedOnly" xml:space="preserve">
+    <value>Changed only</value>
+  </data>
+  <data name="ExplorerOpen" xml:space="preserve">
+    <value>Explorer</value>
+  </data>
+  <data name="DiffBinary" xml:space="preserve">
+    <value>Binary file — no textual diff</value>
+  </data>
+  <data name="DiffNoChanges" xml:space="preserve">
+    <value>No changes against HEAD</value>
+  </data>
+  <data name="DiffUnavailable" xml:space="preserve">
+    <value>Could not read this file's diff</value>
+  </data>
   <data name="GitChanges" xml:space="preserve">
     <value>Changes</value>
   </data>

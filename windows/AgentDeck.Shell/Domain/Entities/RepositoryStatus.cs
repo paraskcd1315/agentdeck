@@ -2,10 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace AgentDeck.Shell.Domain.Entities;
 
-public sealed class GitStatus
+public sealed class RepositoryStatus
 {
     [JsonPropertyName("root")]
     public string Root { get; init; } = string.Empty;
+
+    [JsonPropertyName("relativeRoot")]
+    public string RelativeRoot { get; init; } = string.Empty;
 
     [JsonPropertyName("branch")]
     public string? Branch { get; init; }

@@ -4,6 +4,7 @@ using AgentDeck.Shell.Data.Layout;
 using AgentDeck.Shell.Domain.Entities;
 using AgentDeck.Shell.Domain.Interfaces;
 using AgentDeck.Shell.Presentation.Terminal.Utils;
+using AgentDeck.Shell.Presentation.Workspace.ViewModels;
 using AgentDeck.Shell.Utils;
 
 namespace AgentDeck.Shell.Presentation.Terminal.ViewModels;
@@ -66,10 +67,38 @@ public sealed class TerminalTabsViewModel
         }
     }
 
+    public TerminalTab OpenDocument(WorkspaceDocument document)
+    {
+        if (Tabs.FirstOrDefault(tab => Matches(tab, document)) is { } existing)
+        {
+            Active = existing;
+            return existing;
+        }
+
+        var profile = Profiles[0];
+        var tab = TerminalTab.ForDocument(
+            profile,
+            new TerminalViewModel(_client, _strings, profile),
+            document);
+
+        Tabs.Add(tab);
+        TabsChanged?.Invoke(this, EventArgs.Empty);
+        Active = tab;
+        return tab;
+    }
+
+    private static bool Matches(TerminalTab tab, WorkspaceDocument document) => tab.Document switch
+    {
+        ExplorerDocument => document is ExplorerDocument,
+        DiffDocument diff => document is DiffDocument other
+            && string.Equals(diff.File, other.File, StringComparison.OrdinalIgnoreCase),
+        _ => false,
+    };
+
     public WorkspaceLayout Capture(double panelWidth) => new()
     {
         PanelWidth = panelWidth,
-        Tabs = [.. Tabs.Select(tab => new TabLayout
+        Tabs = [.. Tabs.Where(tab => tab.Document is null).Select(tab => new TabLayout
         {
             ProfileId = tab.Profile.Id,
             Name = tab.Name,

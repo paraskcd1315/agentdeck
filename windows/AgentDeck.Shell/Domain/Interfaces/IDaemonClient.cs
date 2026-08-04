@@ -38,7 +38,9 @@ public interface IDaemonClient : IAsyncDisposable
 
     Task<PanelDefinition?> ReadPanelAsync(string workspaceId, string id, CancellationToken cancellationToken);
 
-    Task<GitStatus?> GitStatusAsync(string path, CancellationToken cancellationToken);
+    Task<WorkspaceStatus?> GitStatusAsync(string path, CancellationToken cancellationToken);
+
+    Task<FileDiff?> GitDiffAsync(string path, string file, CancellationToken cancellationToken);
 
     Task<GridSnapshotDto?> SnapshotAsync(long ptyId, CancellationToken cancellationToken);
 

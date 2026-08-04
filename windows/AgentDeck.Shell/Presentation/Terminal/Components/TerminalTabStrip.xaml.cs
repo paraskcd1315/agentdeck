@@ -68,6 +68,8 @@ public sealed partial class TerminalTabStrip : UserControl
 
     public event EventHandler<TerminalTab>? TabDroppedOutside;
 
+    public event EventHandler? ExplorerRequested;
+
     public IReadOnlyList<Rect> InteractiveRegions(UIElement reference)
     {
         if (StripRoot.ActualWidth <= 0 || StripRoot.ActualHeight <= 0)
@@ -557,12 +559,6 @@ public sealed partial class TerminalTabStrip : UserControl
 
     private void OnAddClick(object sender, RoutedEventArgs args)
     {
-        if (_profiles.Count == 1)
-        {
-            ProfileRequested?.Invoke(this, _profiles[0]);
-            return;
-        }
-
         var menu = new MenuFlyout { Placement = FlyoutPlacementMode.Bottom };
 
         foreach (var profile in _profiles)
@@ -571,6 +567,11 @@ public sealed partial class TerminalTabStrip : UserControl
             item.Click += (_, _) => ProfileRequested?.Invoke(this, profile);
             menu.Items.Add(item);
         }
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+        menu.Items.Add(NewMenuItem(
+            StringKeys.ExplorerOpen,
+            () => ExplorerRequested?.Invoke(this, EventArgs.Empty)));
 
         menu.ShowAt(AddButton);
     }

@@ -17,6 +17,23 @@ public static class Constants
         public const string Horizontal = "horizontal";
     }
 
+    public static class Explorer
+    {
+        public static readonly IReadOnlySet<string> SkippedDirectories =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ".git",
+                "node_modules",
+                "target",
+                "bin",
+                "obj",
+                "dist",
+                "vendor",
+            };
+
+        public const int ExpandDepth = 2;
+    }
+
     public static class Panel
     {
         public const string SchemaV1 = "panel/v1";
@@ -53,6 +70,7 @@ public static class Constants
         public const string TerminalSnapshot = "terminal.snapshot";
         public const string TerminalScroll = "terminal.scroll";
         public const string GitStatus = "git.status";
+        public const string GitDiff = "git.diff";
     }
 
     public static class Notification
