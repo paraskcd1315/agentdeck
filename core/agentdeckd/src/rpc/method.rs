@@ -1,5 +1,5 @@
 use crate::constants::{
-    METHOD_GIT_STATUS, METHOD_HOOK_EVENT, METHOD_PANEL_LIST, METHOD_PANEL_READ, METHOD_PTY_KILL,
+    METHOD_GIT_DIFF, METHOD_GIT_STATUS, METHOD_HOOK_EVENT, METHOD_PANEL_LIST, METHOD_PANEL_READ, METHOD_PTY_KILL,
     METHOD_PTY_RESIZE, METHOD_PTY_SPAWN, METHOD_PTY_WRITE, METHOD_TERMINAL_SCROLL,
     METHOD_TERMINAL_SNAPSHOT, METHOD_TERMINAL_TEXT, METHOD_WORKSPACE_OPEN,
 };
@@ -18,6 +18,7 @@ pub enum Method {
     TerminalSnapshot,
     TerminalScroll,
     GitStatus,
+    GitDiff,
     Unknown,
 }
 
@@ -36,6 +37,7 @@ impl Method {
             METHOD_TERMINAL_SNAPSHOT => Self::TerminalSnapshot,
             METHOD_TERMINAL_SCROLL => Self::TerminalScroll,
             METHOD_GIT_STATUS => Self::GitStatus,
+            METHOD_GIT_DIFF => Self::GitDiff,
             _ => Self::Unknown,
         }
     }

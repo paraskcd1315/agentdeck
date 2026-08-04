@@ -35,6 +35,18 @@ pub const METHOD_PANEL_LIST: &str = "panel.list";
 pub const METHOD_PANEL_READ: &str = "panel.read";
 pub const METHOD_WORKSPACE_OPEN: &str = "workspace.open";
 pub const METHOD_GIT_STATUS: &str = "git.status";
+pub const METHOD_GIT_DIFF: &str = "git.diff";
+pub const DIFF_CONTEXT_LINES: usize = 3;
+pub const GIT_DIRECTORY: &str = ".git";
+pub const GIT_SCAN_MAX_DEPTH: usize = 3;
+pub const GIT_SCAN_SKIP_DIRECTORIES: [&str; 6] = [
+    "node_modules",
+    "target",
+    "bin",
+    "obj",
+    "dist",
+    "vendor",
+];
 pub const METHOD_TERMINAL_TEXT: &str = "terminal.text";
 pub const METHOD_TERMINAL_SNAPSHOT: &str = "terminal.snapshot";
 pub const METHOD_TERMINAL_SCROLL: &str = "terminal.scroll";

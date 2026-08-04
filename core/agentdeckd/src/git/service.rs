@@ -3,10 +3,28 @@ use std::path::Path;
 use gix::status::index_worktree::Item;
 use gix::status::plumbing::index_as_worktree::{Change, EntryStatus};
 
+use super::discovery;
 use super::error::GitError;
 use super::repository_status::RepositoryStatus;
 use super::status_entry::StatusEntry;
 use super::status_kind::StatusKind;
+use super::workspace_status::WorkspaceStatus;
+
+pub fn workspace(root: &Path) -> WorkspaceStatus {
+    let repositories = discovery::repositories(root)
+        .into_iter()
+        .filter_map(|path| status(&path).ok())
+        .map(|mut status| {
+            status.relative_root = relative(root, &status.root);
+            status
+        })
+        .collect();
+
+    WorkspaceStatus {
+        root: root.display().to_string(),
+        repositories,
+    }
+}
 
 pub fn status(path: &Path) -> Result<RepositoryStatus, GitError> {
     let repository =
@@ -46,10 +64,18 @@ pub fn status(path: &Path) -> Result<RepositoryStatus, GitError> {
 
     Ok(RepositoryStatus {
         root,
+        relative_root: String::new(),
         branch,
         head,
         entries,
     })
+}
+
+fn relative(root: &Path, repository: &str) -> String {
+    Path::new(repository)
+        .strip_prefix(root)
+        .map(|path| path.display().to_string().replace('\\', "/"))
+        .unwrap_or_default()
 }
 
 fn entry(item: Item) -> StatusEntry {

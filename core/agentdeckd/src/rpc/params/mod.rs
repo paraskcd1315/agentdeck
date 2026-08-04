@@ -1,3 +1,4 @@
+pub mod git_diff;
 pub mod git_status;
 pub mod panel_list;
 pub mod panel_read;
