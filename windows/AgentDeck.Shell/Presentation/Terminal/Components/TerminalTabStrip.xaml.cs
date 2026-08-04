@@ -182,14 +182,22 @@ public sealed partial class TerminalTabStrip : UserControl
         _draggingSurface = surface;
         args.Data.RequestedOperation = DataPackageOperation.Move;
         args.Data.SetText(tab.StripTitle);
-        TabDragChanged?.Invoke(this, tab);
 
         var deferral = args.GetDeferral();
 
         try
         {
-            args.DragUI.SetContentFromSoftwareBitmap(await CaptureAsync(surface));
-            surface.Opacity = TerminalTabMetrics.GhostOpacity;
+            if (await CaptureAsync(surface) is { } bitmap)
+            {
+                args.DragUI.SetContentFromSoftwareBitmap(bitmap);
+            }
+
+            TabDragChanged?.Invoke(this, tab);
+
+            if (_draggingSurface is { } dragged)
+            {
+                dragged.Opacity = TerminalTabMetrics.GhostOpacity;
+            }
         }
         finally
         {
@@ -197,7 +205,7 @@ public sealed partial class TerminalTabStrip : UserControl
         }
     }
 
-    private static async Task<SoftwareBitmap> CaptureAsync(Border surface)
+    private static async Task<SoftwareBitmap?> CaptureAsync(Border surface)
     {
         var radius = surface.CornerRadius;
         var background = surface.Background;
@@ -208,20 +216,28 @@ public sealed partial class TerminalTabStrip : UserControl
         surface.BorderThickness = TerminalTabMetrics.DragBorder;
         surface.BorderBrush = PanelResources.Brush(StrokeKey);
 
-        var render = new RenderTargetBitmap();
-        await render.RenderAsync(surface);
-        var pixels = await render.GetPixelsAsync();
+        try
+        {
+            var render = new RenderTargetBitmap();
+            await render.RenderAsync(surface);
 
-        surface.CornerRadius = radius;
-        surface.Background = background;
-        surface.BorderThickness = border;
-
-        return SoftwareBitmap.CreateCopyFromBuffer(
-            pixels,
-            BitmapPixelFormat.Bgra8,
-            render.PixelWidth,
-            render.PixelHeight,
-            BitmapAlphaMode.Premultiplied);
+            return SoftwareBitmap.CreateCopyFromBuffer(
+                await render.GetPixelsAsync(),
+                BitmapPixelFormat.Bgra8,
+                render.PixelWidth,
+                render.PixelHeight,
+                BitmapAlphaMode.Premultiplied);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+        finally
+        {
+            surface.CornerRadius = radius;
+            surface.Background = background;
+            surface.BorderThickness = border;
+        }
     }
 
     private void OnTabDropCompleted(UIElement sender, DropCompletedEventArgs args)
