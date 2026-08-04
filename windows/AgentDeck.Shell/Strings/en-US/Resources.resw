@@ -89,6 +89,9 @@
   <data name="GitClean" xml:space="preserve">
     <value>Working tree clean</value>
   </data>
+  <data name="GitNoRepository" xml:space="preserve">
+    <value>Not a git repository — set "workspace": { "path": "…" } in ~/.agentdeck/config.json</value>
+  </data>
   <data name="PanelUnknownBlock" xml:space="preserve">
     <value>Unsupported block "{0}"</value>
   </data>

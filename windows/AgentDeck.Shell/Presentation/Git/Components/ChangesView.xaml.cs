@@ -15,11 +15,13 @@ public sealed partial class ChangesView : UserControl
     private const double MarkerWidth = 16;
 
     private readonly GitStatusViewModel _viewModel;
+    private readonly string _path;
 
     public ChangesView(string path)
     {
         InitializeComponent();
 
+        _path = path;
         _viewModel = new GitStatusViewModel(AppServices.Daemon, path);
         TitleText.Text = AppServices.Strings.Get(StringKeys.GitChanges);
         RefreshButton.Content = TerminalGlyphs.Refresh;
@@ -30,19 +32,20 @@ public sealed partial class ChangesView : UserControl
 
     public async Task RefreshAsync()
     {
+        EntryHost.Children.Clear();
+
         if (!await _viewModel.RefreshAsync(CancellationToken.None) || _viewModel.Status is not { } status)
         {
-            Visibility = Visibility.Collapsed;
+            SubtitleText.Text = _path;
+            EntryHost.Children.Add(Message(StringKeys.GitNoRepository));
             return;
         }
 
-        Visibility = Visibility.Visible;
         SubtitleText.Text = $"{status.Branch ?? string.Empty} · {status.Head ?? string.Empty}";
-        EntryHost.Children.Clear();
 
         if (status.Entries.Count == 0)
         {
-            EntryHost.Children.Add(CleanText());
+            EntryHost.Children.Add(Message(StringKeys.GitClean));
             return;
         }
 
@@ -54,9 +57,10 @@ public sealed partial class ChangesView : UserControl
 
     private async void OnRefreshClick(object sender, RoutedEventArgs args) => await RefreshAsync();
 
-    private static TextBlock CleanText() => new()
+    private static TextBlock Message(string key) => new()
     {
-        Text = AppServices.Strings.Get(StringKeys.GitClean),
+        Text = AppServices.Strings.Get(key),
+        TextWrapping = TextWrapping.Wrap,
         FontFamily = PanelResources.Font(PanelMetrics.FontUi),
         FontSize = PanelResources.Size(PanelMetrics.BodySize),
         Foreground = PanelResources.Brush(PanelMetrics.TextSecondary),

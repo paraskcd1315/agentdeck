@@ -19,6 +19,7 @@ public static class StringKeys
     public const string GitChanges = "GitChanges";
     public const string GitRefresh = "GitRefresh";
     public const string GitClean = "GitClean";
+    public const string GitNoRepository = "GitNoRepository";
     public const string PanelUnknownBlock = "PanelUnknownBlock";
     public const string PanelUnknownBlockUntyped = "PanelUnknownBlockUntyped";
     public const string PanelUnsupportedSchema = "PanelUnsupportedSchema";
