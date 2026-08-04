@@ -5,9 +5,12 @@ using AgentDeck.Shell.Presentation.Terminal.Utils;
 using AgentDeck.Shell.Utils;
 
 using Microsoft.UI.Composition.SystemBackdrops;
+using Microsoft.UI.Input;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Graphics;
 
 namespace AgentDeck.Shell;
 
@@ -64,8 +67,27 @@ public sealed partial class MainWindow : Window
 
     private void SaveLayout() => LayoutStore.Save(Terminal.CaptureLayout(PanelColumn.ActualWidth));
 
-    private void OnPaneDragChanged(object? sender, bool dragging) =>
-        SetTitleBar(dragging ? null : DragRegion);
+    private void OnPaneDragChanged(object? sender, bool dragging)
+    {
+        var source = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
+
+        if (!dragging)
+        {
+            source.ClearRegionRects(NonClientRegionKind.Passthrough);
+            return;
+        }
+
+        if (Content?.XamlRoot is not { RasterizationScale: > 0 } root)
+        {
+            return;
+        }
+
+        source.SetRegionRects(NonClientRegionKind.Passthrough, [new RectInt32(
+            0,
+            0,
+            (int)(AppTitleBar.ActualWidth * root.RasterizationScale),
+            (int)(AppTitleBar.ActualHeight * root.RasterizationScale))]);
+    }
 
     private void OnTitleBarDragOver(object sender, DragEventArgs args)
     {
