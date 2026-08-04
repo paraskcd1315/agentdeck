@@ -236,6 +236,10 @@
     <x:Double x:Key="AdGlassThinBlur">14</x:Double>
     <x:Double x:Key="AdGlassThinSaturation">1.15</x:Double>
 
+    <x:Double x:Key="AdMotionFast">120</x:Double>
+    <x:Double x:Key="AdMotionBase">200</x:Double>
+    <x:Double x:Key="AdMotionSlow">320</x:Double>
+
     <x:Double x:Key="AdSpace1">4</x:Double>
     <x:Double x:Key="AdSpace2">8</x:Double>
     <x:Double x:Key="AdSpace3">12</x:Double>

@@ -29,6 +29,7 @@ public sealed partial class TerminalScreen : UserControl
 
     private TerminalTabStrip? _strip;
     private TerminalPane? _dragging;
+    private TerminalTab? _draggingTab;
 
     public TerminalScreen()
     {
@@ -50,6 +51,8 @@ public sealed partial class TerminalScreen : UserControl
 
     public event EventHandler<bool>? PaneDragChanged;
 
+    public event EventHandler<TerminalTab>? TabTornOff;
+
     public WorkspaceLayout CaptureLayout(double panelWidth) => _tabs.Capture(panelWidth);
 
     public bool HasPaneInFlight => _dragging is not null;
@@ -63,6 +66,10 @@ public sealed partial class TerminalScreen : UserControl
         strip.TabClosed += OnTabClosed;
         strip.ProfileRequested += OnProfileRequested;
         strip.PaneDroppedOnStrip += OnPaneDroppedOnStrip;
+        strip.TabMoved += OnTabMoved;
+        strip.TabDragChanged += OnTabDragChanged;
+        strip.TabDroppedOutside += OnTabDroppedOutside;
+        strip.TabRenamed += (_, _) => LayoutChanged?.Invoke(this, EventArgs.Empty);
         RenderTabs();
     }
 
@@ -204,6 +211,14 @@ public sealed partial class TerminalScreen : UserControl
 
     private void OnPaneDropped(object? sender, TerminalDropRequest request)
     {
+        if (_draggingTab is { } source)
+        {
+            _draggingTab = null;
+            _tabs.MergeTab(source, request.Target, request.Orientation, request.Before);
+            TakeFocus(FocusState.Programmatic);
+            return;
+        }
+
         if (_dragging is not { } pane)
         {
             return;
@@ -213,6 +228,23 @@ public sealed partial class TerminalScreen : UserControl
         _tabs.MovePane(pane, request.Target, request.Orientation, request.Before);
         TakeFocus(FocusState.Programmatic);
     }
+
+    private void OnTabDragChanged(object? sender, TerminalTab? tab)
+    {
+        _draggingTab = tab;
+
+        if (tab is not null)
+        {
+            _tabs.ActivateSibling(tab);
+        }
+    }
+
+    private void OnTabDroppedOutside(object? sender, TerminalTab tab) =>
+        TabTornOff?.Invoke(this, tab);
+
+    public TerminalTab? ReleaseTab(TerminalTab tab) => _tabs.Release(tab);
+
+    public void AdoptTab(TerminalTab tab) => _tabs.Adopt(tab);
 
     private void OnPaneDroppedOnStrip(object? sender, EventArgs args)
     {
@@ -282,6 +314,12 @@ public sealed partial class TerminalScreen : UserControl
     private void RenderTabs() => _strip?.Render([.. _tabs.Tabs], _tabs.Active, _tabs.Profiles);
 
     private void OnTabSelected(object? sender, TerminalTab tab) => _tabs.Activate(tab);
+
+    private void OnTabMoved(object? sender, TerminalTabMoveRequest request)
+    {
+        _tabs.Move(request.Tab, request.Index);
+        TakeFocus(FocusState.Programmatic);
+    }
 
     private async void OnTabClosed(object? sender, TerminalTab tab) =>
         await _tabs.CloseAsync(tab, CancellationToken.None);

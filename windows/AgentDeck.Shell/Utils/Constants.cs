@@ -17,6 +17,11 @@ public static class Constants
         public const string Horizontal = "horizontal";
     }
 
+    public static class Diagnostics
+    {
+        public const string CrashFileName = "crash.log";
+    }
+
     public static class Theme
     {
         public const double DefaultBackgroundGradientOpacity = 0.75;

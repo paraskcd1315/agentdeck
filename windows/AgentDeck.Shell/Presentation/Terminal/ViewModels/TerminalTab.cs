@@ -57,6 +57,16 @@ public sealed class TerminalTab
         return pane;
     }
 
+    public void Merge(
+        PaneNode node,
+        TerminalPane target,
+        TerminalSplitOrientation orientation,
+        bool before)
+    {
+        Root = PaneTree.Insert(Root, target, node, orientation, before);
+        _active = PaneTree.Leaves(node).First();
+    }
+
     public static TerminalTab Adopt(ShellProfile profile, TerminalPane pane) => new(profile, pane);
 
     public static TerminalTab FromLayout(
